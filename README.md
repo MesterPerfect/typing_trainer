@@ -27,7 +27,7 @@ The project follows a clean **MVC / Service-Oriented Architecture** ensuring str
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/yourusername/typing_trainer.git](https://github.com/yourusername/typing_trainer.git)
+   git clone https://github.com/MesterPerfect/typing_trainer.git
    cd typing_trainer
    ```
 
