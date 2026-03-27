@@ -33,13 +33,34 @@ class LinuxTTS(BaseTTS):
         logger.info("LinuxTTS: Using SPD fallback backend")
         return "spd"
 
+
     def _has_dbus_orca(self):
-        """ Check if gdbus is available in the system. """
+        """ Check if gdbus is available AND Orca version is >= 49. """
+        import re
         try:
+            # First, check if gdbus exists
             subprocess.run(["which", "gdbus"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
-            return True
-        except Exception:
-            return False
+            
+            # Second, get the actual Orca version
+            out = subprocess.check_output(["orca", "--version"], text=True).strip()
+            
+            # Updated Regex to elegantly handle both "Orca 49" and "Orca version 49.1"
+            match = re.search(r'Orca\s+(?:version\s+)?(\d+)', out, re.IGNORECASE)
+            
+            if match:
+                major_version = int(match.group(1))
+                if major_version >= 49:
+                    return True
+                else:
+                    logger.info(f"LinuxTTS: Orca version {major_version} is too old for DBus PresentMessage.")
+            else:
+                logger.warning(f"LinuxTTS: Could not parse Orca version from string: {out}")
+                
+        except Exception as e:
+            logger.debug(f"Orca version check failed: {e}")
+            
+        return False
+
 
     def _has_qt_announcement(self):
         """ Check if QAccessibleAnnouncementEvent is available in the installed Qt bindings. """
