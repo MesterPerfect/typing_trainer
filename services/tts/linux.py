@@ -44,8 +44,8 @@ class LinuxTTS(BaseTTS):
             # Second, get the actual Orca version
             out = subprocess.check_output(["orca", "--version"], text=True).strip()
             
-            # Updated Regex to elegantly handle both "Orca 49" and "Orca version 49.1"
-            match = re.search(r'Orca\s+(?:version\s+)?(\d+)', out, re.IGNORECASE)
+            # Ultra-resilient Regex: just find the first sequence of digits
+            match = re.search(r'(\d+)', out)
             
             if match:
                 major_version = int(match.group(1))
@@ -54,12 +54,13 @@ class LinuxTTS(BaseTTS):
                 else:
                     logger.info(f"LinuxTTS: Orca version {major_version} is too old for DBus PresentMessage.")
             else:
-                logger.warning(f"LinuxTTS: Could not parse Orca version from string: {out}")
+                logger.warning(f"LinuxTTS: Could not parse any numbers from string: {out}")
                 
         except Exception as e:
             logger.debug(f"Orca version check failed: {e}")
             
         return False
+
 
 
     def _has_qt_announcement(self):
