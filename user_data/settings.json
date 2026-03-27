@@ -1,0 +1,7 @@
+{
+    "guided_mode": true,
+    "tts_enabled": true,
+    "log_level": "INFO",
+    "sound_effects": true,
+    "sound_volume": 70
+}

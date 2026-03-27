@@ -1,0 +1,82 @@
+[
+    {
+        "lesson_id": "1",
+        "wpm": 20,
+        "accuracy": 95.0,
+        "errors": 1,
+        "time_elapsed": 11.6,
+        "timestamp": 1774499915.2467246
+    },
+    {
+        "lesson_id": "1",
+        "wpm": 20,
+        "accuracy": 95.0,
+        "errors": 1,
+        "time_elapsed": 11.5,
+        "timestamp": 1774504295.1997886
+    },
+    {
+        "lesson_id": "ar_2",
+        "wpm": 11,
+        "accuracy": 80.0,
+        "errors": 4,
+        "time_elapsed": 21.7,
+        "timestamp": 1774511038.7162716
+    },
+    {
+        "lesson_id": "ar_3",
+        "wpm": 24,
+        "accuracy": 100.0,
+        "errors": 0,
+        "time_elapsed": 6.4,
+        "timestamp": 1774511139.4110599
+    },
+    {
+        "lesson_id": "ar_3",
+        "wpm": 13,
+        "accuracy": 77.8,
+        "errors": 4,
+        "time_elapsed": 16.2,
+        "timestamp": 1774511193.2851477
+    },
+    {
+        "lesson_id": "ar_2",
+        "wpm": 17,
+        "accuracy": 100.0,
+        "errors": 0,
+        "time_elapsed": 11.1,
+        "timestamp": 1774511596.091751
+    },
+    {
+        "lesson_id": "ar_3",
+        "wpm": 27,
+        "accuracy": 100.0,
+        "errors": 0,
+        "time_elapsed": 5.6,
+        "timestamp": 1774512891.6704125
+    },
+    {
+        "lesson_id": "custom_aae0c292",
+        "wpm": 33,
+        "accuracy": 100.0,
+        "errors": 0,
+        "time_elapsed": 11.1,
+        "timestamp": 1774513801.2827902
+    },
+    {
+        "lesson_id": "en_2",
+        "wpm": 11,
+        "accuracy": 89.5,
+        "errors": 2,
+        "time_elapsed": 19.4,
+        "timestamp": 1774640963.7811613
+    },
+    {
+        "lesson_id": "en_1",
+        "wpm": 12,
+        "accuracy": 90.5,
+        "errors": 2,
+        "time_elapsed": 20.1,
+        "timestamp": 1774641356.770656
+    }
+]
