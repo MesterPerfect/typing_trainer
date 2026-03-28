@@ -1,27 +1,55 @@
 import subprocess
 import logging
+import shutil
+import threading
+import queue
+from typing import Callable, Dict, Optional, Tuple
+
 from .base import BaseTTS
 
 logger = logging.getLogger(__name__)
 
+
 class LinuxTTS(BaseTTS):
-    """ 
-    Linux TTS implementation supporting Orca v49+ DBus, Qt 6.8+ Accessibility, 
-    and spd-say fallback. 
+    """
+    Linux TTS with:
+    - DBus (Orca v49+)
+    - Qt Accessibility
+    - SPD fallback
+    - Speech Queue system
     """
 
     def __init__(self):
-        self.qt_module = None
-        self.backend = self._detect_backend()
-        self.available = True
+        self.qt_module: Optional[str] = None
+        self.QAccessible = None
+        self.QAccessibleAnnouncementEvent = None
+        self.QApplication = None
 
-    def _detect_backend(self):
-        """
-        Detects the optimal TTS backend for the current Linux environment:
-        1. Orca v49+ (DBus PresentMessage)
-        2. Qt 6.8+ Accessibility (QAccessibleAnnouncementEvent)
-        3. Fallback: Speech Dispatcher (spd-say)
-        """
+        self.backend = self._detect_backend()
+
+        self._backends: Dict[str, Callable] = {
+            "dbus": self._speak_dbus,
+            "qt": self._speak_qt,
+            "spd": self._speak_spd,
+        }
+
+        # =========================
+        # Queue System
+        # =========================
+        self._queue: queue.Queue[Tuple[str, bool]] = queue.Queue()
+        self._stop_event = threading.Event()
+        self._worker_thread = threading.Thread(
+            target=self._worker,
+            daemon=True
+        )
+        self._worker_thread.start()
+
+        logger.info(f"LinuxTTS initialized with backend: {self.backend}")
+
+    # =========================
+    # Backend Detection
+    # =========================
+    def _detect_backend(self) -> str:
         if self._has_dbus_orca():
             logger.info("LinuxTTS: Using DBus backend (Orca v49+)")
             return "dbus"
@@ -33,70 +61,71 @@ class LinuxTTS(BaseTTS):
         logger.info("LinuxTTS: Using SPD fallback backend")
         return "spd"
 
-
-    def _has_dbus_orca(self):
-        """ Check if gdbus is available AND Orca version is >= 49. """
+    def _has_dbus_orca(self) -> bool:
         import re
+
+        if not shutil.which("gdbus"):
+            return False
+
         try:
-            # First, check if gdbus exists
-            subprocess.run(["which", "gdbus"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
-            
-            # Second, get the actual Orca version
-            out = subprocess.check_output(["orca", "--version"], text=True).strip()
-            
-            # Ultra-resilient Regex: just find the first sequence of digits
+            out = subprocess.check_output(
+                ["orca", "--version"],
+                text=True,
+                stderr=subprocess.DEVNULL
+            ).strip()
+
             match = re.search(r'(\d+)', out)
-            
-            if match:
-                major_version = int(match.group(1))
-                if major_version >= 49:
-                    return True
-                else:
-                    logger.info(f"LinuxTTS: Orca version {major_version} is too old for DBus PresentMessage.")
-            else:
-                logger.warning(f"LinuxTTS: Could not parse any numbers from string: {out}")
-                
+            if match and int(match.group(1)) >= 49:
+                return True
+
         except Exception as e:
-            logger.debug(f"Orca version check failed: {e}")
-            
+            logger.debug(f"Orca detection failed: {e}")
+
         return False
 
-
-
-    def _has_qt_announcement(self):
-        """ Check if QAccessibleAnnouncementEvent is available in the installed Qt bindings. """
+    def _has_qt_announcement(self) -> bool:
         try:
             from PyQt6.QtGui import QAccessible, QAccessibleAnnouncementEvent
             from PyQt6.QtWidgets import QApplication
             self.qt_module = "PyQt6"
-            return True
         except ImportError:
-            pass
+            try:
+                from PySide6.QtGui import QAccessible, QAccessibleAnnouncementEvent
+                from PySide6.QtWidgets import QApplication
+                self.qt_module = "PySide6"
+            except ImportError:
+                return False
 
-        try:
-            from PySide6.QtGui import QAccessible, QAccessibleAnnouncementEvent
-            from PySide6.QtWidgets import QApplication
-            self.qt_module = "PySide6"
-            return True
-        except ImportError:
-            pass
+        self.QAccessible = QAccessible
+        self.QAccessibleAnnouncementEvent = QAccessibleAnnouncementEvent
+        self.QApplication = QApplication
 
-        return False
+        return True
 
+    # =========================
+    # Public API
+    # =========================
     def speak(self, text: str, interrupt: bool = True):
-        """ Route the speech request to the appropriate backend. """
         if not text:
             return
 
-        if self.backend == "dbus":
-            self._speak_dbus(text)
-        elif self.backend == "qt":
+        logger.debug(f"Speak request: {text} (interrupt={interrupt})")
+
+        # CRITICAL: Qt GUI operations must run on the main thread, NOT the worker thread.
+        if self.backend == "qt":
+            if interrupt:
+                self.stop()
             self._speak_qt(text, interrupt)
-        else:
-            self._speak_spd(text, interrupt)
+            return
+
+        # For non-GUI backends (dbus, spd), use the background queue
+        if interrupt:
+            self._clear_queue()
+            self.stop()
+
+        self._queue.put((text, interrupt))
 
     def speak_char(self, char: str):
-        """ Handle individual character announcements safely. """
         if not char:
             return
 
@@ -104,59 +133,108 @@ class LinuxTTS(BaseTTS):
             self.speak("space", interrupt=True)
         else:
             self.speak(char, interrupt=True)
-            
-        logger.debug(f"Speaking char: {repr(char)}")
 
     def stop(self):
-        """ Attempt to stop ongoing speech (specifically for SPD backend). """
+        """Stop current speech and clear queue."""
+        self._clear_queue()
+
         if self.backend == "spd":
             try:
-                subprocess.Popen(["spd-say", "-C"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.Popen(
+                    ["spd-say", "-C"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
             except Exception as e:
                 logger.debug(f"Stop error: {e}")
 
+    def shutdown(self):
+        """Clean shutdown of worker thread."""
+        self._stop_event.set()
+        self._queue.put(("__STOP__", True))
+        self._worker_thread.join(timeout=1)
+
     # =========================
-    # Backend Implementations
+    # Queue Worker
     # =========================
-    def _speak_dbus(self, text: str):
+    def _worker(self):
+        while not self._stop_event.is_set():
+            try:
+                text, interrupt = self._queue.get()
+
+                if text == "__STOP__":
+                    break
+
+                backend_func = self._backends.get(self.backend)
+                if backend_func:
+                    backend_func(text, interrupt)
+
+            except Exception as e:
+                logger.error(f"TTS worker error: {e}")
+
+    def _clear_queue(self):
+        while not self._queue.empty():
+            try:
+                self._queue.get_nowait()
+            except queue.Empty:
+                break
+
+    # =========================
+    # Backends
+    # =========================
+    def _speak_dbus(self, text: str, interrupt: bool = True):
         try:
-            subprocess.Popen([
-                "gdbus", "call",
-                "--session",
-                "--dest", "org.gnome.Orca",
-                "--object-path", "/org/gnome/Orca",
-                "--method", "org.gnome.Orca.PresentMessage",
-                text
-            ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            # Format text as a strict GVariant string to prevent gdbus silent failures
+            safe_text = text.replace("'", "\\'")
+            gvariant_str = f"'{safe_text}'"
+            
+            subprocess.Popen(
+                [
+                    "gdbus", "call",
+                    "--session",
+                    "--dest", "org.gnome.Orca",
+                    "--object-path", "/org/gnome/Orca",
+                    "--method", "org.gnome.Orca.PresentMessage",
+                    gvariant_str
+                ],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
         except Exception as e:
             logger.debug(f"DBus speak failed: {e}")
 
-    def _speak_qt(self, text: str, interrupt: bool):
+    def _speak_qt(self, text: str, interrupt: bool = True):
         try:
-            if self.qt_module == "PyQt6":
-                from PyQt6.QtGui import QAccessible, QAccessibleAnnouncementEvent
-                from PyQt6.QtWidgets import QApplication
-            else:
-                from PySide6.QtGui import QAccessible, QAccessibleAnnouncementEvent
-                from PySide6.QtWidgets import QApplication
+            politeness = (
+                self.QAccessible.AnnouncementPoliteness.Assertive
+                if interrupt
+                else self.QAccessible.AnnouncementPoliteness.Polite
+            )
 
-            politeness = QAccessible.AnnouncementPoliteness.Assertive if interrupt else QAccessible.AnnouncementPoliteness.Polite
+            app = self.QApplication.instance()
+            if not app:
+                return
 
-            widget = QApplication.activeWindow()
+            widget = app.activeWindow() or app.focusWidget()
             if widget is None:
                 return
 
-            event = QAccessibleAnnouncementEvent(widget, text)
+            event = self.QAccessibleAnnouncementEvent(widget, text)
             event.setPoliteness(politeness)
-            QAccessible.updateAccessibility(event)
+
+            self.QAccessible.updateAccessibility(event)
 
         except Exception as e:
             logger.debug(f"Qt speak failed: {e}")
 
-    def _speak_spd(self, text: str, interrupt: bool):
+    def _speak_spd(self, text: str, interrupt: bool = True):
         try:
-            if interrupt:
-                subprocess.Popen(["spd-say", "-C"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            subprocess.Popen(["spd-say", text], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            # We skip "-C" here because the queue processes sequentially
+            # Interruption is handled by clearing the queue in the `speak` method
+            subprocess.Popen(
+                ["spd-say", text],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
         except Exception as e:
             logger.debug(f"SPD speak failed: {e}")

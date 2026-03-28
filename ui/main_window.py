@@ -195,7 +195,15 @@ class MainWindow(QMainWindow):
         logger.info("Application is closing. Cleaning up resources...")
         if hasattr(self, 'tts') and self.tts:
             try:
+                # Stop any currently playing speech
                 self.tts.stop()
+                
+                # Safely terminate background worker threads if the TTS backend supports it
+                if hasattr(self.tts, 'shutdown'):
+                    self.tts.shutdown()
+                    logger.debug("TTS background threads shut down successfully.")
+                    
             except Exception as e:
                 logger.error(f"Error stopping TTS during shutdown: {e}")
+                
         event.accept()
