@@ -7,6 +7,8 @@ from PyQt6.QtCore import qVersion
 from PyQt6.QtWidgets import QApplication
 from ui.main_window import MainWindow
 from core.constants import BASE_DIR
+from utils.i18n import setup_translations
+from services.settings_service import SettingsService
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +62,14 @@ def run_app(args=None):
     
     if args:
         logger.info(f"Launched with CLI Arguments: {vars(args)}")
-
+        
+    # 1. Determine Language (CLI overrides saved settings)
+    settings = SettingsService()
+    lang_code = args.lang if (args and args.lang) else settings.get("ui_language", "en")
+    
+    # 2. Initialize global translation function _()
+    setup_translations(lang_code)
+    
     app = QApplication(sys.argv)
     
     # Use BASE_DIR for absolute, bulletproof path resolution
@@ -76,7 +85,6 @@ def run_app(args=None):
     else:
         logger.warning(f"Stylesheet not found at {style_path}")
 
-    # Pass args to MainWindow
     window = MainWindow(args=args)
     window.show()
     sys.exit(app.exec())

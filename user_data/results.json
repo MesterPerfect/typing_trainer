@@ -78,5 +78,13 @@
         "errors": 2,
         "time_elapsed": 20.1,
         "timestamp": 1774641356.770656
+    },
+    {
+        "lesson_id": "en_test_1",
+        "wpm": 14,
+        "accuracy": 100.0,
+        "errors": 0,
+        "time_elapsed": 12.2,
+        "timestamp": 1774668005.8055222
     }
 ]
