@@ -1,14 +1,15 @@
-from PyQt6.QtWidgets import QWidget
-from PyQt6.QtCore import pyqtSignal, Qt
+from PySide6.QtWidgets import QWidget
+from PySide6.QtCore import Signal, Qt
 import logging
 
 logger = logging.getLogger(__name__)
 
+
 class TypingInput(QWidget):
     # Signals for keyboard interactions
-    char_typed = pyqtSignal(str)
-    backspace_pressed = pyqtSignal()
-    escape_pressed = pyqtSignal()
+    char_typed = Signal(str)
+    backspace_pressed = Signal()
+    escape_pressed = Signal()
 
     def __init__(self):
         super().__init__()

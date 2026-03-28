@@ -1,5 +1,6 @@
-from PyQt6.QtWidgets import QLabel
-from PyQt6.QtCore import Qt
+from PySide6.QtWidgets import QLabel
+from PySide6.QtCore import Qt
+
 
 class TextDisplay(QLabel):
     def __init__(self):
@@ -10,7 +11,9 @@ class TextDisplay(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByKeyboard)
 
-    def update_display(self, full_text: str, correct: str, current: str, remaining: str):
+    def update_display(
+        self, full_text: str, correct: str, current: str, remaining: str
+    ):
         """
         Updates the label with HTML formatted text.
         Shows the full target text on top, and highlights the current character.

@@ -1,6 +1,6 @@
 # Accessible Typing Trainer ⌨️🎧
 
-A cross-platform, highly accessible typing tutor built with Python and PyQt6. This project is specifically engineered to be fully usable by visually impaired users, providing seamless integration with native screen readers and tactile audio feedback.
+A cross-platform, highly accessible typing tutor built with Python and PySide6. This project is specifically engineered to be fully usable by visually impaired users, providing seamless integration with native screen readers and tactile audio feedback.
 
 ## ✨ Key Features
 
@@ -19,7 +19,7 @@ A cross-platform, highly accessible typing tutor built with Python and PyQt6. Th
 The project follows a clean **MVC / Service-Oriented Architecture** ensuring strict separation of concerns:
 * `core/`: Contains the logical engines (`TypingEngine`, `ExplorerEngine`, `Statistics`).
 * `services/`: Handles OS-level interactions (Audio, TTS engines, File I/O).
-* `ui/`: Modular, reusable PyQt6 components and views managed by a `QStackedWidget` for single-page-application (SPA) flow.
+* `ui/`: Modular, reusable PySide6 components and views managed by a `QStackedWidget` for single-page-application (SPA) flow.
 * `models/`: Lightweight data structures using Python's `@dataclass`.
 * `utils/`: Helper functions and a configured `RotatingFileHandler` for safe logging.
 

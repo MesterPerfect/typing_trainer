@@ -2,10 +2,10 @@ import sys
 import logging
 import platform
 
-from PyQt6.QtWidgets import QMainWindow, QStackedWidget
-from PyQt6.QtGui import QGuiApplication, QIcon
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import Qt
+from PySide6.QtWidgets import QMainWindow, QStackedWidget
+from PySide6.QtGui import QGuiApplication, QIcon
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import Qt
 
 from ui.lesson_editor_view import LessonEditorView
 from services.tts import create_tts
@@ -20,14 +20,21 @@ from ui.settings_view import SettingsView
 from ui.results_view import ResultsView
 from ui.explorer_view import ExplorerView
 from core.modes import ExplorerMode
-from core.constants import WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, ICON_FILE_ICO, ICON_FILE_PNG
+from core.constants import (
+    WINDOW_WIDTH,
+    WINDOW_HEIGHT,
+    WINDOW_TITLE,
+    ICON_FILE_ICO,
+    ICON_FILE_PNG,
+)
 
 logger = logging.getLogger(__name__)
+
 
 class MainWindow(QMainWindow):
     def __init__(self, args=None):
         super().__init__()
-        
+
         self.setWindowTitle(WINDOW_TITLE)
         self.resize(WINDOW_WIDTH, WINDOW_HEIGHT)
 
@@ -47,28 +54,30 @@ class MainWindow(QMainWindow):
         self.tts = create_tts(disable_tts=disable_tts)
 
         self.audio = AudioService(self.settings)
-        
+
         # Initialize the user interface
         self._setup_ui()
 
     def _apply_window_icon(self):
-        """ Applies the suitable icon file to the main window based on the OS. """
+        """Applies the suitable icon file to the main window based on the OS."""
         try:
             if sys.platform == "win32" and ICON_FILE_ICO.exists():
                 self.setWindowIcon(QIcon(str(ICON_FILE_ICO)))
             elif sys.platform == "linux" and ICON_FILE_PNG.exists():
                 self.setWindowIcon(QIcon(str(ICON_FILE_PNG)))
             else:
-                logger.debug("Window icon not applied: file not found or unsupported platform.")
+                logger.debug(
+                    "Window icon not applied: file not found or unsupported platform."
+                )
         except Exception as e:
             logger.warning(f"Failed to set window icon: {e}")
 
     def center_on_screen(self):
         screen_geometry = self.screen().availableGeometry()
         window_geometry = self.frameGeometry()
-        
+
         window_geometry.moveCenter(screen_geometry.center())
-        self.move(window_geometry.topLeft())        
+        self.move(window_geometry.topLeft())
 
     def _setup_ui(self):
         self.stacked_widget = QStackedWidget()
@@ -84,7 +93,9 @@ class MainWindow(QMainWindow):
         self.stacked_widget.addWidget(self.lesson_view)
 
         # 2. Typing Interface View
-        self.typing_view = TypingView(self.tts, self.settings, self.result_service, self.audio)
+        self.typing_view = TypingView(
+            self.tts, self.settings, self.result_service, self.audio
+        )
         self.typing_view.return_requested.connect(self.show_lessons)
         self.stacked_widget.addWidget(self.typing_view)
 
@@ -92,7 +103,7 @@ class MainWindow(QMainWindow):
         self.settings_view = SettingsView(self.settings, self.tts)
         self.settings_view.return_requested.connect(self.show_lessons)
         self.stacked_widget.addWidget(self.settings_view)
-        
+
         # 4. Results View
         self.results_view = ResultsView(self.result_service, self.tts)
         self.results_view.return_requested.connect(self.show_lessons)
@@ -131,7 +142,7 @@ class MainWindow(QMainWindow):
         self.stacked_widget.setCurrentWidget(self.settings_view)
         self.settings_view.guided_mode_cb.setFocus()
         self.tts.speak("Settings Screen")
-        
+
     def show_results(self):
         self.results_view.load_results()
         self.stacked_widget.setCurrentWidget(self.results_view)
@@ -148,7 +159,7 @@ class MainWindow(QMainWindow):
 
     def keyPressEvent(self, event):
         key = event.key()
-        
+
         if key == Qt.Key.Key_F2:
             current_mode = self.settings.get("guided_mode", True)
             new_mode = not current_mode
@@ -161,12 +172,12 @@ class MainWindow(QMainWindow):
             if self.stacked_widget.currentWidget() != self.settings_view:
                 self.show_settings()
             return
-            
+
         if key == Qt.Key.Key_F4:
             if self.stacked_widget.currentWidget() != self.results_view:
                 self.show_results()
             return
-            
+
         if key == Qt.Key.Key_F5:
             self.start_explorer(ExplorerMode.FREE)
             return
@@ -184,7 +195,7 @@ class MainWindow(QMainWindow):
             if self.stacked_widget.currentWidget() != self.editor_view:
                 self.show_editor()
             return
-            
+
         super().keyPressEvent(event)
 
     def showEvent(self, event):
@@ -193,17 +204,17 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):
         logger.info("Application is closing. Cleaning up resources...")
-        if hasattr(self, 'tts') and self.tts:
+        if hasattr(self, "tts") and self.tts:
             try:
                 # Stop any currently playing speech
                 self.tts.stop()
-                
+
                 # Safely terminate background worker threads if the TTS backend supports it
-                if hasattr(self.tts, 'shutdown'):
+                if hasattr(self.tts, "shutdown"):
                     self.tts.shutdown()
                     logger.debug("TTS background threads shut down successfully.")
-                    
+
             except Exception as e:
                 logger.error(f"Error stopping TTS during shutdown: {e}")
-                
+
         event.accept()

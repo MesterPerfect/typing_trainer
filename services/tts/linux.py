@@ -38,10 +38,7 @@ class LinuxTTS(BaseTTS):
         # =========================
         self._queue: queue.Queue[Tuple[str, bool]] = queue.Queue()
         self._stop_event = threading.Event()
-        self._worker_thread = threading.Thread(
-            target=self._worker,
-            daemon=True
-        )
+        self._worker_thread = threading.Thread(target=self._worker, daemon=True)
         self._worker_thread.start()
 
         logger.info(f"LinuxTTS initialized with backend: {self.backend}")
@@ -69,12 +66,10 @@ class LinuxTTS(BaseTTS):
 
         try:
             out = subprocess.check_output(
-                ["orca", "--version"],
-                text=True,
-                stderr=subprocess.DEVNULL
+                ["orca", "--version"], text=True, stderr=subprocess.DEVNULL
             ).strip()
 
-            match = re.search(r'(\d+)', out)
+            match = re.search(r"(\d+)", out)
             if match and int(match.group(1)) >= 49:
                 return True
 
@@ -85,13 +80,15 @@ class LinuxTTS(BaseTTS):
 
     def _has_qt_announcement(self) -> bool:
         try:
-            from PyQt6.QtGui import QAccessible, QAccessibleAnnouncementEvent
-            from PyQt6.QtWidgets import QApplication
-            self.qt_module = "PyQt6"
+            from PySide6.QtGui import QAccessible, QAccessibleAnnouncementEvent
+            from PySide6.QtWidgets import QApplication
+
+            self.qt_module = "PySide6"
         except ImportError:
             try:
                 from PySide6.QtGui import QAccessible, QAccessibleAnnouncementEvent
                 from PySide6.QtWidgets import QApplication
+
                 self.qt_module = "PySide6"
             except ImportError:
                 return False
@@ -143,7 +140,7 @@ class LinuxTTS(BaseTTS):
                 subprocess.Popen(
                     ["spd-say", "-C"],
                     stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL
+                    stderr=subprocess.DEVNULL,
                 )
             except Exception as e:
                 logger.debug(f"Stop error: {e}")
@@ -187,18 +184,22 @@ class LinuxTTS(BaseTTS):
             # Format text as a strict GVariant string to prevent gdbus silent failures
             safe_text = text.replace("'", "\\'")
             gvariant_str = f"'{safe_text}'"
-            
+
             subprocess.Popen(
                 [
-                    "gdbus", "call",
+                    "gdbus",
+                    "call",
                     "--session",
-                    "--dest", "org.gnome.Orca",
-                    "--object-path", "/org/gnome/Orca",
-                    "--method", "org.gnome.Orca.PresentMessage",
-                    gvariant_str
+                    "--dest",
+                    "org.gnome.Orca",
+                    "--object-path",
+                    "/org/gnome/Orca",
+                    "--method",
+                    "org.gnome.Orca.PresentMessage",
+                    gvariant_str,
                 ],
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                stderr=subprocess.DEVNULL,
             )
         except Exception as e:
             logger.debug(f"DBus speak failed: {e}")
@@ -232,9 +233,7 @@ class LinuxTTS(BaseTTS):
             # We skip "-C" here because the queue processes sequentially
             # Interruption is handled by clearing the queue in the `speak` method
             subprocess.Popen(
-                ["spd-say", text],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                ["spd-say", text], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
             )
         except Exception as e:
             logger.debug(f"SPD speak failed: {e}")

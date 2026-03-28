@@ -1,12 +1,20 @@
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QCheckBox, 
-                             QPushButton, QLabel, QSlider, QHBoxLayout)
-from PyQt6.QtCore import pyqtSignal, Qt
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QCheckBox,
+    QPushButton,
+    QLabel,
+    QSlider,
+    QHBoxLayout,
+)
+from PySide6.QtCore import Signal, Qt
 import logging
 
 logger = logging.getLogger(__name__)
 
+
 class SettingsView(QWidget):
-    return_requested = pyqtSignal()
+    return_requested = Signal()
 
     def __init__(self, settings, tts):
         super().__init__()
@@ -29,7 +37,9 @@ class SettingsView(QWidget):
         layout.addWidget(self.guided_mode_cb)
 
         # Sound Effects Enable/Disable
-        self.sound_effects_cb = QCheckBox("Enable Sound Effects (Typing Clicks & Errors)")
+        self.sound_effects_cb = QCheckBox(
+            "Enable Sound Effects (Typing Clicks & Errors)"
+        )
         self.sound_effects_cb.setFont(self._get_font(14))
         layout.addWidget(self.sound_effects_cb)
 
@@ -37,12 +47,12 @@ class SettingsView(QWidget):
         vol_layout = QHBoxLayout()
         vol_label = QLabel(_("Sound Effects Volume:"))
         vol_label.setFont(self._get_font(14))
-        
+
         self.volume_slider = QSlider(Qt.Orientation.Horizontal)
         self.volume_slider.setRange(0, 100)
         self.volume_slider.setTickPosition(QSlider.TickPosition.TicksBelow)
         self.volume_slider.setTickInterval(10)
-        
+
         vol_layout.addWidget(vol_label)
         vol_layout.addWidget(self.volume_slider)
         layout.addLayout(vol_layout)
@@ -77,7 +87,7 @@ class SettingsView(QWidget):
         self.settings.set("guided_mode", self.guided_mode_cb.isChecked())
         self.settings.set("sound_effects", self.sound_effects_cb.isChecked())
         self.settings.set("sound_volume", self.volume_slider.value())
-        
+
         self.tts.speak("Settings saved")
         self.return_requested.emit()
 

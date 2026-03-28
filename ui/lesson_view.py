@@ -1,6 +1,13 @@
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QListWidget, QLabel, 
-                             QPushButton, QTabWidget, QListWidgetItem)
-from PyQt6.QtCore import pyqtSignal, Qt
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QListWidget,
+    QLabel,
+    QPushButton,
+    QTabWidget,
+    QListWidgetItem,
+)
+from PySide6.QtCore import Signal, Qt
 import logging
 
 from services.lesson import LessonService
@@ -9,19 +16,20 @@ from core.modes import ExplorerMode
 
 logger = logging.getLogger(__name__)
 
+
 class LessonView(QWidget):
-    lesson_selected = pyqtSignal(Lesson)
-    explorer_requested = pyqtSignal(ExplorerMode)
-    settings_requested = pyqtSignal()
-    results_requested = pyqtSignal()
-    editor_requested = pyqtSignal()
+    lesson_selected = Signal(Lesson)
+    explorer_requested = Signal(ExplorerMode)
+    settings_requested = Signal()
+    results_requested = Signal()
+    editor_requested = Signal()
 
     def __init__(self, tts):
         super().__init__()
         self.tts = tts
         self.loader = LessonService()
         self.lessons = []
-        
+
         self._setup_ui()
         self.load_lessons()
 
@@ -45,17 +53,17 @@ class LessonView(QWidget):
         tab_font = self.tabs.font()
         tab_font.setPointSize(14)
         self.tabs.setFont(tab_font)
-        
+
         self.ar_list = QListWidget()
         self.en_list = QListWidget()
         self.test_list = QListWidget()
         self.explorer_list = QListWidget()
-        
+
         self.tabs.addTab(self.ar_list, _("Arabic Lessons"))
         self.tabs.addTab(self.en_list, _("English Lessons"))
         self.tabs.addTab(self.test_list, _("Exams"))
         self.tabs.addTab(self.explorer_list, _("Explorer Modes"))
-        
+
         layout.addWidget(self.tabs)
 
         # ==========================================
@@ -89,19 +97,19 @@ class LessonView(QWidget):
             ("Free Explorer (F5)", ExplorerMode.FREE),
             ("Arabic Letters Explorer (F6)", ExplorerMode.ARABIC),
             ("English Letters Explorer (F7)", ExplorerMode.ENGLISH),
-            ("Numbers Explorer (F8)", ExplorerMode.NUMBERS)
+            ("Numbers Explorer (F8)", ExplorerMode.NUMBERS),
         ]
-        
+
         for title, mode_enum in modes:
             item = QListWidgetItem(title)
             item.setData(Qt.ItemDataRole.UserRole, mode_enum)
             self.explorer_list.addItem(item)
-            
+
         self.explorer_list.setCurrentRow(0)
 
     def load_lessons(self):
         self.lessons = self.loader.load_all_lessons()
-        
+
         self.ar_list.clear()
         self.en_list.clear()
         self.test_list.clear()
@@ -110,7 +118,7 @@ class LessonView(QWidget):
             display_text = f"Level {lesson.difficulty}: {lesson.title}"
             item = QListWidgetItem(display_text)
             item.setData(Qt.ItemDataRole.UserRole, lesson)
-            
+
             if getattr(lesson, "lesson_type", "lesson") == "test":
                 self.test_list.addItem(item)
             elif getattr(lesson, "language", "en") == "ar":
@@ -126,7 +134,7 @@ class LessonView(QWidget):
         current_list = self.tabs.currentWidget()
         if not current_list:
             return
-            
+
         selected_item = current_list.currentItem()
         if selected_item:
             data = selected_item.data(Qt.ItemDataRole.UserRole)
@@ -134,7 +142,7 @@ class LessonView(QWidget):
                 self.explorer_requested.emit(data)
             else:
                 self.lesson_selected.emit(data)
-            
+
     def keyPressEvent(self, event):
         if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             self._on_start_clicked()

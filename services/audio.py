@@ -1,20 +1,23 @@
 import os
 import logging
-from PyQt6.QtMultimedia import QSoundEffect
-from PyQt6.QtCore import QUrl
+from PySide6.QtMultimedia import QSoundEffect
+from PySide6.QtCore import QUrl
 from core.constants import BASE_DIR
 
 logger = logging.getLogger(__name__)
+
 
 class AudioService:
     def __init__(self, settings):
         self.settings = settings
         self.sounds = {}
-        
+
         # Use BASE_DIR for bulletproof path resolution
         self._load_sound("correct", str(BASE_DIR / "assets" / "sounds" / "correct.wav"))
         self._load_sound("error", str(BASE_DIR / "assets" / "sounds" / "error.wav"))
-        self._load_sound("complete", str(BASE_DIR / "assets" / "sounds" / "complete.wav"))
+        self._load_sound(
+            "complete", str(BASE_DIR / "assets" / "sounds" / "complete.wav")
+        )
 
     def _load_sound(self, name: str, filepath: str):
         if not os.path.exists(filepath):
@@ -33,7 +36,7 @@ class AudioService:
         is_enabled = self.settings.get("sound_effects", True)
         if not is_enabled:
             return
-            
+
         if name in self.sounds:
             volume = self.settings.get("sound_volume", 70) / 100.0
             self.sounds[name].setVolume(volume)

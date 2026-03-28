@@ -1,5 +1,6 @@
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QFrame
-from PyQt6.QtCore import Qt
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QFrame
+from PySide6.QtCore import Qt
+
 
 class StatsPanel(QFrame):
     def __init__(self):
@@ -7,9 +8,9 @@ class StatsPanel(QFrame):
         self._setup_ui()
 
     def _setup_ui(self):
-        """ Initialize and layout the UI components. """
+        """Initialize and layout the UI components."""
         self.setFrameShape(QFrame.Shape.StyledPanel)
-        
+
         layout = QHBoxLayout()
         layout.setContentsMargins(10, 10, 10, 10)
 
@@ -24,7 +25,12 @@ class StatsPanel(QFrame):
         font.setPointSize(12)
         font.setBold(True)
 
-        for label in (self.wpm_label, self.accuracy_label, self.errors_label, self.time_label):
+        for label in (
+            self.wpm_label,
+            self.accuracy_label,
+            self.errors_label,
+            self.time_label,
+        ):
             label.setFont(font)
             label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             layout.addWidget(label)
@@ -32,7 +38,7 @@ class StatsPanel(QFrame):
         self.setLayout(layout)
 
     def update_stats(self, stats: dict):
-        """ Update the labels with new statistics. """
+        """Update the labels with new statistics."""
         self.wpm_label.setText(f"{_('WPM:')} {stats.get('wpm', 0)}")
         self.accuracy_label.setText(f"{_('Accuracy:')} {stats.get('accuracy', 100.0)}%")
         self.errors_label.setText(f"{_('Errors:')} {stats.get('errors', 0)}")

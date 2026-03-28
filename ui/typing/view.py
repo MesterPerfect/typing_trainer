@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout
-from PyQt6.QtCore import QTimer, pyqtSignal
+from PySide6.QtWidgets import QWidget, QVBoxLayout
+from PySide6.QtCore import QTimer, Signal
 import logging
 
 from core.typing_engine import TypingEngine
@@ -12,21 +12,22 @@ from .speech_handler import TypingSpeechHandler
 
 logger = logging.getLogger(__name__)
 
+
 class TypingView(QWidget):
-    return_requested = pyqtSignal()
+    return_requested = Signal()
 
     def __init__(self, tts, settings, result_service, audio):
         super().__init__()
         self.result_service = result_service
         self.audio = audio
-        
+
         self.engine = None
         self.current_lesson_id = None
         self.is_test = False
-        
+
         # Initialize the speech handler and pass audio service to it
         self.speech_handler = TypingSpeechHandler(tts, settings, audio)
-        
+
         self._setup_ui()
         self._setup_timers()
 
@@ -35,7 +36,7 @@ class TypingView(QWidget):
         self.stats_panel = StatsPanel()
         self.text_display = TextDisplay()
         self.typing_input = TypingInput()
-        
+
         self.typing_input.char_typed.connect(self.handle_char_typed)
         self.typing_input.backspace_pressed.connect(self.handle_backspace)
         self.typing_input.escape_pressed.connect(self.trigger_return)
@@ -63,13 +64,13 @@ class TypingView(QWidget):
             mode = TypingMode.SENTENCE
 
         self.engine = TypingEngine(lesson.text, mode=mode)
-        
+
         # Pass session info to speech handler
         self.speech_handler.setup_session(self.engine, self.is_test)
 
-        self.stats_panel.update_stats({
-            "wpm": 0, "accuracy": 100.0, "errors": 0, "time": 0.0
-        })
+        self.stats_panel.update_stats(
+            {"wpm": 0, "accuracy": 100.0, "errors": 0, "time": 0.0}
+        )
 
         self.typing_input.setFocus()
         self.update_display_and_stats()
@@ -88,11 +89,11 @@ class TypingView(QWidget):
         self.update_stats_display()
 
     def handle_char_typed(self, char: str):
-        if not self.engine: 
+        if not self.engine:
             return
-            
+
         result = self.engine.process_char(char)
-        if result is None: 
+        if result is None:
             return
 
         # Delegate audio and TTS feedback to speech handler
@@ -112,21 +113,23 @@ class TypingView(QWidget):
         logger.info("Typing completed")
         self.engine.stats.stop()
         self.stats_timer.stop()
-        
+
         stats = self.engine.get_stats()
         self.stats_panel.update_stats(stats)
-        
+
         if self.current_lesson_id:
             result = LessonResult(
-                lesson_id=self.current_lesson_id, wpm=stats["wpm"],
-                accuracy=stats["accuracy"], errors=stats["errors"],
-                time_elapsed=stats["time"]
+                lesson_id=self.current_lesson_id,
+                wpm=stats["wpm"],
+                accuracy=stats["accuracy"],
+                errors=stats["errors"],
+                time_elapsed=stats["time"],
             )
             self.result_service.save_result(result)
 
         # Delegate completion announcement and sound to speech handler
         self.speech_handler.speak_completion(stats)
-        
+
         QTimer.singleShot(4000, self.trigger_return)
 
     def trigger_return(self):
