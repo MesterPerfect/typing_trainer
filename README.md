@@ -56,3 +56,30 @@ The project follows a clean **MVC / Service-Oriented Architecture** ensuring str
 * `F5 - F8`: Launch various Explorer Modes (Free, Arabic, English, Numbers).
 * `F9`: Open Lesson Editor.
 
+## 🛠️ Command-Line Interface (CLI)
+
+The application provides a flexible Command-Line Interface for advanced control over logging, localization, and accessibility features. This is particularly useful for developers and power users.
+
+**Basic Usage:**
+```bash
+python main.py [options]
+```
+
+**Available Options:**
+
+* **Logging Options:**
+  * `--log-level {DEBUG,INFO,WARNING,ERROR}`: Override the default logging level.
+  * `--no-log-time`: Remove timestamps from the log output for cleaner reading.
+
+* **Application Options:**
+  * `--lang {en,ar}`: Force the UI language, bypassing the saved user preferences.
+  * `--no-tts`: Completely disable the Text-to-Speech (TTS) engine at launch.
+
+**Examples:**
+```bash
+# Run with warnings only and clean logs (no timestamps)
+python main.py --log-level WARNING --no-log-time
+
+# Launch the app in Arabic with TTS disabled
+python main.py --lang ar --no-tts
+```

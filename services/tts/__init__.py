@@ -5,8 +5,12 @@ from .dummy import DummyTTS
 
 logger = logging.getLogger(__name__)
 
-def create_tts():
+def create_tts(disable_tts=False):
     """ Factory function to create the appropriate TTS engine. """
+    if disable_tts:
+        logger.info("TTS explicitly disabled via CLI.")
+        return DummyTTS()
+        
     system = platform.system()
     logger.info(f"Detected platform: {system}")
 

@@ -54,10 +54,13 @@ def log_system_environment():
     logger.info("="*40)
 
 
-def run_app():
+def run_app(args=None):
     # Log the environment details right at startup
     log_system_environment()
     
+    if args:
+        logger.info(f"Launched with CLI Arguments: {vars(args)}")
+
     app = QApplication(sys.argv)
     
     # Use BASE_DIR for absolute, bulletproof path resolution
@@ -73,6 +76,7 @@ def run_app():
     else:
         logger.warning(f"Stylesheet not found at {style_path}")
 
-    window = MainWindow()
+    # Pass args to MainWindow
+    window = MainWindow(args=args)
     window.show()
     sys.exit(app.exec())

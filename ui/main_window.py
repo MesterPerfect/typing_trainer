@@ -25,7 +25,7 @@ from core.constants import WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE
 logger = logging.getLogger(__name__)
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, args=None):
         super().__init__()
         
         self.setWindowTitle(WINDOW_TITLE)
@@ -33,7 +33,16 @@ class MainWindow(QMainWindow):
 
         self.settings = SettingsService()
         self.result_service = ResultService()
-        self.tts = create_tts()
+
+        # Apply CLI language setting if provided
+        if args and args.lang:
+            self.settings.set("ui_language", args.lang)
+            logger.info(f"UI Language set to {args.lang} via CLI")
+
+        # Initialize TTS with CLI override
+        disable_tts = args.no_tts if args else False
+        self.tts = create_tts(disable_tts=disable_tts)
+
         self.audio = AudioService(self.settings)
 
         self._setup_ui()
