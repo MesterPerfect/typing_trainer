@@ -14,8 +14,19 @@ else:
     # Base directory of the project (2 levels up from this file)
     BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Assets Directory
+ASSETS_DIR = BASE_DIR / "assets"
+
+# Icon file paths for different platforms
+ICON_FILE_ICO = ASSETS_DIR / "icon.ico"
+ICON_FILE_PNG = ASSETS_DIR / "icon.png"
+
 # We create a specific folder for user data to avoid mixing with the 'data' python package
 USER_DATA_DIR = BASE_DIR / "user_data"
+
+
+
+
 
 # JSON File Paths
 SETTINGS_FILE = USER_DATA_DIR / "settings.json"

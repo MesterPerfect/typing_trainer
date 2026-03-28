@@ -3,6 +3,7 @@ import os
 import shutil
 import platform
 from cx_Freeze import setup, Executable
+from core.constants import ICON_FILE_ICO
 
 def get_platform_config():
     """ Determine platform-specific base and executable extension. """
@@ -75,8 +76,8 @@ def main():
                 "main.py",
                 base=base,
                 target_name=target_name,
-                # Uncomment the next line and add an icon if you have one
-                # icon="assets/icon.ico" if sys.platform == "win32" else None,
+                # Conditionally embed the icon file strictly for Windows (.exe)
+                icon=str(ICON_FILE_ICO) if sys.platform == "win32" and ICON_FILE_ICO.exists() else None,
             )
         ]
     )

@@ -3,7 +3,7 @@ import logging
 import platform
 
 from PyQt6.QtWidgets import QMainWindow, QStackedWidget
-from PyQt6.QtGui import QGuiApplication
+from PyQt6.QtGui import QGuiApplication, QIcon
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt
 
@@ -20,7 +20,7 @@ from ui.settings_view import SettingsView
 from ui.results_view import ResultsView
 from ui.explorer_view import ExplorerView
 from core.modes import ExplorerMode
-from core.constants import WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE
+from core.constants import WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, ICON_FILE_ICO, ICON_FILE_PNG
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +30,9 @@ class MainWindow(QMainWindow):
         
         self.setWindowTitle(WINDOW_TITLE)
         self.resize(WINDOW_WIDTH, WINDOW_HEIGHT)
+
+        # Apply the application icon dynamically based on the platform
+        self._apply_window_icon()
 
         self.settings = SettingsService()
         self.result_service = ResultService()
@@ -44,8 +47,21 @@ class MainWindow(QMainWindow):
         self.tts = create_tts(disable_tts=disable_tts)
 
         self.audio = AudioService(self.settings)
-
+        
+        # Initialize the user interface
         self._setup_ui()
+
+    def _apply_window_icon(self):
+        """ Applies the suitable icon file to the main window based on the OS. """
+        try:
+            if sys.platform == "win32" and ICON_FILE_ICO.exists():
+                self.setWindowIcon(QIcon(str(ICON_FILE_ICO)))
+            elif sys.platform == "linux" and ICON_FILE_PNG.exists():
+                self.setWindowIcon(QIcon(str(ICON_FILE_PNG)))
+            else:
+                logger.debug("Window icon not applied: file not found or unsupported platform.")
+        except Exception as e:
+            logger.warning(f"Failed to set window icon: {e}")
 
     def center_on_screen(self):
         screen_geometry = self.screen().availableGeometry()
@@ -174,7 +190,6 @@ class MainWindow(QMainWindow):
     def showEvent(self, event):
         self.center_on_screen()
         super().showEvent(event)
-
 
     def closeEvent(self, event):
         logger.info("Application is closing. Cleaning up resources...")

@@ -2,3 +2,4 @@ PyQt6
 pyttsx3
 platformdirs
 UniversalSpeech
+cx_Freeze
