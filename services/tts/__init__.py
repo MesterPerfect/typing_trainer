@@ -17,7 +17,7 @@ def create_tts(disable_tts=False):
     if system == "Windows":
         from .windows import WindowsTTS
         tts = WindowsTTS()
-        if tts.available:
+        if getattr(tts, 'available', True):
             return tts
             
         logger.warning("Falling back to Dummy TTS (Windows)")
@@ -26,10 +26,19 @@ def create_tts(disable_tts=False):
     elif system == "Linux":
         from .linux import LinuxTTS
         tts = LinuxTTS()
-        if tts.available:
+        if getattr(tts, 'available', True):
             return tts
             
         logger.warning("Falling back to Dummy TTS (Linux)")
+        return DummyTTS()
+
+    elif system == "Darwin":
+        from .macos import MacOSTTS
+        tts = MacOSTTS()
+        if getattr(tts, 'available', True):
+            return tts
+            
+        logger.warning("Falling back to Dummy TTS (macOS)")
         return DummyTTS()
 
     else:
