@@ -13,11 +13,11 @@ class StatsPanel(QFrame):
         layout = QHBoxLayout()
         layout.setContentsMargins(10, 10, 10, 10)
 
-        # Initialize labels with default values
-        self.wpm_label = QLabel("WPM: 0")
-        self.accuracy_label = QLabel("Accuracy: 100%")
-        self.errors_label = QLabel("Errors: 0")
-        self.time_label = QLabel("Time: 0.0s")
+        # Initialize labels with default values, translating only the static text
+        self.wpm_label = QLabel(f"{_('WPM:')} 0")
+        self.accuracy_label = QLabel(f"{_('Accuracy:')} 100%")
+        self.errors_label = QLabel(f"{_('Errors:')} 0")
+        self.time_label = QLabel(f"{_('Time:')} 0.0s")
 
         # Apply basic styling and alignment
         font = self.font()
@@ -33,7 +33,7 @@ class StatsPanel(QFrame):
 
     def update_stats(self, stats: dict):
         """ Update the labels with new statistics. """
-        self.wpm_label.setText(f"WPM: {stats.get('wpm', 0)}")
-        self.accuracy_label.setText(f"Accuracy: {stats.get('accuracy', 100.0)}%")
-        self.errors_label.setText(f"Errors: {stats.get('errors', 0)}")
-        self.time_label.setText(f"Time: {stats.get('time', 0.0)}s")
+        self.wpm_label.setText(f"{_('WPM:')} {stats.get('wpm', 0)}")
+        self.accuracy_label.setText(f"{_('Accuracy:')} {stats.get('accuracy', 100.0)}%")
+        self.errors_label.setText(f"{_('Errors:')} {stats.get('errors', 0)}")
+        self.time_label.setText(f"{_('Time:')} {stats.get('time', 0.0)}s")

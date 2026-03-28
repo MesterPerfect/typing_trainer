@@ -32,7 +32,7 @@ class LessonEditorView(QWidget):
         # ==========================================
         left_panel = QVBoxLayout()
         
-        list_label = QLabel("Saved Lessons / Exams")
+        list_label = QLabel(_("Saved Lessons / Exams"))
         list_label.setFont(self._get_font(14, bold=True))
         left_panel.addWidget(list_label)
 
@@ -41,7 +41,7 @@ class LessonEditorView(QWidget):
         self.lesson_list.itemClicked.connect(self._on_item_clicked)
         left_panel.addWidget(self.lesson_list)
 
-        self.btn_new = QPushButton("Create New Lesson (Ctrl+N)")
+        self.btn_new = QPushButton(_("Create New Lesson (Ctrl+N)"))
         self.btn_new.setFont(self._get_font(12, bold=True))
         self.btn_new.setMinimumHeight(40)
         self.btn_new.clicked.connect(self.clear_form)
@@ -54,13 +54,13 @@ class LessonEditorView(QWidget):
         # ==========================================
         right_panel = QVBoxLayout()
         
-        form_label = QLabel("Lesson Editor")
+        form_label = QLabel(_("Lesson Editor"))
         form_label.setFont(self._get_font(18, bold=True))
         form_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         right_panel.addWidget(form_label)
 
         # Title
-        right_panel.addWidget(QLabel("Title:"))
+        right_panel.addWidget(QLabel(_("Title:")))
         self.title_input = QLineEdit()
         self.title_input.setFont(self._get_font(12))
         right_panel.addWidget(self.title_input)
@@ -68,17 +68,17 @@ class LessonEditorView(QWidget):
         # Language & Type
         row1 = QHBoxLayout()
         
-        lang_label = QLabel("Language:")
+        lang_label = QLabel(_("Language:"))
         self.lang_combo = QComboBox()
         self.lang_combo.addItems(["en", "ar"])
         self.lang_combo.setFont(self._get_font(12))
         
-        type_label = QLabel("Type:")
+        type_label = QLabel(_("Type:"))
         self.type_combo = QComboBox()
         self.type_combo.addItems(["lesson", "test"])
         self.type_combo.setFont(self._get_font(12))
         
-        diff_label = QLabel("Difficulty (1-3):")
+        diff_label = QLabel(_("Difficulty (1-3):"))
         self.diff_spin = QSpinBox()
         self.diff_spin.setRange(1, 3)
         self.diff_spin.setFont(self._get_font(12))
@@ -92,7 +92,7 @@ class LessonEditorView(QWidget):
         right_panel.addLayout(row1)
 
         # Text Content
-        right_panel.addWidget(QLabel("Text Content:"))
+        right_panel.addWidget(QLabel(_("Text Content:")))
         self.text_input = QTextEdit()
         self.text_input.setFont(self._get_font(14))
         right_panel.addWidget(self.text_input)
@@ -100,17 +100,17 @@ class LessonEditorView(QWidget):
         # Action Buttons
         btn_layout = QHBoxLayout()
         
-        self.btn_save = QPushButton("Save (Ctrl+S)")
+        self.btn_save = QPushButton(_("Save (Ctrl+S)"))
         self.btn_save.setFont(self._get_font(12, bold=True))
         self.btn_save.setMinimumHeight(40)
         self.btn_save.clicked.connect(self.save_lesson)
         
-        self.btn_delete = QPushButton("Delete")
+        self.btn_delete = QPushButton(_("Delete"))
         self.btn_delete.setFont(self._get_font(12, bold=True))
         self.btn_delete.setMinimumHeight(40)
         self.btn_delete.clicked.connect(self.delete_lesson)
         
-        self.btn_return = QPushButton("Return (Esc)")
+        self.btn_return = QPushButton(_("Return (Esc)"))
         self.btn_return.setFont(self._get_font(12, bold=True))
         self.btn_return.setMinimumHeight(40)
         self.btn_return.clicked.connect(self.return_requested.emit)

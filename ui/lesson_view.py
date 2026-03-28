@@ -30,7 +30,7 @@ class LessonView(QWidget):
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
 
-        self.title_label = QLabel("Select a Category")
+        self.title_label = QLabel(_("Select a Category"))
         font = self.title_label.font()
         font.setPointSize(18)
         font.setBold(True)
@@ -51,32 +51,32 @@ class LessonView(QWidget):
         self.test_list = QListWidget()
         self.explorer_list = QListWidget()
         
-        self.tabs.addTab(self.ar_list, "Arabic Lessons")
-        self.tabs.addTab(self.en_list, "English Lessons")
-        self.tabs.addTab(self.test_list, "Exams")
-        self.tabs.addTab(self.explorer_list, "Explorer Modes")
+        self.tabs.addTab(self.ar_list, _("Arabic Lessons"))
+        self.tabs.addTab(self.en_list, _("English Lessons"))
+        self.tabs.addTab(self.test_list, _("Exams"))
+        self.tabs.addTab(self.explorer_list, _("Explorer Modes"))
         
         layout.addWidget(self.tabs)
 
         # ==========================================
         # Buttons
         # ==========================================
-        self.start_button = QPushButton("Start Selected (Enter)")
+        self.start_button = QPushButton(_("Start Selected (Enter)"))
         self.start_button.setMinimumHeight(40)
         self.start_button.clicked.connect(self._on_start_clicked)
         layout.addWidget(self.start_button)
 
-        self.results_button = QPushButton("View Results (F4)")
+        self.results_button = QPushButton(_("View Results (F4)"))
         self.results_button.setMinimumHeight(40)
         self.results_button.clicked.connect(self.results_requested.emit)
         layout.addWidget(self.results_button)
 
-        self.settings_button = QPushButton("Settings (F3)")
+        self.settings_button = QPushButton(_("Settings (F3)"))
         self.settings_button.setMinimumHeight(40)
         self.settings_button.clicked.connect(self.settings_requested.emit)
         layout.addWidget(self.settings_button)
 
-        self.editor_button = QPushButton("Lesson Editor (F9)")
+        self.editor_button = QPushButton(_("Lesson Editor (F9)"))
         self.editor_button.setMinimumHeight(40)
         self.editor_button.clicked.connect(self.editor_requested.emit)
         layout.addWidget(self.editor_button)

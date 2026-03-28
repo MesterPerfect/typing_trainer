@@ -4,6 +4,7 @@ import logging
 import platform
 import subprocess
 from PyQt6.QtCore import qVersion
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication
 from ui.main_window import MainWindow
 from core.constants import BASE_DIR
@@ -72,6 +73,11 @@ def run_app(args=None):
     
     app = QApplication(sys.argv)
     
+    if lang_code == 'ar':
+        app.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
+    else:
+        app.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+
     # Use BASE_DIR for absolute, bulletproof path resolution
     style_path = BASE_DIR / "assets" / "styles.qss"
     

@@ -24,7 +24,7 @@ class ResultsView(QWidget):
         layout.setContentsMargins(40, 40, 40, 40)
         layout.setSpacing(20)
 
-        title = QLabel("Your Progress")
+        title = QLabel(_("Your Progress"))
         font = title.font()
         font.setPointSize(24)
         font.setBold(True)
@@ -51,7 +51,7 @@ class ResultsView(QWidget):
         
         layout.addWidget(self.table)
 
-        self.back_button = QPushButton("Return to Menu (Esc)")
+        self.back_button = QPushButton(_("Return to Menu (Esc)"))
         btn_font = self.back_button.font()
         btn_font.setPointSize(16)
         btn_font.setBold(True)

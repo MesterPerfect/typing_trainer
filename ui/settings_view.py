@@ -19,7 +19,7 @@ class SettingsView(QWidget):
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
 
-        title = QLabel("Settings")
+        title = QLabel(_("Settings"))
         title.setFont(self._get_font(18, bold=True))
         layout.addWidget(title)
 
@@ -35,7 +35,7 @@ class SettingsView(QWidget):
 
         # Sound Effects Volume Slider
         vol_layout = QHBoxLayout()
-        vol_label = QLabel("Sound Effects Volume:")
+        vol_label = QLabel(_("Sound Effects Volume:"))
         vol_label.setFont(self._get_font(14))
         
         self.volume_slider = QSlider(Qt.Orientation.Horizontal)
@@ -48,7 +48,7 @@ class SettingsView(QWidget):
         layout.addLayout(vol_layout)
 
         # Save and Return Button
-        self.save_btn = QPushButton("Save and Return (Esc)")
+        self.save_btn = QPushButton(_("Save and Return (Esc)"))
         self.save_btn.setFont(self._get_font(14, bold=True))
         self.save_btn.setMinimumHeight(40)
         self.save_btn.clicked.connect(self.save_and_return)
