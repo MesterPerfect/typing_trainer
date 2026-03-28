@@ -1,11 +1,18 @@
+import sys
+import os
 from pathlib import Path
 
 # =========================================================
 # Paths & Directories
 # =========================================================
 
-# Base directory of the project (2 levels up from this file)
-BASE_DIR = Path(__file__).resolve().parent.parent
+# Detect if the application is running as a frozen executable (cx_Freeze / PyInstaller)
+if getattr(sys, 'frozen', False):
+    # If frozen, the root is the directory containing the executable
+    BASE_DIR = Path(os.path.dirname(sys.executable))
+else:
+    # Base directory of the project (2 levels up from this file)
+    BASE_DIR = Path(__file__).resolve().parent.parent
 
 # We create a specific folder for user data to avoid mixing with the 'data' python package
 USER_DATA_DIR = BASE_DIR / "user_data"

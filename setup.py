@@ -1,6 +1,7 @@
 import sys
 import os
 import shutil
+import platform
 from cx_Freeze import setup, Executable
 
 def get_platform_config():
@@ -45,8 +46,12 @@ def main():
     version = os.environ.get("APP_VERSION", "1.0.0")
     base, ext = get_platform_config()
     
+    # Determine accurate OS and Architecture names
+    os_name = "Windows" if sys.platform == "win32" else "Linux"
+    arch = platform.machine() # e.g., 'AMD64' or 'x86_64'
+    
     target_name = f"TypingTrainer{ext}"
-    build_dir = f"build/TypingTrainer_{sys.platform}_v{version}"
+    build_dir = f"build/TypingTrainer_{os_name}_{arch}_v{version}"
 
     include_files = get_include_files()
     
