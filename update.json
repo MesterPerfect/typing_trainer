@@ -12,15 +12,15 @@
     }
   },
   "beta": {
-    "version": "1.1.0-beta",
+    "version": "1.1.0-beta5",
     "release_notes": {
       "en": "- Added Virtual Keyboard.\n- Added High Contrast Theme.",
       "ar": "- إضافة لوحة المفاتيح الافتراضية.\n- إضافة مظهر التباين العالي."
     },
     "downloads": {
-      "windows": "https://link-to-beta-windows.zip",
-      "linux": "https://link-to-beta-linux.zip",
-      "darwin": "https://link-to-beta-macos.zip"
+      "windows": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0-beta.5/TypingTrainer_windows-latest.zip",
+      "linux": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0-beta.5/TypingTrainer_ubuntu-latest.zip",
+      "darwin": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0-beta.5/TypingTrainer_macos-latest.zip"
     }
   }
 }
