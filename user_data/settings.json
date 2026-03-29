@@ -3,5 +3,9 @@
     "tts_enabled": true,
     "log_level": "INFO",
     "sound_effects": true,
-    "sound_volume": 70
+    "sound_volume": 70,
+    "ui_language": "en",
+    "auto_update": false,
+    "enable_logging": true,
+    "no_log_time": true
 }

@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
+    QHBoxLayout,
     QListWidget,
     QLabel,
     QPushButton,
@@ -18,11 +19,9 @@ logger = logging.getLogger(__name__)
 
 
 class LessonView(QWidget):
+    # Only keep the signals we actually use in this view
     lesson_selected = Signal(Lesson)
     explorer_requested = Signal(ExplorerMode)
-    settings_requested = Signal()
-    results_requested = Signal()
-    editor_requested = Signal()
 
     def __init__(self, tts):
         super().__init__()
@@ -59,6 +58,12 @@ class LessonView(QWidget):
         self.test_list = QListWidget()
         self.explorer_list = QListWidget()
 
+        # Enable starting lessons with the Enter key or double-click directly from the list
+        self.ar_list.itemActivated.connect(self._on_start_clicked)
+        self.en_list.itemActivated.connect(self._on_start_clicked)
+        self.test_list.itemActivated.connect(self._on_start_clicked)
+        self.explorer_list.itemActivated.connect(self._on_start_clicked)
+
         self.tabs.addTab(self.ar_list, _("Arabic Lessons"))
         self.tabs.addTab(self.en_list, _("English Lessons"))
         self.tabs.addTab(self.test_list, _("Exams"))
@@ -67,29 +72,18 @@ class LessonView(QWidget):
         layout.addWidget(self.tabs)
 
         # ==========================================
-        # Buttons
+        # Buttons Layout (Horizontal)
         # ==========================================
+        button_layout = QHBoxLayout()
+
         self.start_button = QPushButton(_("Start Selected (Enter)"))
         self.start_button.setMinimumHeight(40)
         self.start_button.clicked.connect(self._on_start_clicked)
-        layout.addWidget(self.start_button)
+        button_layout.addWidget(self.start_button)
 
-        self.results_button = QPushButton(_("View Results (F4)"))
-        self.results_button.setMinimumHeight(40)
-        self.results_button.clicked.connect(self.results_requested.emit)
-        layout.addWidget(self.results_button)
-
-        self.settings_button = QPushButton(_("Settings (F3)"))
-        self.settings_button.setMinimumHeight(40)
-        self.settings_button.clicked.connect(self.settings_requested.emit)
-        layout.addWidget(self.settings_button)
-
-        self.editor_button = QPushButton(_("Lesson Editor (F9)"))
-        self.editor_button.setMinimumHeight(40)
-        self.editor_button.clicked.connect(self.editor_requested.emit)
-        layout.addWidget(self.editor_button)
-
+        layout.addLayout(button_layout)
         self.setLayout(layout)
+        
         self._populate_explorer_modes()
 
     def _populate_explorer_modes(self):
@@ -146,6 +140,7 @@ class LessonView(QWidget):
     def keyPressEvent(self, event):
         if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             self._on_start_clicked()
+            event.accept()
             return
         super().keyPressEvent(event)
 

@@ -86,5 +86,13 @@
         "errors": 0,
         "time_elapsed": 12.2,
         "timestamp": 1774668005.8055222
+    },
+    {
+        "lesson_id": "ar_1",
+        "wpm": 20,
+        "accuracy": 100.0,
+        "errors": 0,
+        "time_elapsed": 12.2,
+        "timestamp": 1774746345.851361
     }
 ]
