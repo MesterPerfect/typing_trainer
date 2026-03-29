@@ -8,8 +8,8 @@ from core.constants import ICON_FILE_ICO
 def get_platform_config():
     """Determine platform-specific base and executable extension."""
     if sys.platform == "win32":
-        # 'Win32GUI' hides the console window on Windows
-        return "Win32GUI", ".exe"
+        # 'gui' hides the console window on Windows (cx_Freeze 8+)
+        return "gui", ".exe"
     return None, ""
 
 def get_include_files():

@@ -10,13 +10,18 @@ on:
 permissions:
   contents: write
 
+env:
+  # هذا السطر سيقوم بإخفاء تحذيرات Node.js 20 المزعجة فوراً
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      # هذا الخيار يمنع إلغاء بناء الماك ولينكس إذا فشل ويندوز
+      fail-fast: false 
       matrix:
-        # We build for Windows, macOS, and Linux simultaneously
         os: [windows-latest, macos-latest, ubuntu-latest]
 
     steps:
@@ -36,19 +41,15 @@ jobs:
       - name: Build executable with cx_Freeze
         run: python setup.py build
 
-      - name: Zip build output (Windows)
-        if: matrix.os == 'windows-latest'
-        run: Compress-Archive -Path build\* -DestinationPath TypingTrainer_Windows.zip
-
-      - name: Zip build output (macOS & Linux)
-        if: matrix.os != 'windows-latest'
-        run: zip -r TypingTrainer_${{ matrix.os }}.zip build/
+      - name: Zip build output (Universal)
+        # بدلاً من أوامر النظام المعقدة، نستخدم بايثون لضغط الملفات بشكل موحد على كل الأنظمة
+        run: python -m zipfile -c TypingTrainer_${{ matrix.os }}.zip build/
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-${{ matrix.os }}
-          path: TypingTrainer_*.zip
+          path: TypingTrainer_${{ matrix.os }}.zip
 
   release:
     name: Create GitHub Release
@@ -67,10 +68,8 @@ jobs:
       - name: Extract Version & Determine Release Type
         id: release_info
         run: |
-          # Dynamically extract APP_VERSION from constants.py
           export APP_VERSION=$(python -c "import sys; sys.path.append('.'); from core.constants import APP_VERSION; print(APP_VERSION)")
           
-          # Check if the branch is 'beta' to set pre-release flag
           if [ "${{ github.ref }}" = "refs/heads/beta" ]; then
             echo "IS_PRERELEASE=true" >> $GITHUB_ENV
             echo "TAG_NAME=v${APP_VERSION}-beta.${{ github.run_number }}" >> $GITHUB_ENV
