@@ -1,0 +1,91 @@
+name: CI/CD Release Pipeline
+
+on:
+  push:
+    branches:
+      - stable
+      - beta
+
+# Grant permissions needed to create releases
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # We build for Windows, macOS, and Linux simultaneously
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build executable with cx_Freeze
+        run: python setup.py build
+
+      - name: Zip build output (Windows)
+        if: matrix.os == 'windows-latest'
+        run: Compress-Archive -Path build\* -DestinationPath TypingTrainer_Windows.zip
+
+      - name: Zip build output (macOS & Linux)
+        if: matrix.os != 'windows-latest'
+        run: zip -r TypingTrainer_${{ matrix.os }}.zip build/
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.os }}
+          path: TypingTrainer_*.zip
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Extract Version & Determine Release Type
+        id: release_info
+        run: |
+          # Dynamically extract APP_VERSION from constants.py
+          export APP_VERSION=$(python -c "import sys; sys.path.append('.'); from core.constants import APP_VERSION; print(APP_VERSION)")
+          
+          # Check if the branch is 'beta' to set pre-release flag
+          if [ "${{ github.ref }}" = "refs/heads/beta" ]; then
+            echo "IS_PRERELEASE=true" >> $GITHUB_ENV
+            echo "TAG_NAME=v${APP_VERSION}-beta.${{ github.run_number }}" >> $GITHUB_ENV
+            echo "RELEASE_NAME=Typing Trainer v${APP_VERSION} (Beta)" >> $GITHUB_ENV
+          else
+            echo "IS_PRERELEASE=false" >> $GITHUB_ENV
+            echo "TAG_NAME=v${APP_VERSION}" >> $GITHUB_ENV
+            echo "RELEASE_NAME=Typing Trainer v${APP_VERSION} (Stable)" >> $GITHUB_ENV
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          name: ${{ env.RELEASE_NAME }}
+          prerelease: ${{ env.IS_PRERELEASE }}
+          files: artifacts/*.zip
+          generate_release_notes: true

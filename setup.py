@@ -5,15 +5,12 @@ import platform
 from cx_Freeze import setup, Executable
 from core.constants import ICON_FILE_ICO
 
-
 def get_platform_config():
     """Determine platform-specific base and executable extension."""
-    platform_name = sys.platform
-    if platform_name == "win32":
-        # 'gui' hides the console window on Windows
-        return "gui", ".exe"
+    if sys.platform == "win32":
+        # 'Win32GUI' hides the console window on Windows
+        return "Win32GUI", ".exe"
     return None, ""
-
 
 def get_include_files():
     """Return a list of files and folders to include in the build."""
@@ -26,7 +23,6 @@ def get_include_files():
             base_files.append(("UniversalSpeech", "UniversalSpeech"))
 
     return base_files
-
 
 def clean_unused_folders(build_dir):
     """Remove unnecessary PySide6 bloat to reduce the final build size."""
@@ -43,14 +39,19 @@ def clean_unused_folders(build_dir):
         except Exception as e:
             print(f"Error removing {folder}: {e}")
 
-
 def main():
     version = os.environ.get("APP_VERSION", "1.0.0")
     base, ext = get_platform_config()
 
-    # Determine accurate OS and Architecture names
-    os_name = "Windows" if sys.platform == "win32" else "Linux"
-    arch = platform.machine()  # e.g., 'AMD64' or 'x86_64'
+    # Determine accurate OS name for the build directory
+    if sys.platform == "win32":
+        os_name = "Windows"
+    elif sys.platform == "darwin":
+        os_name = "macOS"
+    else:
+        os_name = "Linux"
+        
+    arch = platform.machine()  # e.g., 'AMD64', 'x86_64', or 'arm64'
 
     target_name = f"TypingTrainer{ext}"
     build_dir = f"build/TypingTrainer_{os_name}_{arch}_v{version}"
@@ -89,7 +90,6 @@ def main():
 
     # Run post-build cleanup
     clean_unused_folders(build_dir)
-
 
 if __name__ == "__main__":
     main()
