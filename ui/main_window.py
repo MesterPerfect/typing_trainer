@@ -20,7 +20,7 @@ from services.result_service import ResultService
 from services.audio import AudioService
 from ui.lesson_view import LessonView
 from ui.typing import TypingView
-from ui.settings_view import SettingsView
+from ui.settings.settings_view import SettingsView
 from ui.results_view import ResultsView
 from ui.explorer_view import ExplorerView
 from ui.components.update_dialog import UpdateDialog
