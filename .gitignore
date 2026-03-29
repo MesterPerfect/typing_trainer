@@ -154,7 +154,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-.json
+
 
 # pytype static type analyzer
 .pytype/
@@ -181,7 +181,5 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
-user_data/settings.json
-user_data/settings.json
-user_data/settings.json
+user_data/results.json
 user_data/settings.json

@@ -6,7 +6,7 @@ from pathlib import Path
 # Application Info
 # =========================================================
 
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.0.0-beta3"
 
 # =========================================================
 # Paths & Directories

@@ -1,12 +1,12 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.0-beta3",
   "release_notes": {
-    "en": "- Added an automatic updater system.\n- Improved typing speed calculation.\n- Fixed UI bugs.",
-    "ar": "- إضافة نظام التحديث التلقائي.\n- تحسين طريقة حساب سرعة الكتابة.\n- إصلاح بعض مشاكل الواجهة."
+    "en": "- Added an interactive, bilingual Virtual Keyboard for touch typing.\n- Introduced High Contrast theme & large text display for low-vision accessibility.\n- Redesigned the Settings menu into a professional modular tree interface.\n- Added native macOS VoiceOver TTS integration.\n- Major performance improvements and architectural refactoring.",
+    "ar": "- إضافة لوحة مفاتيح افتراضية تفاعلية ثنائية اللغة لتعلم الطباعة باللمس.\n- إضافة مظهر 'التباين العالي' وتكبير النصوص خصيصاً لدعم ضعاف البصر.\n- تصميم واجهة إعدادات جديدة كلياً بشكل شجري متقدم واحترافي.\n- دعم شامل ومباشر لقارئ الشاشة VoiceOver لأنظمة الماك.\n- تحسينات جذرية في الأداء واستقرار البرنامج."
   },
   "downloads": {
-    "windows": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.1/TypingTrainer_Windows_AMD64.zip",
-    "linux": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.1/TypingTrainer_Linux_x86_64.zip",
-    "darwin": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.1/TypingTrainer_macOS.zip"
+    "windows": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.1.0-beta.3/TypingTrainer_windows-latest.zip",
+    "linux": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.1.0-beta.3/TypingTrainer_ubuntu-latest.zip",
+    "darwin": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.1.0-beta.3/TypingTrainer_macos-latest.zip"
   }
 }
