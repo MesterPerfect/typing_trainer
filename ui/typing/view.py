@@ -7,6 +7,7 @@ from core.modes import TypingMode
 from ui.components.stats_panel import StatsPanel
 from ui.components.text_display import TextDisplay
 from ui.components.typing_input import TypingInput
+from ui.components.virtual_keyboard import VirtualKeyboard
 from models.result_model import LessonResult
 from .speech_handler import TypingSpeechHandler
 
@@ -18,6 +19,7 @@ class TypingView(QWidget):
 
     def __init__(self, tts, settings, result_service, audio):
         super().__init__()
+        self.settings = settings  # Saved to access keyboard visibility settings later
         self.result_service = result_service
         self.audio = audio
 
@@ -36,6 +38,13 @@ class TypingView(QWidget):
         self.stats_panel = StatsPanel()
         self.text_display = TextDisplay()
         self.typing_input = TypingInput()
+        
+        # Initialize the Virtual Keyboard
+        self.virtual_keyboard = VirtualKeyboard()
+        
+        # Check settings to determine if the keyboard should be visible
+        show_kb = self.settings.get("show_virtual_keyboard", True)
+        self.virtual_keyboard.setVisible(show_kb)
 
         self.typing_input.char_typed.connect(self.handle_char_typed)
         self.typing_input.backspace_pressed.connect(self.handle_backspace)
@@ -44,7 +53,11 @@ class TypingView(QWidget):
         layout.addWidget(self.stats_panel)
         layout.addWidget(self.text_display)
         layout.addWidget(self.typing_input)
+        
+        # Add a stretch so the keyboard stays at the bottom of the screen
         layout.addStretch()
+        layout.addWidget(self.virtual_keyboard)
+        
         self.setLayout(layout)
 
     def _setup_timers(self):
@@ -55,6 +68,10 @@ class TypingView(QWidget):
         logger.info(f"TypingView: Starting lesson: {lesson.title}")
         self.current_lesson_id = lesson.id
         self.is_test = getattr(lesson, "lesson_type", "lesson") == "test"
+
+        # Sync virtual keyboard language with the lesson
+        lesson_lang = getattr(lesson, "language", "en")
+        self.virtual_keyboard.set_language(lesson_lang)
 
         if lesson.difficulty == 1:
             mode = TypingMode.CHARACTER
@@ -88,6 +105,15 @@ class TypingView(QWidget):
         self.text_display.update_display(self.engine.text, *parts)
         self.update_stats_display()
 
+        # Update Virtual Keyboard Highlight dynamically
+        # parts[1] usually represents the current target (char or word)
+        if len(parts) > 1 and parts[1]:
+            # Extract the exact next character the user needs to type
+            target_char = parts[1][0]
+            self.virtual_keyboard.highlight_key(target_char)
+        else:
+            self.virtual_keyboard.highlight_key("")
+
     def handle_char_typed(self, char: str):
         if not self.engine:
             return
@@ -113,6 +139,9 @@ class TypingView(QWidget):
         logger.info("Typing completed")
         self.engine.stats.stop()
         self.stats_timer.stop()
+        
+        # Turn off keyboard highlight when finished
+        self.virtual_keyboard.highlight_key("")
 
         stats = self.engine.get_stats()
         self.stats_panel.update_stats(stats)
