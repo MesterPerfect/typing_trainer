@@ -1,0 +1,12 @@
+{
+  "version": "1.0.1",
+  "release_notes": {
+    "en": "- Added an automatic updater system.\n- Improved typing speed calculation.\n- Fixed UI bugs.",
+    "ar": "- إضافة نظام التحديث التلقائي.\n- تحسين طريقة حساب سرعة الكتابة.\n- إصلاح بعض مشاكل الواجهة."
+  },
+  "downloads": {
+    "windows": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.1/TypingTrainer_Windows_AMD64.zip",
+    "linux": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.1/TypingTrainer_Linux_x86_64.zip",
+    "darwin": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.1/TypingTrainer_macOS.zip"
+  }
+}

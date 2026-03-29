@@ -11,7 +11,8 @@ logger = logging.getLogger(__name__)
 
 # URL to the raw JSON file on your GitHub repository
 # Make sure to replace 'main' with your default branch name if different
-UPDATE_JSON_URL = "https://raw.githubusercontent.com/MesterPerfect/typing_trainer/main/update.json"
+# UPDATE_JSON_URL = "https://raw.githubusercontent.com/MesterPerfect/typing_trainer/main/update.json"
+UPDATE_JSON_URL = "https://raw.githubusercontent.com/MesterPerfect/typing_trainer/beta/update.json"
 
 class UpdateChecker(QThread):
     """

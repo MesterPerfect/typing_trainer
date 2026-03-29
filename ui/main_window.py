@@ -5,12 +5,13 @@ import platform
 from PySide6.QtWidgets import QMainWindow, QStackedWidget
 from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 
 from ui.lesson_editor_view import LessonEditorView
 from services.tts import create_tts
 from services.lesson import LessonService
 from services.settings_service import SettingsService
+from services.updater import UpdateChecker
 from utils.logger import setup_logger
 from services.result_service import ResultService
 from services.audio import AudioService
@@ -19,13 +20,16 @@ from ui.typing import TypingView
 from ui.settings_view import SettingsView
 from ui.results_view import ResultsView
 from ui.explorer_view import ExplorerView
+from ui.components.update_dialog import UpdateDialog
 from core.modes import ExplorerMode
 from core.constants import (
     WINDOW_WIDTH,
     WINDOW_HEIGHT,
     WINDOW_TITLE,
+    APP_VERSION,
     ICON_FILE_ICO,
     ICON_FILE_PNG,
+
 )
 
 logger = logging.getLogger(__name__)
@@ -57,6 +61,9 @@ class MainWindow(QMainWindow):
 
         # Initialize the user interface
         self._setup_ui()
+
+        # Check for updates in the background 2 seconds after startup
+        QTimer.singleShot(2000, self._check_for_updates)
 
     def _apply_window_icon(self):
         """Applies the suitable icon file to the main window based on the OS."""
@@ -118,6 +125,26 @@ class MainWindow(QMainWindow):
         self.editor_view = LessonEditorView(self.tts)
         self.editor_view.return_requested.connect(self.show_lessons)
         self.stacked_widget.addWidget(self.editor_view)
+
+    # ===============================
+    # check update Methods
+    # ===============================
+
+    def _check_for_updates(self):
+        """ Silently checks for updates in the background. """
+        # We fetch the current language to get the appropriate release notes
+        current_lang = self.settings.get("ui_language", "en")
+        
+        self.updater_thread = UpdateChecker(APP_VERSION, current_lang)
+        self.updater_thread.update_available.connect(self._show_update_dialog)
+        # We ignore 'no_update' and 'error_occurred' to keep the background check strictly silent
+        self.updater_thread.start()
+
+    def _show_update_dialog(self, latest_version, release_notes, download_url):
+        """ Displays the update dialog when a new version is found. """
+        self.update_dialog = UpdateDialog(latest_version, release_notes, download_url, self.tts, self)
+        self.update_dialog.show()
+
 
     # ===============================
     # Navigation Methods
