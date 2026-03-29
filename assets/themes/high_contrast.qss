@@ -1,0 +1,106 @@
+/* =========================================================
+   High Contrast Theme (Accessibility)
+   ========================================================= */
+
+QWidget {
+    background-color: #000000;
+    color: #FFFF00;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 20px; 
+}
+
+/* =========================================================
+   Buttons
+   ========================================================= */
+
+QPushButton {
+    background-color: #000000;
+    color: #FFFF00;
+    border: 3px solid #FFFF00;
+    border-radius: 0px; /* Sharp edges for better visibility */
+    padding: 10px 20px;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+QPushButton:hover, QPushButton:focus {
+    background-color: #FFFF00;
+    color: #000000;
+}
+
+/* =========================================================
+   List Widget
+   ========================================================= */
+
+QListWidget {
+    background-color: #000000;
+    border: 3px solid #FFFF00;
+    color: #FFFFFF;
+    font-size: 22px;
+}
+
+QListWidget::item {
+    padding: 15px;
+    border-bottom: 2px solid #333333;
+}
+
+QListWidget::item:hover, QListWidget::item:focus {
+    border: 3px solid #00FFFF;
+}
+
+QListWidget::item:selected {
+    background-color: #FFFF00;
+    color: #000000;
+    font-weight: bold;
+}
+
+/* =========================================================
+   Tabs and Panels
+   ========================================================= */
+
+#StatsPanel {
+    background-color: #000000;
+    border: 3px solid #FFFF00;
+}
+
+QTabBar::tab {
+    background-color: #000000;
+    color: #FFFFFF;
+    padding: 15px 25px;
+    border: 3px solid #333333;
+    font-size: 20px;
+}
+
+QTabBar::tab:selected {
+    background-color: #FFFF00;
+    color: #000000;
+    border: 3px solid #FFFF00;
+}
+
+/* =========================================================
+   Settings Elements
+   ========================================================= */
+
+QCheckBox {
+    color: #FFFFFF;
+    font-size: 20px;
+}
+
+QCheckBox::indicator {
+    width: 30px;
+    height: 30px;
+    border: 3px solid #FFFF00;
+    background-color: #000000;
+}
+
+QCheckBox::indicator:checked {
+    background-color: #FFFF00;
+}
+
+QComboBox {
+    background-color: #000000;
+    color: #FFFF00;
+    border: 3px solid #FFFF00;
+    padding: 10px;
+    font-size: 20px;
+}

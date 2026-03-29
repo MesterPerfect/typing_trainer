@@ -80,18 +80,20 @@ def run_app(args=None):
     else:
         app.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
-    # Use BASE_DIR for absolute, bulletproof path resolution
-    style_path = BASE_DIR / "assets" / "styles.qss"
+    # 3. Dynamic Theme Loading Logic
+    # Default to 'dark_theme' if no setting is found
+    theme_name = settings.get("theme", "dark_theme") 
+    theme_path = BASE_DIR / "assets" / "themes" / f"{theme_name}.qss"
 
-    if style_path.exists():
+    if theme_path.exists():
         try:
-            with open(style_path, "r", encoding="utf-8") as style_file:
+            with open(theme_path, "r", encoding="utf-8") as style_file:
                 app.setStyleSheet(style_file.read())
-            logger.info("Stylesheet loaded successfully.")
+            logger.info(f"Theme '{theme_name}' loaded successfully.")
         except Exception as e:
-            logger.error(f"Failed to load stylesheet: {e}")
+            logger.error(f"Failed to load theme {theme_name}: {e}")
     else:
-        logger.warning(f"Stylesheet not found at {style_path}")
+        logger.warning(f"Theme file not found at {theme_path}")
 
     window = MainWindow(args=args)
     window.show()
