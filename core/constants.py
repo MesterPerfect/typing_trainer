@@ -3,6 +3,12 @@ import os
 from pathlib import Path
 
 # =========================================================
+# Application Info
+# =========================================================
+
+APP_VERSION = "1.0.0"
+
+# =========================================================
 # Paths & Directories
 # =========================================================
 
@@ -23,10 +29,6 @@ ICON_FILE_PNG = ASSETS_DIR / "icon.png"
 
 # We create a specific folder for user data to avoid mixing with the 'data' python package
 USER_DATA_DIR = BASE_DIR / "user_data"
-
-
-
-
 
 # JSON File Paths
 SETTINGS_FILE = USER_DATA_DIR / "settings.json"
