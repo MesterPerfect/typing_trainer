@@ -1,89 +1,83 @@
 import subprocess
-import logging
 import threading
 import queue
-from typing import Tuple
-
-from .base import BaseTTS
+import logging
 
 logger = logging.getLogger(__name__)
 
-class MacOSTTS(BaseTTS):
-    """
-    macOS TTS implementation using the native 'say' command.
-    Implements a background queue to ensure the GUI never freezes.
-    """
-
+class MacOSTTS:
     def __init__(self):
         self.available = True
+        self.speech_queue = queue.Queue()
+        self.current_process = None
         
-        # Initialize background queue system
-        self._queue: queue.Queue[Tuple[str, bool]] = queue.Queue()
-        self._stop_event = threading.Event()
-        self._worker_thread = threading.Thread(
-            target=self._worker,
-            daemon=True
-        )
-        self._worker_thread.start()
-        
-        logger.info("MacOSTTS initialized using native 'say' command.")
+        self.worker_thread = threading.Thread(target=self._process_queue, daemon=True)
+        self.worker_thread.start()
 
-    def speak(self, text: str, interrupt: bool = True):
-        if not text:
-            return
-
-        logger.debug(f"Queue macOS speak: {text} (interrupt={interrupt})")
-
+    def speak(self, text: str, interrupt: bool = False):
         if interrupt:
-            self._clear_queue()
             self.stop()
-
-        self._queue.put((text, interrupt))
-
-    def speak_char(self, char: str):
-        if not char:
-            return
-
-        if char == " ":
-            self.speak("space", interrupt=True)
-        else:
-            self.speak(char, interrupt=True)
+            with self.speech_queue.mutex:
+                self.speech_queue.queue.clear()
+        self.speech_queue.put(text)
 
     def stop(self):
-        """ Stop the currently speaking phrase and clear the queue. """
-        self._clear_queue()
+        # Terminate the 'say' process if it is currently running
+        if self.current_process and self.current_process.poll() is None:
+            try:
+                self.current_process.terminate()
+            except Exception:
+                pass
+
+    def _is_voiceover_running(self) -> bool:
         try:
-            # killall forcefully stops the native 'say' process
-            subprocess.run(["killall", "say"], stderr=subprocess.DEVNULL)
-        except Exception as e:
-            logger.debug(f"Error stopping macOS speech: {e}")
+            # Check if the VoiceOver process is active in the system
+            output = subprocess.check_output(
+                ['osascript', '-e', 'tell application "System Events" to (name of processes) contains "VoiceOver"'],
+                text=True,
+                stderr=subprocess.DEVNULL
+            )
+            return "true" in output.strip().lower()
+        except Exception:
+            return False
+
+    def _process_queue(self):
+        while True:
+            text = self.speech_queue.get()
+            if text is None:
+                break
+                
+            try:
+                if self._is_voiceover_running():
+                    # Escape quotes and backslashes for AppleScript execution
+                    escaped_text = text.replace('\\', '\\\\').replace('"', '\\"')
+                    script = f'tell application "VoiceOver" to output "{escaped_text}"'
+                    
+                    # Execute the AppleScript to send speech directly to VoiceOver
+                    # Note: Requires "Allow VoiceOver to be controlled with AppleScript" to be enabled
+                    subprocess.run(
+                        ['osascript', '-e', script], 
+                        check=True, 
+                        capture_output=True, 
+                        text=True
+                    )
+                else:
+                    # Fallback to the native 'say' command if VoiceOver is off
+                    self.current_process = subprocess.Popen(['say', text])
+                    self.current_process.wait()
+                    
+            except subprocess.CalledProcessError as e:
+                # Fallback to 'say' if AppleScript fails (e.g., permissions are not granted)
+                logger.debug(f"VoiceOver AppleScript failed, falling back to 'say'. Error: {e.stderr}")
+                self.current_process = subprocess.Popen(['say', text])
+                self.current_process.wait()
+            except Exception as e:
+                logger.error(f"macOS TTS error: {e}")
+            
+            self.speech_queue.task_done()
 
     def shutdown(self):
-        """ Cleanly terminate the background worker thread. """
-        self._stop_event.set()
-        self._queue.put(("__STOP__", True))
-        self._worker_thread.join(timeout=1)
-
-    def _worker(self):
-        """ Background thread loop for processing the speech queue. """
-        while not self._stop_event.is_set():
-            try:
-                text, interrupt = self._queue.get()
-
-                if text == "__STOP__":
-                    break
-
-                # The 'say' command runs synchronously here, 
-                # but it's safe because we are in a background thread.
-                subprocess.run(["say", text], stderr=subprocess.DEVNULL)
-
-            except Exception as e:
-                logger.error(f"MacOSTTS worker error: {e}")
-
-    def _clear_queue(self):
-        """ Empty the speech queue. """
-        while not self._queue.empty():
-            try:
-                self._queue.get_nowait()
-            except queue.Empty:
-                break
+        self.stop()
+        self.speech_queue.put(None)
+        if self.worker_thread.is_alive():
+            self.worker_thread.join(timeout=2)
