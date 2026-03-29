@@ -168,7 +168,11 @@ class MainWindow(QMainWindow):
     # ===============================
     def check_for_updates(self, silent=True):
         current_lang = self.settings.get("ui_language", "en")
-        self.updater_thread = UpdateChecker(APP_VERSION, current_lang)
+        # Read the preferred channel from settings
+        update_channel = self.settings.get("update_channel", "stable")
+        
+        # Pass the channel to the updater thread
+        self.updater_thread = UpdateChecker(APP_VERSION, current_lang, update_channel)
         self.updater_thread.update_available.connect(self._show_update_dialog)
         
         if not silent:

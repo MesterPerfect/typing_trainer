@@ -6,14 +6,15 @@ from pathlib import Path
 # Application Info
 # =========================================================
 
-APP_VERSION = "1.0.0
+
+APP_VERSION = "1.0.0"
 
 # =========================================================
 # Paths & Directories
 # =========================================================
 
 # Detect if the application is running as a frozen executable (cx_Freeze / PyInstaller)
-if getattr(sys, 'frozen', False):
+if getattr(sys, "frozen", False):
     # If frozen, the root is the directory containing the executable
     BASE_DIR = Path(os.path.dirname(sys.executable))
 else:

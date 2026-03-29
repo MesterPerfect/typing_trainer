@@ -4,33 +4,35 @@ import platform
 import tempfile
 import urllib.request
 import logging
+from packaging.version import parse as parse_version
 
 from PySide6.QtCore import QThread, Signal
 
 logger = logging.getLogger(__name__)
 
 # URL to the raw JSON file on your GitHub repository
-# Make sure to replace 'main' with your default branch name if different
-# UPDATE_JSON_URL = "https://raw.githubusercontent.com/MesterPerfect/typing_trainer/main/update.json"
-UPDATE_JSON_URL = "https://raw.githubusercontent.com/MesterPerfect/typing_trainer/beta/update.json"
+# Ensure this points to the master update file that contains ALL channels
+UPDATE_JSON_URL = "https://raw.githubusercontent.com/MesterPerfect/typing_trainer/main/update.json"
 
 class UpdateChecker(QThread):
     """
-    Asynchronously checks a remote JSON manifest for the latest application version.
+    Asynchronously checks a remote JSON manifest for the latest application version 
+    based on the user's preferred update channel (stable/beta).
     """
     # Signals: latest_version, localized_release_notes, download_url
     update_available = Signal(str, str, str)
     no_update = Signal()
     error_occurred = Signal(str)
 
-    def __init__(self, current_version: str, current_language: str = "en"):
+    def __init__(self, current_version: str, current_language: str = "en", update_channel: str = "stable"):
         super().__init__()
         self.current_version = current_version
         self.current_language = current_language
+        self.update_channel = update_channel
 
     def run(self):
         try:
-            logger.info(f"Checking for updates from: {UPDATE_JSON_URL}")
+            logger.info(f"Checking for updates from: {UPDATE_JSON_URL} on channel: {self.update_channel}")
             
             # Prevent caching by adding a dummy query parameter
             import time
@@ -39,18 +41,27 @@ class UpdateChecker(QThread):
             req = urllib.request.Request(url_with_nocache, headers={'User-Agent': 'TypingTrainer-App'})
             
             with urllib.request.urlopen(req, timeout=10) as response:
-                data = json.loads(response.read().decode())
+                master_data = json.loads(response.read().decode())
             
-            latest_version = data.get("version", "")
+            # 1. Extract data for the selected channel
+            channel_data = master_data.get(self.update_channel)
             
+            if not channel_data:
+                logger.error(f"Channel '{self.update_channel}' not found in update manifest.")
+                self.error_occurred.emit(f"Update channel '{self.update_channel}' is not available.")
+                return
+
+            latest_version = channel_data.get("version", "")
+            
+            # 2. Smart Version Comparison (Supports SemVer like 1.1.0-beta)
             if self._is_newer(latest_version, self.current_version):
-                # 1. Get localized notes, fallback to English, then to a default string
-                notes_dict = data.get("release_notes", {})
+                # 3. Get localized notes, fallback to English, then to a default string
+                notes_dict = channel_data.get("release_notes", {})
                 localized_notes = notes_dict.get(self.current_language, notes_dict.get("en", "No release notes provided."))
                 
-                # 2. Get the correct download URL for the current OS (windows, linux, darwin)
+                # 4. Get the correct download URL for the current OS (windows, linux, darwin)
                 current_os = platform.system().lower()
-                download_url = data.get("downloads", {}).get(current_os, "")
+                download_url = channel_data.get("downloads", {}).get(current_os, "")
                 
                 if download_url:
                     self.update_available.emit(latest_version, localized_notes, download_url)
@@ -64,12 +75,14 @@ class UpdateChecker(QThread):
             self.error_occurred.emit("Could not check for updates. Please check your internet connection.")
 
     def _is_newer(self, latest: str, current: str) -> bool:
-        """ Compares semantic versions (e.g., 1.0.1 > 1.0.0). """
+        """ 
+        Compares semantic versions using standard packaging library.
+        Correctly handles pre-releases (e.g. 1.1.0 > 1.1.0-beta > 1.0.0).
+        """
         try:
-            l_parts = [int(x) for x in latest.split(".")]
-            c_parts = [int(x) for x in current.split(".")]
-            return l_parts > c_parts
-        except ValueError:
+            return parse_version(latest) > parse_version(current)
+        except Exception as e:
+            logger.error(f"Version parsing error: {e}")
             return False
 
 class UpdateDownloader(QThread):

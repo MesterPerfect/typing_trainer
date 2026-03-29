@@ -1,12 +1,26 @@
 {
-  "version": "1.0.0-beta3",
-  "release_notes": {
-    "en": "- Added an interactive, bilingual Virtual Keyboard for touch typing.\n- Introduced High Contrast theme & large text display for low-vision accessibility.\n- Redesigned the Settings menu into a professional modular tree interface.\n- Added native macOS VoiceOver TTS integration.\n- Major performance improvements and architectural refactoring.",
-    "ar": "- إضافة لوحة مفاتيح افتراضية تفاعلية ثنائية اللغة لتعلم الطباعة باللمس.\n- إضافة مظهر 'التباين العالي' وتكبير النصوص خصيصاً لدعم ضعاف البصر.\n- تصميم واجهة إعدادات جديدة كلياً بشكل شجري متقدم واحترافي.\n- دعم شامل ومباشر لقارئ الشاشة VoiceOver لأنظمة الماك.\n- تحسينات جذرية في الأداء واستقرار البرنامج."
+  "stable": {
+    "version": "1.0.0",
+    "release_notes": {
+      "en": "- Stable release with improved typing engine.",
+      "ar": "- إصدار مستقر مع تحسين محرك الطباعة."
+    },
+    "downloads": {
+      "windows": "https://link-to-stable-windows.zip",
+      "linux": "https://link-to-stable-linux.zip",
+      "darwin": "https://link-to-stable-macos.zip"
+    }
   },
-  "downloads": {
-    "windows": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.1.0-beta.3/TypingTrainer_windows-latest.zip",
-    "linux": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.1.0-beta.3/TypingTrainer_ubuntu-latest.zip",
-    "darwin": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.1.0-beta.3/TypingTrainer_macos-latest.zip"
+  "beta": {
+    "version": "1.1.0-beta",
+    "release_notes": {
+      "en": "- Added Virtual Keyboard.\n- Added High Contrast Theme.",
+      "ar": "- إضافة لوحة المفاتيح الافتراضية.\n- إضافة مظهر التباين العالي."
+    },
+    "downloads": {
+      "windows": "https://link-to-beta-windows.zip",
+      "linux": "https://link-to-beta-linux.zip",
+      "darwin": "https://link-to-beta-macos.zip"
+    }
   }
 }
