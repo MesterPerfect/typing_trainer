@@ -94,5 +94,13 @@
         "errors": 0,
         "time_elapsed": 12.2,
         "timestamp": 1774746345.851361
+    },
+    {
+        "lesson_id": "en_2",
+        "wpm": 10,
+        "accuracy": 94.4,
+        "errors": 1,
+        "time_elapsed": 15.4,
+        "timestamp": 1774746663.092955
     }
 ]
