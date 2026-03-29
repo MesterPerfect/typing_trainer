@@ -10,10 +10,26 @@ class SystemPage(QWidget):
         layout = QVBoxLayout()
         layout.setSpacing(15)
 
+        # 1. Auto Update Checkbox
         self.auto_update_cb = QCheckBox(_("Check for updates automatically on startup"))
         self.auto_update_cb.setFont(self._get_font(14))
         layout.addWidget(self.auto_update_cb)
 
+        # 2. Update Channel Selection
+        channel_layout = QHBoxLayout()
+        channel_label = QLabel(_("Update Channel:"))
+        channel_label.setFont(self._get_font(14))
+        
+        self.update_channel_combo = QComboBox()
+        self.update_channel_combo.setFont(self._get_font(14))
+        self.update_channel_combo.addItem("Stable (Recommended)", "stable")
+        self.update_channel_combo.addItem("Beta (Experimental)", "beta")
+        
+        channel_layout.addWidget(channel_label)
+        channel_layout.addWidget(self.update_channel_combo)
+        layout.addLayout(channel_layout)
+
+        # 3. Logging Settings
         self.enable_logging_cb = QCheckBox(_("Enable Application Logging"))
         self.enable_logging_cb.setFont(self._get_font(14))
         layout.addWidget(self.enable_logging_cb)
@@ -48,12 +64,18 @@ class SystemPage(QWidget):
         self.enable_logging_cb.setChecked(self.settings.get("enable_logging", True))
         self.no_log_time_cb.setChecked(self.settings.get("no_log_time", False))
         
+        current_channel = self.settings.get("update_channel", "stable")
+        idx = self.update_channel_combo.findData(current_channel)
+        if idx >= 0: self.update_channel_combo.setCurrentIndex(idx)
+        
         current_log_level = self.settings.get("log_level", "INFO")
         idx = self.log_level_combo.findText(current_log_level)
         if idx >= 0: self.log_level_combo.setCurrentIndex(idx)
 
-    def save(self):
+    def save(self) -> bool:
         self.settings.set("auto_update", self.auto_update_cb.isChecked())
+        self.settings.set("update_channel", self.update_channel_combo.currentData())
         self.settings.set("enable_logging", self.enable_logging_cb.isChecked())
         self.settings.set("no_log_time", self.no_log_time_cb.isChecked())
         self.settings.set("log_level", self.log_level_combo.currentText())
+        return False
