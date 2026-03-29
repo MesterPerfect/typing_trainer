@@ -137,12 +137,5 @@ class LessonView(QWidget):
             else:
                 self.lesson_selected.emit(data)
 
-    def keyPressEvent(self, event):
-        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-            self._on_start_clicked()
-            event.accept()
-            return
-        super().keyPressEvent(event)
-
     def refresh_lessons(self):
         self.load_lessons()
