@@ -69,6 +69,10 @@ class TypingView(QWidget):
         self.current_lesson_id = lesson.id
         self.is_test = getattr(lesson, "lesson_type", "lesson") == "test"
 
+        # Dynamically check the virtual keyboard setting right before starting
+        show_kb = self.settings.get("show_virtual_keyboard", True)
+        self.virtual_keyboard.setVisible(show_kb)
+
         # Sync virtual keyboard language with the lesson
         lesson_lang = getattr(lesson, "language", "en")
         self.virtual_keyboard.set_language(lesson_lang)
