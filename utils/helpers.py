@@ -39,6 +39,16 @@ def get_finger_instruction(char: str) -> str:
         'ك': 'Right Pinky', 'ح': 'Top Right Pinky', 'ز': 'Bottom Right Pinky',
         'ط': 'Right of Right Pinky', 'ج': 'Top Right of Right Pinky', 'ظ': 'Bottom Right of Right Pinky',
         'د': 'Far Right of Right Pinky',
+
+        # --- Arabic Diacritics (Shift + Letter) ---
+        'َ': 'Top Left Pinky (with Shift)',      # Shift + ض (Q)
+        'ً': 'Top Left Ring (with Shift)',       # Shift + ص (W)
+        'ُ': 'Top Left Middle (with Shift)',     # Shift + ث (E)
+        'ٌ': 'Top Left Index (with Shift)',      # Shift + ق (R)
+        'ِ': 'Left Pinky (with Shift)',          # Shift + ش (A)
+        'ٍ': 'Left Ring (with Shift)',           # Shift + س (S)
+        'ْ': 'Bottom Left Ring (with Shift)',    # Shift + ء (X)
+        'ّ': 'Far Left Pinky (with Shift)',      # Shift + ذ (`)
         
         # --- Common ---
         ' ': 'Thumb'

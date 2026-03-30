@@ -1,10 +1,9 @@
 import logging
-from PySide6.QtCore import QTimer
+import builtins
 from core.modes import TypingMode
 from utils.helpers import get_finger_instruction
 
 logger = logging.getLogger(__name__)
-
 
 class TypingSpeechHandler:
     """Handles all TTS logic and prompt generation for the typing session."""
@@ -16,42 +15,35 @@ class TypingSpeechHandler:
         self.engine = None
         self.is_test = False
         self.current_word_spoken = ""
-        
-        # Increased to 600ms to allow TTS to finish speaking the typed character
-        # before interrupting it with the instruction prompt.
-        self.speech_timer = QTimer()
-        self.speech_timer.setSingleShot(True)
-        self.current_message = ""
-        self.speech_timer.timeout.connect(self._execute_speech)
 
     def setup_session(self, engine, is_test: bool):
         """Initialize the handler for a new typing session."""
         self.engine = engine
         self.is_test = is_test
         self.current_word_spoken = ""
-        self.speech_timer.stop()
 
     def _get_pronunciation(self, char: str) -> str:
         """ Maps specific single characters (like Arabic diacritics) to readable words. """
-        diacritics = {
-            'َ': 'فتحة',
-            'ً': 'تنوين بالفتح',
-            'ُ': 'ضمة',
-            'ٌ': 'تنوين بالضم',
-            'ِ': 'كسرة',
-            'ٍ': 'تنوين بالكسر',
-            'ْ': 'سكون',
-            'ّ': 'شدة'
+        lang = self.settings.get("ui_language", "en")
+        mapping = {
+            'َ': 'فتحة' if lang == 'ar' else 'Fatha',
+            'ً': 'تنوين بالفتح' if lang == 'ar' else 'Tanween Fath',
+            'ُ': 'ضمة' if lang == 'ar' else 'Damma',
+            'ٌ': 'تنوين بالضم' if lang == 'ar' else 'Tanween Damm',
+            'ِ': 'كسرة' if lang == 'ar' else 'Kasra',
+            'ٍ': 'تنوين بالكسر' if lang == 'ar' else 'Tanween Kasr',
+            'ْ': 'سكون' if lang == 'ar' else 'Sukun',
+            'ّ': 'شدة' if lang == 'ar' else 'Shadda',
+            ' ': 'مسافة' if lang == 'ar' else 'Space',
+            '\n': 'سطر جديد' if lang == 'ar' else 'Enter'
         }
-        return diacritics.get(char, char)
+        return mapping.get(char, char)
 
     def speak_start(self):
         """Announce the start of the session."""
         if self.is_test:
-            self.tts.speak("Test started. Good luck.")
-            QTimer.singleShot(
-                1500, lambda: self.speak_prompt(correct=True, is_first_prompt=True)
-            )
+            self.tts.speak("Test started. Good luck.", interrupt=True)
+            self.speak_prompt(correct=True, is_first_prompt=True)
         else:
             self.speak_prompt(correct=True, is_first_prompt=True)
 
@@ -64,34 +56,27 @@ class TypingSpeechHandler:
 
         spoken_char = self._get_pronunciation(char)
 
-        if self.is_test:
-            self.tts.speak_char(spoken_char)
-            self.speak_prompt(correct=correct, is_first_prompt=False)
-        else:
-            if correct:
-                self.tts.speak_char(spoken_char)
-            self.speak_prompt(correct=correct, is_first_prompt=False)
+        # Instantly interrupt and speak the typed character
+        if correct or self.is_test:
+            self.tts.speak(spoken_char, interrupt=True)
+
+        # Queue the next instruction prompt WITHOUT interrupting the character
+        self.speak_prompt(correct=correct, is_first_prompt=False)
 
     def speak_backspace(self):
         """Acknowledge backspace usage."""
-        self.tts.speak("Backspace")
+        self.tts.speak("Backspace", interrupt=True)
         self.speak_prompt(correct=True, is_first_prompt=False)
 
     def speak_completion(self, stats: dict):
         """Announce the final results when the session is over."""
-        self.speech_timer.stop()
         self.audio.play("complete")
 
         if self.is_test:
-            result_msg = f"Test completed. Your speed is {stats['wpm']} words per minute, with {stats['accuracy']} percent accuracy. You made {stats['errors']} errors."
-            self.tts.speak(result_msg)
+            result_msg = f"Test completed. Speed: {stats['wpm']} WPM. Accuracy: {stats['accuracy']}%. Errors: {stats['errors']}."
+            self.tts.speak(result_msg, interrupt=True)
         else:
-            self.tts.speak("Lesson completed")
-
-    def _execute_speech(self):
-        """Actually sends the text to the TTS engine."""
-        if self.current_message:
-            self.tts.speak(self.current_message)
+            self.tts.speak("Lesson completed", interrupt=True)
 
     def speak_prompt(self, correct=True, is_first_prompt=False):
         """Generate and speak the dynamic instruction prompt based on the mode."""
@@ -104,11 +89,20 @@ class TypingSpeechHandler:
 
         mode = self.engine.mode
         char_name = self._get_pronunciation(current_char)
-        if char_name == " ":
-            char_name = "Space"
-            
         finger = get_finger_instruction(current_char)
         message = ""
+
+        # Using localization for UI words
+        try:
+            type_str = _("Type")
+            word_str = _("Word:")
+            sentence_str = _("Sentence:")
+            next_word_str = _("Next word:")
+        except NameError:
+            type_str = "Type"
+            word_str = "Word:"
+            sentence_str = "Sentence:"
+            next_word_str = "Next word:"
 
         # ==========================================
         # Exam Mode Prompts
@@ -116,46 +110,45 @@ class TypingSpeechHandler:
         if self.is_test:
             if is_first_prompt:
                 if mode == TypingMode.CHARACTER:
-                    message = f"Type {char_name}"
+                    message = f"{type_str} {char_name}"
                 elif mode == TypingMode.WORD:
                     self.current_word_spoken = self.engine.get_current_word()
-                    message = f"Word: {self.current_word_spoken}"
+                    message = f"{word_str} {self.current_word_spoken}"
                 elif mode == TypingMode.SENTENCE:
-                    message = f"Sentence: {self.engine.text}"
+                    message = f"{sentence_str} {self.engine.text}"
             else:
                 if mode == TypingMode.CHARACTER:
-                    message = f"Type {char_name}"
+                    message = f"{type_str} {char_name}"
                 elif mode == TypingMode.WORD:
                     word = self.engine.get_current_word()
                     if word and word != self.current_word_spoken:
                         self.current_word_spoken = word
-                        message = f"Next word: {word}"
+                        message = f"{next_word_str} {word}"
 
         # ==========================================
         # Training Mode Prompts
         # ==========================================
         else:
             if mode == TypingMode.CHARACTER:
-                message = (
-                    f"Type {char_name}, {finger}"
-                    if is_first_prompt
-                    else f"{char_name}, {finger}"
-                )
+                if is_first_prompt:
+                    message = f"{type_str} {char_name}, {finger}" if finger else f"{type_str} {char_name}"
+                else:
+                    message = f"{char_name}, {finger}" if finger else char_name
             elif mode == TypingMode.WORD:
                 word = self.engine.get_current_word()
                 if is_first_prompt or word != self.current_word_spoken:
                     self.current_word_spoken = word
-                    message = f"Word: {word}"
+                    message = f"{word_str} {word}"
                 else:
                     if not correct:
-                        message = f"{char_name}, {finger}"
+                        message = f"{char_name}, {finger}" if finger else char_name
             elif mode == TypingMode.SENTENCE:
                 if is_first_prompt:
-                    message = f"Sentence: {self.engine.text}"
+                    message = f"{sentence_str} {self.engine.text}"
                 elif not correct:
-                    message = f"{char_name}, {finger}"
+                    message = f"{char_name}, {finger}" if finger else char_name
 
         if message:
-            self.speech_timer.stop()
-            self.current_message = message
-            self.speech_timer.start(600)  # Hesitation delay
+            # Crucial Fix: interrupt=False puts the instruction in the queue!
+            # It will wait for the typed character to finish speaking before starting.
+            self.tts.speak(message, interrupt=False)

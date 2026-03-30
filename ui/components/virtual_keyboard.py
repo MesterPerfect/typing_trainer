@@ -115,11 +115,18 @@ class VirtualKeyboard(QWidget):
                 
                 # Check if this key is the target key
                 if self.target_key:
-                    if self.current_lang == "ar" and self.target_key == ar_char:
+                    # Map diacritics to their base physical keys for highlighting
+                    diacritic_map = {
+                        'َ': 'ض', 'ً': 'ص', 'ُ': 'ث', 'ٌ': 'ق', 
+                        'ِ': 'ش', 'ٍ': 'س', 'ْ': 'ء', 'ّ': 'ذ'
+                    }
+                    search_target = diacritic_map.get(self.target_key, self.target_key)
+                    
+                    if self.current_lang == "ar" and search_target == ar_char:
                         is_target = True
-                    elif self.current_lang == "en" and self.target_key == en_char:
+                    elif self.current_lang == "en" and search_target == en_char:
                         is_target = True
-                    elif self.target_key == en_char == ar_char == " ":
+                    elif search_target == en_char == ar_char == " ":
                         is_target = True
 
                 # Determine key width (useful for spacebar)
