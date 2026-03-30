@@ -1,10 +1,10 @@
 import os
 import sys
 import logging
-import subprocess
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
-    QTextEdit, QPushButton, QProgressBar, QMessageBox
+    QTextEdit, QPushButton, QProgressBar, QMessageBox,
+    QApplication  # أضفنا QApplication هنا للوصول إلى الحافظة (Clipboard)
 )
 from PySide6.QtCore import Qt
 
@@ -32,8 +32,8 @@ class UpdateDialog(QDialog):
 
     def _setup_ui(self):
         self.setWindowTitle("Update Available")
-        self.setMinimumWidth(450)
-        self.setMinimumHeight(300)
+        self.setMinimumWidth(500)  # قمنا بزيادة العرض قليلاً ليستوعب 3 أزرار
+        self.setMinimumHeight(350)
         self.setModal(True)
 
         layout = QVBoxLayout(self)
@@ -61,20 +61,39 @@ class UpdateDialog(QDialog):
         # Buttons Layout
         self.buttons_layout = QHBoxLayout()
         
+        # 1. زر نسخ المستجدات
+        self.btn_copy = QPushButton("Copy Notes")
+        self.btn_copy.clicked.connect(self._copy_release_notes)
+        self.buttons_layout.addWidget(self.btn_copy)
+        
+        # مسافة مرنة لفصل زر النسخ عن أزرار التحديث والإغلاق
+        self.buttons_layout.addStretch()
+        
+        # 2. زر التحديث
         self.btn_update = QPushButton("Update Now")
         self.btn_update.clicked.connect(self._start_download)
+        self.buttons_layout.addWidget(self.btn_update)
         
+        # 3. زر الإلغاء/التأجيل
         self.btn_later = QPushButton("Later")
         self.btn_later.clicked.connect(self.reject)  # Closes the dialog safely
-        
-        self.buttons_layout.addWidget(self.btn_update)
         self.buttons_layout.addWidget(self.btn_later)
         
         layout.addLayout(self.buttons_layout)
 
+    def _copy_release_notes(self):
+        """ Copies the release notes to the system clipboard and announces it. """
+        clipboard = QApplication.clipboard()
+        clipboard.setText(self.release_notes)
+        
+        if self.tts:
+            self.tts.speak("Release notes copied to clipboard.")
+        
+        logger.info("Release notes copied to clipboard.")
+
     def _announce_update(self):
         """ Announce the update availability to screen reader users. """
-        msg = f"Update available. Version {self.new_version}. Press Tab to read release notes or update."
+        msg = f"Update available. Version {self.new_version}. Press Tab to read release notes, copy them, or update."
         if self.tts:
             self.tts.speak(msg)
 
@@ -82,6 +101,7 @@ class UpdateDialog(QDialog):
         """ Initiates the background download process. """
         # Update UI state
         self.btn_update.hide()
+        self.btn_copy.hide()  # إخفاء زر النسخ أثناء التحميل لتنظيف الواجهة
         self.btn_later.setText("Cancel")
         self.btn_later.clicked.disconnect()
         self.btn_later.clicked.connect(self._cancel_download)
@@ -137,6 +157,7 @@ class UpdateDialog(QDialog):
         # Restore UI state
         self.progress_bar.hide()
         self.btn_update.show()
+        self.btn_copy.show()  # إعادة إظهار زر النسخ في حال فشل التحميل
         self.btn_later.setText("Later")
         self.btn_later.clicked.disconnect()
         self.btn_later.clicked.connect(self.reject)
@@ -150,7 +171,6 @@ class UpdateDialog(QDialog):
         if self.tts:
             self.tts.speak("Download cancelled.")
         self.reject()
-
 
     def _launch_update_file(self, file_path: str):
         """ Triggers the background updater and kills the main app to allow file replacement. """
