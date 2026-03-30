@@ -92,7 +92,7 @@ class LessonEditorView(QWidget):
 
         diff_label = QLabel(_("Difficulty (1-3):"))
         self.diff_spin = QSpinBox()
-        self.diff_spin.setRange(1, 3)
+        self.diff_spin.setRange(1, 10)
         self.diff_spin.setFont(self._get_font(12))
 
         row1.addWidget(lang_label)

@@ -30,12 +30,15 @@ class LessonService:
                 logger.error(f"Failed to create default lessons file: {e}")
 
     def load_all_lessons(self) -> List[Lesson]:
-        """ Load all lessons from the JSON file. """
+        """ Load all lessons and smartly merge any new default lessons from updates. """
         try:
             with open(self.file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 
             lessons = []
+            existing_ids = set()
+            
+            # 1. Load existing lessons from the user's JSON file
             for item in data:
                 lesson = Lesson(
                     id=item.get("id", ""),
@@ -46,8 +49,30 @@ class LessonService:
                     lesson_type=item.get("lesson_type", "lesson")
                 )
                 lessons.append(lesson)
+                existing_ids.add(lesson.id)
             
-            logger.info(f"Successfully loaded {len(lessons)} lessons.")
+            # 2. Smart Merge: Check if the update brought new default lessons
+            added_new_lessons = False
+            for default_item in DEFAULT_LESSONS:
+                if default_item["id"] not in existing_ids:
+                    new_lesson = Lesson(
+                        id=default_item.get("id", ""),
+                        title=default_item.get("title", "Untitled"),
+                        text=default_item.get("text", ""),
+                        difficulty=default_item.get("difficulty", 1),
+                        language=default_item.get("language", "en"),
+                        lesson_type=default_item.get("lesson_type", "lesson")
+                    )
+                    lessons.append(new_lesson)
+                    added_new_lessons = True
+            
+            # 3. If new lessons were injected, save the updated list silently to disk
+            if added_new_lessons:
+                logger.info("Update detected: New default lessons merged into user data.")
+                self.save_all_lessons(lessons)
+            else:
+                logger.info(f"Successfully loaded {len(lessons)} lessons.")
+                
             return lessons
             
         except Exception as e:
