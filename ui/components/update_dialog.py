@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+import subprocess
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
     QTextEdit, QPushButton, QProgressBar, QMessageBox
@@ -119,7 +120,7 @@ class UpdateDialog(QDialog):
             "The update has been downloaded. The application will now close to apply the update."
         )
         
-        # Launch the downloaded file (Works for Windows .zip/.exe or Linux/Mac archives)
+        # Launch the downloaded file
         self._launch_update_file(file_path)
         
         # Close the dialog and trigger app shutdown
@@ -156,10 +157,8 @@ class UpdateDialog(QDialog):
             if sys.platform == "win32":
                 os.startfile(file_path)
             elif sys.platform == "darwin":
-                import subprocess
                 subprocess.call(["open", file_path])
             else:
-                import subprocess
                 subprocess.call(["xdg-open", file_path])
         except Exception as e:
             logger.error(f"Failed to launch update file: {e}")

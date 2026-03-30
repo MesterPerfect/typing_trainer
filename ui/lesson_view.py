@@ -86,12 +86,14 @@ class LessonView(QWidget):
         
         self._populate_explorer_modes()
 
+
     def _populate_explorer_modes(self):
         modes = [
             ("Free Explorer (F5)", ExplorerMode.FREE),
             ("Arabic Letters Explorer (F6)", ExplorerMode.ARABIC),
             ("English Letters Explorer (F7)", ExplorerMode.ENGLISH),
             ("Numbers Explorer (F8)", ExplorerMode.NUMBERS),
+            ("Keyboard Layout Explorer (F9)", ExplorerMode.KEYS), # New
         ]
 
         for title, mode_enum in modes:

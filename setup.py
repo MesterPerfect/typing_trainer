@@ -40,7 +40,7 @@ def clean_unused_folders(build_dir):
             print(f"Error removing {folder}: {e}")
 
 def main():
-    version = os.environ.get("APP_VERSION", "1.0.0")
+    version = os.environ.get("APP_VERSION", "1.1.0")
     base, ext = get_platform_config()
 
     # Determine accurate OS name for the build directory

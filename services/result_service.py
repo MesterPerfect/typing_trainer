@@ -1,6 +1,6 @@
 import json
-import os
 import logging
+from pathlib import Path
 from typing import List
 from models.result_model import LessonResult
 from core.constants import RESULTS_FILE
@@ -13,15 +13,15 @@ class ResultService:
     to minimize disk I/O operations.
     """
     def __init__(self, file_path=None):
-        self.file_path = str(file_path or RESULTS_FILE)
+        self.file_path = Path(file_path) if file_path else RESULTS_FILE
         self.cached_results = []
         self._ensure_file_exists()
         self._load_initial_data()
 
     def _ensure_file_exists(self):
         """ Ensure the results file and its directory exist. """
-        if not os.path.exists(self.file_path):
-            os.makedirs(os.path.dirname(self.file_path), exist_ok=True)
+        if not self.file_path.exists():
+            self.file_path.parent.mkdir(parents=True, exist_ok=True)
             self._save_data([])
 
     def _load_initial_data(self):

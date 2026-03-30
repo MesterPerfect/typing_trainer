@@ -1,5 +1,5 @@
-import os
 import logging
+from pathlib import Path
 from PySide6.QtMultimedia import QSoundEffect
 from PySide6.QtCore import QUrl
 from core.constants import BASE_DIR
@@ -13,20 +13,19 @@ class AudioService:
         self.sounds = {}
 
         # Use BASE_DIR for bulletproof path resolution
-        self._load_sound("correct", str(BASE_DIR / "assets" / "sounds" / "correct.wav"))
-        self._load_sound("error", str(BASE_DIR / "assets" / "sounds" / "error.wav"))
-        self._load_sound(
-            "complete", str(BASE_DIR / "assets" / "sounds" / "complete.wav")
-        )
+        self._load_sound("correct", BASE_DIR / "assets" / "sounds" / "correct.wav")
+        self._load_sound("error", BASE_DIR / "assets" / "sounds" / "error.wav")
+        self._load_sound("complete", BASE_DIR / "assets" / "sounds" / "complete.wav")
 
-    def _load_sound(self, name: str, filepath: str):
-        if not os.path.exists(filepath):
+    def _load_sound(self, name: str, filepath: Path):
+        if not filepath.exists():
             logger.warning(f"Sound file not found: {filepath}")
             return
 
         try:
             effect = QSoundEffect()
-            effect.setSource(QUrl.fromLocalFile(os.path.abspath(filepath)))
+            # Resolve absolute path natively using pathlib
+            effect.setSource(QUrl.fromLocalFile(str(filepath.resolve())))
             self.sounds[name] = effect
             logger.info(f"Loaded sound effect: {name}")
         except Exception as e:

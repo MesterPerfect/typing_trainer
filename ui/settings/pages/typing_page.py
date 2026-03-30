@@ -26,5 +26,10 @@ class TypingPage(QWidget):
     def load(self):
         self.virtual_kb_cb.setChecked(self.settings.get("show_virtual_keyboard", True))
 
-    def save(self):
-        self.settings.set("show_virtual_keyboard", self.virtual_kb_cb.isChecked())
+    def save(self) -> bool:
+        """ Saves typing settings efficiently. """
+        # Even for a single setting, using update_many ensures identical pipeline
+        self.settings.update_many({
+            "show_virtual_keyboard": self.virtual_kb_cb.isChecked()
+        })
+        return False

@@ -92,7 +92,7 @@ class LessonEditorView(QWidget):
 
         diff_label = QLabel(_("Difficulty (1-3):"))
         self.diff_spin = QSpinBox()
-        self.diff_spin.setRange(1, 3)
+        self.diff_spin.setRange(1, 10)
         self.diff_spin.setFont(self._get_font(12))
 
         row1.addWidget(lang_label)
@@ -204,7 +204,7 @@ class LessonEditorView(QWidget):
             text=text,
             difficulty=self.diff_spin.value(),
             language=self.lang_combo.currentText(),
-            lesson_type=self.type_combo.currentText(),
+            lesson_type=self.type_combo.currentText()
         )
 
         # Update the list in memory
@@ -226,7 +226,7 @@ class LessonEditorView(QWidget):
             self.tts.speak("Failed to save lesson")
 
     def delete_lesson(self):
-        """Delete the currently selected lesson."""
+        """Delete the currently selected lesson and clear the form."""
         if not self.current_lesson_id:
             self.tts.speak("No lesson selected to delete")
             return
@@ -237,6 +237,7 @@ class LessonEditorView(QWidget):
         if success:
             self.tts.speak("Lesson deleted")
             self.load_data()
+            self.clear_form() # Reset the form to prevent ghost saving
         else:
             self.tts.speak("Failed to delete lesson")
 

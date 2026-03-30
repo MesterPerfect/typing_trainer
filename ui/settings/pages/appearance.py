@@ -56,20 +56,24 @@ class AppearancePage(QWidget):
 
     def save(self) -> bool:
         """
-        Saves settings and returns True if a restart is required.
+        Saves settings using batch update and returns True if a restart is required.
         """
         restart_required = False
+        new_settings = {}
 
         old_lang = self.settings.get("ui_language", "en")
         new_lang = self.lang_combo.currentData()
         if old_lang != new_lang:
-            self.settings.set("ui_language", new_lang)
+            new_settings["ui_language"] = new_lang
             restart_required = True
 
         old_theme = self.settings.get("theme", "dark_theme")
         new_theme = self.theme_combo.currentData()
         if old_theme != new_theme:
-            self.settings.set("theme", new_theme)
+            new_settings["theme"] = new_theme
             restart_required = True
+
+        if new_settings:
+            self.settings.update_many(new_settings)
 
         return restart_required
