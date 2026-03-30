@@ -1,7 +1,6 @@
 import gettext
 import builtins
 import logging
-import os
 from core.constants import BASE_DIR
 
 logger = logging.getLogger(__name__)
@@ -13,8 +12,8 @@ def setup_translations(lang_code: str):
     """
     locales_dir = BASE_DIR / "locales"
     
-    # Ensure the locales directory exists
-    os.makedirs(str(locales_dir), exist_ok=True)
+    # Use pathlib native method to create directory
+    locales_dir.mkdir(parents=True, exist_ok=True)
     
     try:
         # Load the translation domain 'messages' for the specified language

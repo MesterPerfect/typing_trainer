@@ -3,15 +3,27 @@ import os
 import logging
 import platform
 import subprocess
-from PySide6.QtCore import qVersion
-from PySide6.QtCore import Qt
+from PySide6.QtCore import qVersion, Qt
 from PySide6.QtWidgets import QApplication
+
 from ui.main_window import MainWindow
-from core.constants import BASE_DIR
+from core.constants import BASE_DIR, APP_VERSION
 from utils.i18n import setup_translations
 from services.settings_service import SettingsService
 
 logger = logging.getLogger(__name__)
+
+
+def _global_exception_handler(exc_type, exc_value, exc_traceback):
+    """
+    Catch all unhandled exceptions and log them.
+    Crucial for debugging beta releases in the wild.
+    """
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+        
+    logger.critical("Unhandled exception in the application:", exc_info=(exc_type, exc_value, exc_traceback))
 
 
 def _get_linux_distro_name() -> str:
@@ -20,7 +32,6 @@ def _get_linux_distro_name() -> str:
         with open("/etc/os-release", "r") as f:
             for line in f:
                 if line.startswith("PRETTY_NAME="):
-                    # Extract the value and remove quotes
                     return line.split("=")[1].strip().strip('"')
     except Exception:
         pass
@@ -42,7 +53,7 @@ def log_system_environment():
         logger.info(f"OS Version  : {platform.version()}")
 
     logger.info(f"Python      : {platform.python_version()}")
-    logger.info(f"PySide6       : {qVersion()}")
+    logger.info(f"PySide6     : {qVersion()}")
 
     if platform.system() == "Linux":
         try:
@@ -60,6 +71,9 @@ def log_system_environment():
 
 
 def run_app(args=None):
+    # Register the global exception handler
+    sys.excepthook = _global_exception_handler
+
     # Log the environment details right at startup
     log_system_environment()
 
@@ -74,6 +88,11 @@ def run_app(args=None):
     setup_translations(lang_code)
 
     app = QApplication(sys.argv)
+    
+    # Register Application Metadata
+    app.setApplicationName("Typing Trainer")
+    app.setApplicationVersion(APP_VERSION)
+    app.setOrganizationName("MesterPerfect")
 
     if lang_code == "ar":
         app.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
@@ -81,7 +100,6 @@ def run_app(args=None):
         app.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
     # 3. Dynamic Theme Loading Logic
-    # Default to 'dark_theme' if no setting is found
     theme_name = settings.get("theme", "dark_theme") 
     theme_path = BASE_DIR / "assets" / "themes" / f"{theme_name}.qss"
 

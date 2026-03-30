@@ -46,7 +46,11 @@ class AudioPage(QWidget):
         self.sound_effects_cb.setChecked(self.settings.get("sound_effects", True))
         self.volume_slider.setValue(self.settings.get("sound_volume", 70))
 
-    def save(self):
-        self.settings.set("guided_mode", self.guided_mode_cb.isChecked())
-        self.settings.set("sound_effects", self.sound_effects_cb.isChecked())
-        self.settings.set("sound_volume", self.volume_slider.value())
+    def save(self) -> bool:
+        """ Saves audio settings efficiently. """
+        self.settings.update_many({
+            "guided_mode": self.guided_mode_cb.isChecked(),
+            "sound_effects": self.sound_effects_cb.isChecked(),
+            "sound_volume": self.volume_slider.value()
+        })
+        return False

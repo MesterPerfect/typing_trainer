@@ -2,10 +2,11 @@ import subprocess
 import threading
 import queue
 import logging
+from .base import BaseTTS
 
 logger = logging.getLogger(__name__)
 
-class MacOSTTS:
+class MacOSTTS(BaseTTS):
     def __init__(self):
         self.available = True
         self.speech_queue = queue.Queue()
@@ -20,6 +21,15 @@ class MacOSTTS:
             with self.speech_queue.mutex:
                 self.speech_queue.queue.clear()
         self.speech_queue.put(text)
+
+    def speak_char(self, char: str):
+        if not char:
+            return
+
+        if char == " ":
+            self.speak("space", interrupt=True)
+        else:
+            self.speak(char, interrupt=True)
 
     def stop(self):
         # Terminate the 'say' process if it is currently running
@@ -54,7 +64,6 @@ class MacOSTTS:
                     script = f'tell application "VoiceOver" to output "{escaped_text}"'
                     
                     # Execute the AppleScript to send speech directly to VoiceOver
-                    # Note: Requires "Allow VoiceOver to be controlled with AppleScript" to be enabled
                     subprocess.run(
                         ['osascript', '-e', script], 
                         check=True, 
@@ -67,7 +76,7 @@ class MacOSTTS:
                     self.current_process.wait()
                     
             except subprocess.CalledProcessError as e:
-                # Fallback to 'say' if AppleScript fails (e.g., permissions are not granted)
+                # Fallback to 'say' if AppleScript fails
                 logger.debug(f"VoiceOver AppleScript failed, falling back to 'say'. Error: {e.stderr}")
                 self.current_process = subprocess.Popen(['say', text])
                 self.current_process.wait()

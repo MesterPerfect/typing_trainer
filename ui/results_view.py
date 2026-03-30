@@ -73,24 +73,17 @@ class ResultsView(QWidget):
         self.setLayout(layout)
 
     def load_results(self):
-        """Fetch all results and populate the table."""
+        """Fetch all results from the memory cache and populate the table."""
         self.table.setRowCount(0)
 
         lessons = {
             str(lvl.id): lvl.title for lvl in self.lesson_loader.load_all_lessons()
         }
 
-        import json
-        import os
-
-        file_path = self.result_service.file_path
-        if not os.path.exists(file_path):
-            return
-
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-
+            # Retrieve data directly from the service cache, avoiding disk I/O
+            data = self.result_service.cached_results.copy()
+            
             # Reverse data to show newest first
             data.reverse()
 

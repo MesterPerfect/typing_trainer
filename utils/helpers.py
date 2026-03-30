@@ -1,5 +1,3 @@
-import os
-
 def get_finger_instruction(char: str) -> str:
     """ Returns the finger instruction for a given character in English. """
     mapping = {

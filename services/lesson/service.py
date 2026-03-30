@@ -1,6 +1,6 @@
 import json
-import os
 import logging
+from pathlib import Path
 from typing import List
 
 from models.lesson_model import Lesson
@@ -12,15 +12,15 @@ logger = logging.getLogger(__name__)
 class LessonService:
     """ Service to handle loading, saving, and managing typing lessons. """
     
-    def __init__(self, file_path: str = None):
-        self.file_path = str(file_path or LESSONS_FILE)
+    def __init__(self, file_path=None):
+        self.file_path = Path(file_path) if file_path else LESSONS_FILE
         self._ensure_default_lessons()
 
     def _ensure_default_lessons(self):
         """ Create a default lessons JSON file if it does not exist. """
-        if not os.path.exists(self.file_path):
+        if not self.file_path.exists():
             logger.info(f"Lessons file not found at {self.file_path}. Creating default.")
-            os.makedirs(os.path.dirname(self.file_path), exist_ok=True)
+            self.file_path.parent.mkdir(parents=True, exist_ok=True)
             
             try:
                 with open(self.file_path, "w", encoding="utf-8") as f:

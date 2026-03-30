@@ -1,15 +1,13 @@
 import logging
-import os
 import json
 from logging.handlers import RotatingFileHandler
 from core.constants import SETTINGS_FILE, LOG_FILE, LOG_DIR
 
 def _get_configured_level() -> str:
-    """ Read log level directly from settings JSON. """
-    settings_path = str(SETTINGS_FILE)
+    """ Read log level directly from settings JSON to avoid circular imports. """
     try:
-        if os.path.exists(settings_path):
-            with open(settings_path, "r", encoding="utf-8") as f:
+        if SETTINGS_FILE.exists():
+            with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 return data.get("log_level", "DEBUG").upper()
     except Exception:
@@ -18,7 +16,7 @@ def _get_configured_level() -> str:
 
 def setup_logger(cli_level=None, no_log_time=False):
     """ Configure application-wide logging with CLI overrides. """
-    os.makedirs(str(LOG_DIR), exist_ok=True)
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
 
     logger = logging.getLogger()
     
@@ -27,8 +25,10 @@ def setup_logger(cli_level=None, no_log_time=False):
     level = getattr(logging, level_str, logging.DEBUG)
     logger.setLevel(level)
 
-    if logger.handlers:
-        return logger
+    # Remove any existing handlers (like the one created by basicConfig in main.py)
+    # to ensure our custom format and file handler are applied correctly.
+    if logger.hasHandlers():
+        logger.handlers.clear()
 
     file_handler = RotatingFileHandler(
         str(LOG_FILE), maxBytes=1_000_000, backupCount=3, encoding="utf-8"

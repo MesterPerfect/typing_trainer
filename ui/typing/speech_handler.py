@@ -16,12 +16,19 @@ class TypingSpeechHandler:
         self.engine = None
         self.is_test = False
         self.current_word_spoken = ""
+        
+        # Debounce timer to prevent TTS overlapping when user types very fast
+        self.speech_timer = QTimer()
+        self.speech_timer.setSingleShot(True)
+        self.current_message = ""
+        self.speech_timer.timeout.connect(self._execute_speech)
 
     def setup_session(self, engine, is_test: bool):
         """Initialize the handler for a new typing session."""
         self.engine = engine
         self.is_test = is_test
         self.current_word_spoken = ""
+        self.speech_timer.stop()
 
     def speak_start(self):
         """Announce the start of the session."""
@@ -55,6 +62,7 @@ class TypingSpeechHandler:
 
     def speak_completion(self, stats: dict):
         """Announce the final results when the session is over."""
+        self.speech_timer.stop()
         self.audio.play("complete")
 
         if self.is_test:
@@ -62,6 +70,11 @@ class TypingSpeechHandler:
             self.tts.speak(result_msg)
         else:
             self.tts.speak("Lesson completed")
+
+    def _execute_speech(self):
+        """Actually sends the text to the TTS engine."""
+        if self.current_message:
+            self.tts.speak(self.current_message)
 
     def speak_prompt(self, correct=True, is_first_prompt=False):
         """Generate and speak the dynamic instruction prompt based on the mode."""
@@ -123,5 +136,7 @@ class TypingSpeechHandler:
                     message = f"{char_name}, {finger}"
 
         if message:
-            # Shortened delay to 200ms to feel more responsive alongside audio cues
-            QTimer.singleShot(200, lambda: self.tts.speak(message))
+            # Stop any pending speech request and queue the new one
+            self.speech_timer.stop()
+            self.current_message = message
+            self.speech_timer.start(200)
