@@ -17,7 +17,8 @@ class TypingSpeechHandler:
         self.is_test = False
         self.current_word_spoken = ""
         
-        # Debounce timer to prevent TTS overlapping when user types very fast
+        # Increased to 600ms to allow TTS to finish speaking the typed character
+        # before interrupting it with the instruction prompt.
         self.speech_timer = QTimer()
         self.speech_timer.setSingleShot(True)
         self.current_message = ""
@@ -29,6 +30,20 @@ class TypingSpeechHandler:
         self.is_test = is_test
         self.current_word_spoken = ""
         self.speech_timer.stop()
+
+    def _get_pronunciation(self, char: str) -> str:
+        """ Maps specific single characters (like Arabic diacritics) to readable words. """
+        diacritics = {
+            'َ': 'فتحة',
+            'ً': 'تنوين بالفتح',
+            'ُ': 'ضمة',
+            'ٌ': 'تنوين بالضم',
+            'ِ': 'كسرة',
+            'ٍ': 'تنوين بالكسر',
+            'ْ': 'سكون',
+            'ّ': 'شدة'
+        }
+        return diacritics.get(char, char)
 
     def speak_start(self):
         """Announce the start of the session."""
@@ -47,12 +62,14 @@ class TypingSpeechHandler:
         else:
             self.audio.play("error")
 
+        spoken_char = self._get_pronunciation(char)
+
         if self.is_test:
-            self.tts.speak_char(char)
+            self.tts.speak_char(spoken_char)
             self.speak_prompt(correct=correct, is_first_prompt=False)
         else:
             if correct:
-                self.tts.speak_char(char)
+                self.tts.speak_char(spoken_char)
             self.speak_prompt(correct=correct, is_first_prompt=False)
 
     def speak_backspace(self):
@@ -86,7 +103,10 @@ class TypingSpeechHandler:
             return
 
         mode = self.engine.mode
-        char_name = "Space" if current_char == " " else current_char
+        char_name = self._get_pronunciation(current_char)
+        if char_name == " ":
+            char_name = "Space"
+            
         finger = get_finger_instruction(current_char)
         message = ""
 
@@ -136,7 +156,6 @@ class TypingSpeechHandler:
                     message = f"{char_name}, {finger}"
 
         if message:
-            # Stop any pending speech request and queue the new one
             self.speech_timer.stop()
             self.current_message = message
-            self.speech_timer.start(200)
+            self.speech_timer.start(600)  # Hesitation delay

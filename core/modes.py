@@ -10,3 +10,4 @@ class ExplorerMode(Enum):
     ARABIC = "arabic"
     ENGLISH = "english"
     NUMBERS = "numbers"
+    KEYS = "keys"
