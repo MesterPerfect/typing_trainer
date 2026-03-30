@@ -39,12 +39,14 @@ class TypingEngine:
         logger.info("Typing session started")
 
     def process_char(self, char: str) -> TypingResult:
+        # Check for completion before doing anything to prevent phantom timer starts
+        if self.is_finished():
+            logger.debug("Typing already finished, ignoring input")
+            return None
+
+        # Start timer on the very first valid keystroke
         if not self.stats.is_running:
             self.start()
-
-        if self.is_finished():
-            logger.debug("Typing already finished")
-            return None
 
         expected = self.text[self.current_index]
         correct = char == expected

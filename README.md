@@ -1,85 +1,11 @@
-# Accessible Typing Trainer ⌨️🎧
-
-A cross-platform, highly accessible typing tutor built with Python and PySide6. This project is specifically engineered to be fully usable by visually impaired users, providing seamless integration with native screen readers and tactile audio feedback.
-
-## ✨ Key Features
-
-* **Universal Accessibility (TTS):** Native integration with screen readers across platforms (UniversalSpeech for NVDA/JAWS on Windows, and Speech-Dispatcher for Orca on Linux).
-* **Tactile Audio Cues:** Real-time sound effects for correct keystrokes, errors, and lesson completion, reducing the reliance on verbose voice prompts.
-* **Explorer Mode (Safe Discovery):** A dedicated mode for beginners to press any key and hear its name and finger placement. Features a "Safe Exit" system requiring three consecutive `Escape` presses to prevent accidental exits.
-* **Guided Finger Prompts:** Step-by-step voice guidance telling the user exactly which finger to use for specific characters (Supports both English and Arabic layouts).
-* **Advanced Typing Engine:** * Supports Character, Word, and Sentence modes.
-    * Calculates **Net WPM** (Words Per Minute) and Accuracy by penalizing errors.
-* **Lesson Editor:** Built-in interface to create, edit, and delete custom lessons or exams.
-* **Bulletproof State Management:** JSON-based data storage for settings and results with built-in corruption shields and memory caching to minimize disk I/O.
-* **Bilingual Support:** Default lessons and exams available in both English and Arabic.
-
-## 🏗️ Architecture & Engineering
-
-The project follows a clean **MVC / Service-Oriented Architecture** ensuring strict separation of concerns:
-* `core/`: Contains the logical engines (`TypingEngine`, `ExplorerEngine`, `Statistics`).
-* `services/`: Handles OS-level interactions (Audio, TTS engines, File I/O).
-* `ui/`: Modular, reusable PySide6 components and views managed by a `QStackedWidget` for single-page-application (SPA) flow.
-* `models/`: Lightweight data structures using Python's `@dataclass`.
-* `utils/`: Helper functions and a configured `RotatingFileHandler` for safe logging.
-
-## 🚀 Installation & Usage
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/MesterPerfect/typing_trainer.git
-   cd typing_trainer
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Generate Audio Files (First Run Only):**
-   ```bash
-   python generate_sounds.py
-   ```
-
-4. **Run the application:**
-   ```bash
-   python main.py
-   ```
-
-## ⌨️ Global Shortcuts
-
-* `Enter` / `Return`: Start selected lesson.
-* `Escape`: Return to the previous menu (or exit Explorer Mode with 3 presses).
-* `F2`: Toggle Guided Voice Prompts.
-* `F3`: Open Settings.
-* `F4`: View Results.
-* `F5 - F8`: Launch various Explorer Modes (Free, Arabic, English, Numbers).
-* `F9`: Open Lesson Editor.
-
-## 🛠️ Command-Line Interface (CLI)
-
-The application provides a flexible Command-Line Interface for advanced control over logging, localization, and accessibility features. This is particularly useful for developers and power users.
-
-**Basic Usage:**
-```bash
-python main.py [options]
-```
-
-**Available Options:**
-
-* **Logging Options:**
-  * `--log-level {DEBUG,INFO,WARNING,ERROR}`: Override the default logging level.
-  * `--no-log-time`: Remove timestamps from the log output for cleaner reading.
-
-* **Application Options:**
-  * `--lang {en,ar}`: Force the UI language, bypassing the saved user preferences.
-  * `--no-tts`: Completely disable the Text-to-Speech (TTS) engine at launch.
-
-**Examples:**
-```bash
-# Run with warnings only and clean logs (no timestamps)
+Accessible Typing Trainer ⌨️🎧A cross-platform, highly accessible typing tutor built with Python and PySide6. This project is specifically engineered to be fully usable by visually impaired users, providing seamless integration with native screen readers, tactile audio feedback, and advanced TTS queuing.✨ Key FeaturesUniversal Accessibility (TTS): Native integration with screen readers across platforms (UniversalSpeech for NVDA/JAWS on Windows, AppleScript/VoiceOver on macOS, and DBus/Speech-Dispatcher on Linux).Smart TTS Verbalization & Queuing: A custom verbalizer forces screen readers to correctly pronounce punctuation, math operators, and Arabic diacritics (Tashkeel) bypassing standard verbosity limits. Prompts are automatically queued and debounced to prevent audio overlapping during fast typing.Explorer Modes (Safe Discovery): Dedicated modes for beginners to press any key and hear its name, finger placement, or hardware function (Modifiers, Action keys). Features a "Safe Exit" system requiring three consecutive Escape presses to prevent accidental exits.Guided Finger Prompts: Step-by-step voice guidance telling the user exactly which finger to use for specific characters across Arabic and English layouts.Advanced Typing Engine: * Supports Character, Word, and Sentence modes.Calculates Net WPM (Words Per Minute) and Accuracy by penalizing errors.Smart Data Sync & Lesson Editor: Built-in interface to create custom lessons. The system features a "Smart Merge" algorithm that seamlessly downloads new official lessons from updates without overwriting the user's custom data.Built-in OTA Updater: An asynchronous update checker and downloader with screen-reader-friendly progress announcements.Bilingual Support: Comprehensive default lessons covering basic rows, numbers, punctuation, brackets, and diacritics in both English and Arabic.🏗️ Architecture & EngineeringThe project follows a strict Clean Architecture (MVC / Service-Oriented) ensuring the Single Responsibility Principle (SRP) and optimized performance:core/: Contains the decoupled logical engines (TypingEngine, ExplorerEngine, Statistics).services/: Handles OS-level interactions (Audio, TTS engines, File I/O) with in-memory caching to drastically reduce Disk I/O overhead.ui/: Modular, reusable PySide6 components managed by a QStackedWidget for a fluid Single-Page Application (SPA) experience.ui/typing/: Implements isolated modules for TTS orchestration (speech_handler.py), logic building (prompt_builder.py), and symbol translation (verbalizer.py).models/: Lightweight data structures using Python's @dataclass.utils/: Helper functions and a configured RotatingFileHandler for safe, circular logging.🚀 Installation & UsageClone the repository:git clone [https://github.com/MesterPerfect/typing_trainer.git](https://github.com/MesterPerfect/typing_trainer.git)
+cd typing_trainer
+Install dependencies:pip install -r requirements.txt
+Generate Audio Files (First Run Only):python generate_sounds.py
+Run the application:python main.py
+⌨️ Global ShortcutsEnter / Return: Start selected lesson.Escape: Return to the previous menu (or exit Explorer Mode with 3 presses).F2: Toggle Guided Voice Prompts.F3: Open Settings.F4: View Results.F5 - F8: Launch various Explorer Modes (Free, Arabic, English, Numbers).F9: Launch Keyboard Layout Explorer / Open Lesson Editor.Ctrl + S: Save currently edited lesson.Ctrl + N: Create a new lesson in the editor.🛠️ Command-Line Interface (CLI)The application provides a flexible Command-Line Interface for advanced control over logging, localization, and accessibility features. This is particularly useful for developers and power users.Basic Usage:python main.py [options]
+Available Options:Logging Options:--log-level {DEBUG,INFO,WARNING,ERROR}: Override the default logging level.--no-log-time: Remove timestamps from the log output for cleaner reading.Application Options:--lang {en,ar}: Force the UI language, bypassing the saved user preferences.--no-tts: Completely disable the Text-to-Speech (TTS) engine at launch.Examples:# Run with warnings only and clean logs (no timestamps)
 python main.py --log-level WARNING --no-log-time
 
 # Launch the app in Arabic with TTS disabled
 python main.py --lang ar --no-tts
-```

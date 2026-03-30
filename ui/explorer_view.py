@@ -17,7 +17,6 @@ class ExplorerView(QWidget):
         self.audio = audio
         self.engine = None
 
-        # Safe exit system variables
         self.escape_count = 0
         self.escape_timer = QTimer()
         self.escape_timer.setSingleShot(True)
@@ -39,7 +38,6 @@ class ExplorerView(QWidget):
         layout.addWidget(self.label)
 
         self.setLayout(layout)
-        # Ensure it can capture all keyboard events
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
     def start_explorer(self, mode: ExplorerMode = ExplorerMode.FREE):
@@ -52,16 +50,15 @@ class ExplorerView(QWidget):
             ExplorerMode.ARABIC: "Arabic Letters Explorer",
             ExplorerMode.ENGLISH: "English Letters Explorer",
             ExplorerMode.NUMBERS: "Numbers Explorer",
+            ExplorerMode.KEYS: "Keyboard Layout Explorer",
         }
 
         msg = f"{mode_names.get(mode, '')} activated. Press the escape key three times to exit."
 
-        # Audio feedback for activation
         self.audio.play("correct")
         self.tts.speak(msg)
 
     def reset_escape_count(self):
-        """Reset the count if the user pauses for too long."""
         self.escape_count = 0
         logger.debug("Escape sequence reset due to timeout.")
 
@@ -72,10 +69,7 @@ class ExplorerView(QWidget):
         # Handle Safe Exit System (3x Escape)
         if key == Qt.Key.Key_Escape:
             self.escape_count += 1
-            # Give the user 1.5 seconds to press Escape again
             self.escape_timer.start(1500)
-
-            # Tactile click for escape presses
             self.audio.play("correct")
 
             if self.escape_count == 1:
@@ -85,26 +79,28 @@ class ExplorerView(QWidget):
             elif self.escape_count >= 3:
                 self.escape_timer.stop()
                 self.reset_escape_count()
-
-                # Completion sound upon exiting
                 self.audio.play("complete")
                 self.tts.speak("Exiting Explorer Mode")
                 self.return_requested.emit()
+            
+            # Allow the engine to announce Escape key if in Keys mode
+            if self.engine and self.engine.mode == ExplorerMode.KEYS:
+                result = self.engine.process_input(key, text)
+                if result and result.get("valid"):
+                    self.tts.speak(result["message"])
             return
 
-        # If user presses any other key, cancel the escape sequence
         self.escape_timer.stop()
         self.reset_escape_count()
 
-        # Process standard keys
-        if not self.engine or not text:
+        if not self.engine:
             return
 
-        result = self.engine.process_char(text)
+        # Process input (sending both key code and text)
+        result = self.engine.process_input(key, text)
 
         if result and "message" in result and result["message"]:
-            # Play a click for standard key presses, or error if the engine flags it as invalid for the mode
-            is_valid = result.get("is_valid", True)
+            is_valid = result.get("valid", True)
             if is_valid:
                 self.audio.play("correct")
             else:

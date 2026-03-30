@@ -73,9 +73,12 @@ class SystemPage(QWidget):
         if idx >= 0: self.log_level_combo.setCurrentIndex(idx)
 
     def save(self) -> bool:
-        self.settings.set("auto_update", self.auto_update_cb.isChecked())
-        self.settings.set("update_channel", self.update_channel_combo.currentData())
-        self.settings.set("enable_logging", self.enable_logging_cb.isChecked())
-        self.settings.set("no_log_time", self.no_log_time_cb.isChecked())
-        self.settings.set("log_level", self.log_level_combo.currentText())
+        """ Saves system settings efficiently. """
+        self.settings.update_many({
+            "auto_update": self.auto_update_cb.isChecked(),
+            "update_channel": self.update_channel_combo.currentData(),
+            "enable_logging": self.enable_logging_cb.isChecked(),
+            "no_log_time": self.no_log_time_cb.isChecked(),
+            "log_level": self.log_level_combo.currentText()
+        })
         return False
