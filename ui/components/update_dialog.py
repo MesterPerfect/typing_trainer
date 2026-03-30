@@ -151,14 +151,46 @@ class UpdateDialog(QDialog):
             self.tts.speak("Download cancelled.")
         self.reject()
 
+
     def _launch_update_file(self, file_path: str):
-        """ Attempts to open the downloaded file using the OS default handler. """
-        try:
-            if sys.platform == "win32":
-                os.startfile(file_path)
-            elif sys.platform == "darwin":
-                subprocess.call(["open", file_path])
+        """ Triggers the background updater and kills the main app to allow file replacement. """
+        import subprocess
+        
+        # Check if the app is compiled (frozen) or running from source
+        if getattr(sys, 'frozen', False):
+            # Compiled portable app mode
+            target_dir = os.path.dirname(sys.executable)
+            main_exe = os.path.basename(sys.executable)
+            updater_exe = "apply_update.exe" if sys.platform == "win32" else "apply_update"
+            updater_path = os.path.join(target_dir, updater_exe)
+            
+            if os.path.exists(updater_path):
+                # Spawn the updater as a detached process
+                args = [
+                    updater_path, 
+                    "--archive", file_path, 
+                    "--target", target_dir, 
+                    "--exe", main_exe
+                ]
+                
+                if sys.platform == "win32":
+                    subprocess.Popen(args, creationflags=subprocess.DETACHED_PROCESS)
+                else:
+                    subprocess.Popen(args, start_new_session=True)
             else:
-                subprocess.call(["xdg-open", file_path])
-        except Exception as e:
-            logger.error(f"Failed to launch update file: {e}")
+                logger.error("Updater executable not found. Unable to self-update.")
+                QMessageBox.warning(self, "Update Error", "The updater module is missing.")
+        else:
+            # Running from source code (Developer Mode) - Just open the folder
+            QMessageBox.information(
+                self, "Developer Mode", 
+                f"Update downloaded to:\n{file_path}\n\nSince you are running from source, the self-updater will not run."
+            )
+            # Open the containing folder for the developer
+            folder = os.path.dirname(file_path)
+            if sys.platform == "win32":
+                os.startfile(folder)
+            elif sys.platform == "darwin":
+                subprocess.call(["open", folder])
+            else:
+                subprocess.call(["xdg-open", folder])
