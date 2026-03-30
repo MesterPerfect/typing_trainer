@@ -74,16 +74,18 @@ def main():
         author="MesterPerfect",
         options={"build_exe": build_exe_options},
         executables=[
+            # 1. The Main Application
             Executable(
                 "main.py",
                 base=base,
                 target_name=target_name,
-                # Conditionally embed the icon file strictly for Windows (.exe)
-                icon=(
-                    str(ICON_FILE_ICO)
-                    if sys.platform == "win32" and ICON_FILE_ICO.exists()
-                    else None
-                ),
+                icon=(str(ICON_FILE_ICO) if sys.platform == "win32" and ICON_FILE_ICO.exists() else None),
+            ),
+            # 2. The Silent Background Updater
+            Executable(
+                "apply_update.py",
+                base=base,  # using "gui" prevents the console window from flashing
+                target_name=f"apply_update{ext}",
             )
         ],
     )
