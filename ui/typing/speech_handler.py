@@ -1,5 +1,6 @@
 import logging
 import builtins
+from PySide6.QtCore import QTimer
 from core.modes import TypingMode
 from utils.helpers import get_finger_instruction
 
@@ -15,12 +16,19 @@ class TypingSpeechHandler:
         self.engine = None
         self.is_test = False
         self.current_word_spoken = ""
+        
+        # مؤقت زمني لضمان عدم تداخل التلقين مع نطق الحرف المكتوب
+        self.prompt_timer = QTimer()
+        self.prompt_timer.setSingleShot(True)
+        self.prompt_timer.timeout.connect(self._speak_queued_prompt)
+        self.queued_prompt = ""
 
     def setup_session(self, engine, is_test: bool):
         """Initialize the handler for a new typing session."""
         self.engine = engine
         self.is_test = is_test
         self.current_word_spoken = ""
+        self.prompt_timer.stop()
 
     def _get_pronunciation(self, char: str) -> str:
         """ Maps specific single characters (like Arabic diacritics) to readable words. """
@@ -43,7 +51,7 @@ class TypingSpeechHandler:
         """Announce the start of the session."""
         if self.is_test:
             self.tts.speak("Test started. Good luck.", interrupt=True)
-            self.speak_prompt(correct=True, is_first_prompt=True)
+            QTimer.singleShot(1500, lambda: self.speak_prompt(correct=True, is_first_prompt=True))
         else:
             self.speak_prompt(correct=True, is_first_prompt=True)
 
@@ -56,11 +64,11 @@ class TypingSpeechHandler:
 
         spoken_char = self._get_pronunciation(char)
 
-        # Instantly interrupt and speak the typed character
+        # نطق الحرف المكتوب فوراً ومقاطعة أي كلام سابق
         if correct or self.is_test:
             self.tts.speak(spoken_char, interrupt=True)
 
-        # Queue the next instruction prompt WITHOUT interrupting the character
+        # تجهيز التلقين للحرف التالي (سيتم تأخيره بواسطة المؤقت)
         self.speak_prompt(correct=correct, is_first_prompt=False)
 
     def speak_backspace(self):
@@ -70,6 +78,7 @@ class TypingSpeechHandler:
 
     def speak_completion(self, stats: dict):
         """Announce the final results when the session is over."""
+        self.prompt_timer.stop()
         self.audio.play("complete")
 
         if self.is_test:
@@ -78,8 +87,13 @@ class TypingSpeechHandler:
         else:
             self.tts.speak("Lesson completed", interrupt=True)
 
+    def _speak_queued_prompt(self):
+        """Actually sends the queued prompt to the TTS engine after the delay."""
+        if self.queued_prompt:
+            self.tts.speak(self.queued_prompt, interrupt=False)
+
     def speak_prompt(self, correct=True, is_first_prompt=False):
-        """Generate and speak the dynamic instruction prompt based on the mode."""
+        """Generate and queue the dynamic instruction prompt."""
         if not self.settings.get("guided_mode", True) or not self.engine:
             return
 
@@ -92,7 +106,6 @@ class TypingSpeechHandler:
         finger = get_finger_instruction(current_char)
         message = ""
 
-        # Using localization for UI words
         try:
             type_str = _("Type")
             word_str = _("Word:")
@@ -129,26 +142,32 @@ class TypingSpeechHandler:
         # Training Mode Prompts
         # ==========================================
         else:
+            # رسالة التلقين الأساسية للحرف مع الإصبع
+            char_instruction = f"{char_name}, {finger}" if finger else char_name
+            
             if mode == TypingMode.CHARACTER:
-                if is_first_prompt:
-                    message = f"{type_str} {char_name}, {finger}" if finger else f"{type_str} {char_name}"
-                else:
-                    message = f"{char_name}, {finger}" if finger else char_name
+                message = f"{type_str} {char_instruction}" if is_first_prompt else char_instruction
+                
             elif mode == TypingMode.WORD:
                 word = self.engine.get_current_word()
                 if is_first_prompt or word != self.current_word_spoken:
                     self.current_word_spoken = word
                     message = f"{word_str} {word}"
                 else:
-                    if not correct:
-                        message = f"{char_name}, {finger}" if finger else char_name
+                    message = char_instruction
+                    
             elif mode == TypingMode.SENTENCE:
                 if is_first_prompt:
                     message = f"{sentence_str} {self.engine.text}"
-                elif not correct:
-                    message = f"{char_name}, {finger}" if finger else char_name
+                else:
+                    # إصلاح الكارثة: الآن يلقن الطالب الحرف التالي دائماً حتى داخل الجملة!
+                    message = char_instruction
 
         if message:
-            # Crucial Fix: interrupt=False puts the instruction in the queue!
-            # It will wait for the typed character to finish speaking before starting.
-            self.tts.speak(message, interrupt=False)
+            if is_first_prompt:
+                self.tts.speak(message, interrupt=True)
+            else:
+                # إيقاف أي مؤقت قديم، وبدء مؤقت جديد بـ 500 مللي ثانية
+                self.prompt_timer.stop()
+                self.queued_prompt = message
+                self.prompt_timer.start(500)
