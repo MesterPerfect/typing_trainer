@@ -28,27 +28,27 @@ def main():
     # 1. Give the main application 2 seconds to completely terminate
     time.sleep(2)
 
-    # 2. Create a temporary extraction folder next to the target
+    # 2. Create a temporary extraction folder next to the target directory
     temp_ext_dir = os.path.join(args.target, "_update_temp")
     os.makedirs(temp_ext_dir, exist_ok=True)
     
     try:
-        # 3. Extract the downloaded archive
+        # Extract the downloaded archive
         extract_archive(args.archive, temp_ext_dir)
 
-        # Handle the case where the archive contains a single root folder (e.g., TypingTrainer_v1.2/)
+        # Handle the case where the archive contains a single root folder
         extracted_items = os.listdir(temp_ext_dir)
         if len(extracted_items) == 1 and os.path.isdir(os.path.join(temp_ext_dir, extracted_items[0])):
             source_dir = os.path.join(temp_ext_dir, extracted_items[0])
         else:
             source_dir = temp_ext_dir
 
-        # 4. Wait until the main executable is totally released by the OS
+        # Wait until the main executable is totally released by the OS locks
         target_exe_path = os.path.join(args.target, args.exe)
         retries = 10
         while retries > 0:
             try:
-                # Try to open the file in append mode. If it fails, it's still running.
+                # Try to open the file in append mode. If it fails, it is still running.
                 if os.path.exists(target_exe_path):
                     with open(target_exe_path, 'a'): pass
                 break
@@ -56,25 +56,39 @@ def main():
                 time.sleep(1)
                 retries -= 1
 
-        # 5. Overwrite the old files with the new ones (dirs_exist_ok requires Python 3.8+)
+        # ==========================================
+        # 3. The Rename Trick (Self-Update Workaround)
+        # ==========================================
+        # The OS prevents overwriting a running executable. We rename the 
+        # current running updater to allow the new version to be copied safely.
+        current_updater = sys.executable
+        if os.path.exists(current_updater):
+            backup_updater = current_updater + ".old"
+            try:
+                if os.path.exists(backup_updater):
+                    os.remove(backup_updater)  # Remove previous backup if it exists
+                os.rename(current_updater, backup_updater)  # Rename current instance
+            except Exception:
+                pass
+
+        # 4. Overwrite the old files with the newly extracted ones
         shutil.copytree(source_dir, args.target, dirs_exist_ok=True)
 
     except Exception as e:
-        # If updating fails, write to a basic crash log
+        # Log failure silently for debugging purposes
         with open(os.path.join(args.target, "updater_crash.log"), "w") as f:
             f.write(f"Update failed: {e}")
     finally:
-        # 6. Cleanup temporary extraction folder and downloaded archive
+        # 5. Cleanup temporary extraction folder and the downloaded archive
         shutil.rmtree(temp_ext_dir, ignore_errors=True)
         try:
             os.remove(args.archive)
-        except:
+        except Exception:
             pass
 
-    # 7. Restart the main application
-    target_exe_path = os.path.join(args.target, args.exe)
+    # 6. Restart the main application
     if os.path.exists(target_exe_path):
-        # DETACHED_PROCESS on Windows, normal on Linux/Mac
+        # DETACHED_PROCESS ensures the new app doesn't die when this script exits (Windows)
         if sys.platform == "win32":
             subprocess.Popen([target_exe_path], creationflags=subprocess.DETACHED_PROCESS)
         else:
