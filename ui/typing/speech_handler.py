@@ -17,7 +17,6 @@ class TypingSpeechHandler:
         self.is_test = False
         self.current_word_spoken = ""
         
-        # مؤقت زمني لضمان عدم تداخل التلقين مع نطق الحرف المكتوب
         self.prompt_timer = QTimer()
         self.prompt_timer.setSingleShot(True)
         self.prompt_timer.timeout.connect(self._speak_queued_prompt)
@@ -31,21 +30,50 @@ class TypingSpeechHandler:
         self.prompt_timer.stop()
 
     def _get_pronunciation(self, char: str) -> str:
-        """ Maps specific single characters (like Arabic diacritics) to readable words. """
+        """ Maps symbols, punctuation, and diacritics to pronounceable words to bypass TTS verbosity limits. """
         lang = self.settings.get("ui_language", "en")
-        mapping = {
-            'َ': 'فتحة' if lang == 'ar' else 'Fatha',
-            'ً': 'تنوين بالفتح' if lang == 'ar' else 'Tanween Fath',
-            'ُ': 'ضمة' if lang == 'ar' else 'Damma',
-            'ٌ': 'تنوين بالضم' if lang == 'ar' else 'Tanween Damm',
-            'ِ': 'كسرة' if lang == 'ar' else 'Kasra',
-            'ٍ': 'تنوين بالكسر' if lang == 'ar' else 'Tanween Kasr',
-            'ْ': 'سكون' if lang == 'ar' else 'Sukun',
-            'ّ': 'شدة' if lang == 'ar' else 'Shadda',
-            ' ': 'مسافة' if lang == 'ar' else 'Space',
-            '\n': 'سطر جديد' if lang == 'ar' else 'Enter'
+        
+        # English Verbalization Map
+        en_mapping = {
+            ' ': 'Space', '\n': 'Enter',
+            '.': 'Dot', ',': 'Comma', ';': 'Semicolon', ':': 'Colon',
+            "'": 'Apostrophe', '"': 'Quote', '?': 'Question Mark', '!': 'Exclamation Mark',
+            '-': 'Dash', '_': 'Underscore', 
+            '(': 'Left Parenthesis', ')': 'Right Parenthesis',
+            '[': 'Left Bracket', ']': 'Right Bracket', 
+            '{': 'Left Brace', '}': 'Right Brace',
+            '<': 'Less Than', '>': 'Greater Than', 
+            '/': 'Slash', '\\': 'Backslash', '|': 'Pipe',
+            '@': 'At sign', '#': 'Hash', '$': 'Dollar sign', '%': 'Percent',
+            '^': 'Caret', '&': 'Ampersand', '*': 'Asterisk', 
+            '+': 'Plus', '=': 'Equals', '~': 'Tilde', '`': 'Backtick',
+            '،': 'Arabic Comma', '؛': 'Arabic Semicolon', '؟': 'Arabic Question Mark',
+            'َ': 'Fatha', 'ً': 'Tanween Fath', 'ُ': 'Damma', 'ٌ': 'Tanween Damm',
+            'ِ': 'Kasra', 'ٍ': 'Tanween Kasr', 'ْ': 'Sukun', 'ّ': 'Shadda'
         }
-        return mapping.get(char, char)
+        
+        # Arabic Verbalization Map
+        ar_mapping = {
+            ' ': 'مسافة', '\n': 'سطر جديد',
+            '.': 'نقطة', ',': 'فاصلة إنجليزية', ';': 'فاصلة منقوطة إنجليزية', ':': 'نقطتان',
+            "'": 'علامة تنصيص مفردة', '"': 'علامة تنصيص مزدوجة', '?': 'علامة استفهام إنجليزية', '!': 'علامة تعجب',
+            '-': 'شرطة', '_': 'شرطة سفلية', 
+            '(': 'قوس أيسر', ')': 'قوس أيمن',
+            '[': 'قوس مربع أيسر', ']': 'قوس مربع أيمن', 
+            '{': 'قوس معقوف أيسر', '}': 'قوس معقوف أيمن',
+            '<': 'أصغر من', '>': 'أكبر من', 
+            '/': 'شرطة مائلة', '\\': 'شرطة مائلة عكسية', '|': 'خط عمودي',
+            '@': 'علامة آت', '#': 'شباك', '$': 'علامة الدولار', '%': 'علامة بالمائة',
+            '^': 'علامة أُس', '&': 'علامة و', '*': 'نجمة', 
+            '+': 'زائد', '=': 'يساوي', '~': 'مدة', '`': 'حرف ذال إنجليزي',
+            '،': 'فاصلة', '؛': 'فاصلة منقوطة', '؟': 'علامة استفهام',
+            'َ': 'فتحة', 'ً': 'تنوين بالفتح', 'ُ': 'ضمة', 'ٌ': 'تنوين بالضم',
+            'ِ': 'كسرة', 'ٍ': 'تنوين بالكسر', 'ْ': 'سكون', 'ّ': 'شدة'
+        }
+        
+        if lang == 'ar':
+            return ar_mapping.get(char, char)
+        return en_mapping.get(char, char)
 
     def speak_start(self):
         """Announce the start of the session."""
@@ -64,11 +92,9 @@ class TypingSpeechHandler:
 
         spoken_char = self._get_pronunciation(char)
 
-        # نطق الحرف المكتوب فوراً ومقاطعة أي كلام سابق
         if correct or self.is_test:
             self.tts.speak(spoken_char, interrupt=True)
 
-        # تجهيز التلقين للحرف التالي (سيتم تأخيره بواسطة المؤقت)
         self.speak_prompt(correct=correct, is_first_prompt=False)
 
     def speak_backspace(self):
@@ -142,7 +168,6 @@ class TypingSpeechHandler:
         # Training Mode Prompts
         # ==========================================
         else:
-            # رسالة التلقين الأساسية للحرف مع الإصبع
             char_instruction = f"{char_name}, {finger}" if finger else char_name
             
             if mode == TypingMode.CHARACTER:
@@ -160,14 +185,12 @@ class TypingSpeechHandler:
                 if is_first_prompt:
                     message = f"{sentence_str} {self.engine.text}"
                 else:
-                    # إصلاح الكارثة: الآن يلقن الطالب الحرف التالي دائماً حتى داخل الجملة!
                     message = char_instruction
 
         if message:
             if is_first_prompt:
                 self.tts.speak(message, interrupt=True)
             else:
-                # إيقاف أي مؤقت قديم، وبدء مؤقت جديد بـ 500 مللي ثانية
                 self.prompt_timer.stop()
                 self.queued_prompt = message
                 self.prompt_timer.start(500)
