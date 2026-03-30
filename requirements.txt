@@ -10,3 +10,7 @@ comtypes==1.4.16; sys_platform == 'win32'
 pypiwin32==223; sys_platform == 'win32'
 pywin32==311; sys_platform == 'win32'
 python-msilib==0.5.0; sys_platform == 'win32'
+UniversalSpeech==1.0.2.1; sys_platform == 'win32'
+
+# macOS-only dependencies
+appscript>=1.2.2; sys_platform == 'darwin'
