@@ -76,7 +76,8 @@ class LinuxTTS(BaseTTS):
         try:
             import speechd
             self.speechd_module = speechd
-            self._speechd_client = speechd.SSIPClient("Typing Trainer")
+            # CRITICAL: Client name must NOT contain spaces for the SSIP protocol
+            self._speechd_client = speechd.SSIPClient("typing_trainer")
             return True
         except ImportError:
             logger.debug("python3-speechd module not installed.")
