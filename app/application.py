@@ -7,12 +7,16 @@ from PySide6.QtCore import qVersion, Qt
 from PySide6.QtWidgets import QApplication
 
 from ui.main_window import MainWindow
-from core.constants import BASE_DIR, APP_VERSION
+# Add USER_DATA_DIR to imports to tell telemetry where to save its cache
+from core.constants import BASE_DIR, USER_DATA_DIR, APP_VERSION
 from utils.i18n import setup_translations
 from services.settings_service import SettingsService
+from services.telemetry import TelemetryService
 
 logger = logging.getLogger(__name__)
 
+# Global instance so the exception handler can access it during a crash
+_telemetry_instance = None
 
 def _global_exception_handler(exc_type, exc_value, exc_traceback):
     """
@@ -23,8 +27,15 @@ def _global_exception_handler(exc_type, exc_value, exc_traceback):
         sys.__excepthook__(exc_type, exc_value, exc_traceback)
         return
         
+    # Track the crash immediately before the application dies
+    if _telemetry_instance:
+        _telemetry_instance.track("app_crashed", {
+            "error_type": exc_type.__name__,
+            "error_msg": str(exc_value)
+        })
+        _telemetry_instance._save_cache() # Force synchronous save on crash
+        
     logger.critical("Unhandled exception in the application:", exc_info=(exc_type, exc_value, exc_traceback))
-
 
 def _get_linux_distro_name() -> str:
     """Read the standard os-release file to get the exact Linux distribution name."""
@@ -36,7 +47,6 @@ def _get_linux_distro_name() -> str:
     except Exception:
         pass
     return "Unknown Linux Distribution"
-
 
 def log_system_environment():
     """Log comprehensive and clean details about the OS, Audio, and Screen Reader environment."""
@@ -69,8 +79,9 @@ def log_system_environment():
 
     logger.info("=" * 40)
 
-
 def run_app(args=None):
+    global _telemetry_instance
+    
     # Register the global exception handler
     sys.excepthook = _global_exception_handler
 
@@ -84,10 +95,45 @@ def run_app(args=None):
     settings = SettingsService()
     lang_code = args.lang if (args and args.lang) else settings.get("ui_language", "en")
 
-    # 2. Initialize global translation function _()
+    # 2. Determine accurate screen reader for telemetry
+    screen_reader_info = "Unknown"
+    sys_plat = platform.system()
+    if sys_plat == "Linux":
+        try:
+            screen_reader_info = subprocess.check_output(["orca", "--version"], text=True).strip()
+        except Exception:
+            screen_reader_info = "Orca not detected"
+    elif sys_plat == "Windows":
+        try:
+            # Quickly query UniversalSpeech just to get the engine name for telemetry
+            from UniversalSpeech import UniversalSpeech
+            temp_speech = UniversalSpeech()
+            screen_reader_info = temp_speech.engine_used
+        except Exception:
+            screen_reader_info = "UniversalSpeech failed/Missing DLLs"
+    elif sys_plat == "Darwin":
+        screen_reader_info = "VoiceOver"
+
+    # 3. Initialize Telemetry Service
+    # Respect user privacy: check if they disabled telemetry in settings
+    telemetry_enabled = settings.get("telemetry_enabled", True)
+    _telemetry_instance = TelemetryService(
+        user_data_dir=str(USER_DATA_DIR), 
+        app_version=APP_VERSION,
+        language=lang_code,
+        screen_reader=screen_reader_info,
+        enabled=telemetry_enabled
+    )
+    _telemetry_instance.start_session()
+
+    # 4. Initialize global translation function _()
     setup_translations(lang_code)
 
     app = QApplication(sys.argv)
+    
+    # Attach telemetry directly to the QApplication instance!
+    # This allows any widget to call: QApplication.instance().telemetry.track(...)
+    app.telemetry = _telemetry_instance
     
     # Register Application Metadata
     app.setApplicationName("Typing Trainer")
@@ -99,7 +145,7 @@ def run_app(args=None):
     else:
         app.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
-    # 3. Dynamic Theme Loading Logic
+    # 5. Dynamic Theme Loading Logic
     theme_name = settings.get("theme", "dark_theme") 
     theme_path = BASE_DIR / "assets" / "themes" / f"{theme_name}.qss"
 
@@ -115,4 +161,11 @@ def run_app(args=None):
 
     window = MainWindow(args=args)
     window.show()
-    sys.exit(app.exec())
+    
+    # Run the main event loop
+    exit_code = app.exec()
+    
+    # 6. Cleanly end the telemetry session upon normal exit
+    _telemetry_instance.end_session()
+    
+    sys.exit(exit_code)

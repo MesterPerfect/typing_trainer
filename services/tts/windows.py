@@ -4,20 +4,42 @@ from .base import BaseTTS
 logger = logging.getLogger(__name__)
 
 class WindowsTTS(BaseTTS):
-    """ TTS implementation using UniversalSpeech (NVDA/JAWS). """
+    """ TTS implementation using UniversalSpeech (NVDA/JAWS/SAPI). """
 
     def __init__(self):
         self.available = False
         self.speech = None
+        self.engine_name = "Unknown"
 
         try:
             from UniversalSpeech import UniversalSpeech
             self.speech = UniversalSpeech()
             self.available = True
-            logger.info("UniversalSpeech initialized successfully")
+            
+            # Fetch the exact screen reader being used
+            try:
+                self.engine_name = self.speech.engine_used
+            except Exception as e:
+                logger.debug(f"Could not fetch engine_used: {e}")
+                self.engine_name = "UniversalSpeech (Unknown)"
 
-        except Exception:
+            logger.info(f"UniversalSpeech initialized successfully. Active engine: {self.engine_name}")
+            
+            # Telemetry Hook
+            self._track_event("tts_initialized", {
+                "platform": "Windows", 
+                "backend": "UniversalSpeech",
+                "screen_reader_engine": self.engine_name
+            })
+
+        except Exception as e:
             logger.exception("Failed to initialize UniversalSpeech")
+            
+            # Telemetry Hook
+            self._track_event("tts_init_failed", {
+                "platform": "Windows", 
+                "error": str(e)
+            })
 
     def speak(self, text: str, interrupt: bool = True):
         if not self.available:

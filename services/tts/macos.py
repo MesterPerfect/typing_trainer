@@ -19,13 +19,24 @@ class MacOSTTS(BaseTTS):
         # Determine the best VoiceOver communication method
         self.vo_appscript_app = None
         self.has_appscript = False
+        self.backend_name = "unknown"
+        
         try:
             import appscript
             self.vo_appscript_app = appscript.app("voiceover")
             self.has_appscript = True
+            self.backend_name = "VoiceOver (appscript)"
             logger.info("macOS TTS: 'appscript' module loaded successfully.")
+            
         except ImportError:
+            self.backend_name = "VoiceOver (osascript) or Say"
             logger.debug("macOS TTS: 'appscript' module not found, will use osascript/say fallback.")
+            
+        # Telemetry Hook
+        self._track_event("tts_initialized", {
+            "platform": "macOS", 
+            "backend": self.backend_name
+        })
         
         self.worker_thread = threading.Thread(target=self._process_queue, daemon=True)
         self.worker_thread.start()
@@ -100,6 +111,14 @@ class MacOSTTS(BaseTTS):
                 logger.debug(f"macOS osascript failed, falling back to 'say'. Error: {e.stderr}")
                 self.current_process = subprocess.Popen(['say', text])
                 self.current_process.wait()
+                
+                # Telemetry Hook for fallback
+                self._track_event("tts_fallback_triggered", {
+                    "platform": "macOS",
+                    "from": "osascript",
+                    "to": "say"
+                })
+                
             except Exception as e:
                 logger.error(f"macOS TTS error processing queue: {e}")
             

@@ -6,6 +6,7 @@ import subprocess
 import zipfile
 import tarfile
 import argparse
+import json
 
 def extract_archive(archive_path, extract_to):
     """Extracts zip or tar.gz archives."""
@@ -23,6 +24,7 @@ def main():
     parser.add_argument("--archive", required=True, help="Path to the downloaded update archive")
     parser.add_argument("--target", required=True, help="Path to the application installation folder")
     parser.add_argument("--exe", required=True, help="Name of the main executable to restart")
+    parser.add_argument("--userdata", required=True, help="Path to the user_data directory for telemetry flags")
     args = parser.parse_args()
 
     # 1. Give the main application 2 seconds to completely terminate
@@ -32,6 +34,9 @@ def main():
     temp_ext_dir = os.path.join(args.target, "_update_temp")
     os.makedirs(temp_ext_dir, exist_ok=True)
     
+    update_success = False
+    error_message = ""
+
     try:
         # Extract the downloaded archive
         extract_archive(args.archive, temp_ext_dir)
@@ -48,7 +53,6 @@ def main():
         retries = 10
         while retries > 0:
             try:
-                # Try to open the file in append mode. If it fails, it is still running.
                 if os.path.exists(target_exe_path):
                     with open(target_exe_path, 'a'): pass
                 break
@@ -59,25 +63,25 @@ def main():
         # ==========================================
         # 3. The Rename Trick (Self-Update Workaround)
         # ==========================================
-        # The OS prevents overwriting a running executable. We rename the 
-        # current running updater to allow the new version to be copied safely.
         current_updater = sys.executable
         if os.path.exists(current_updater):
             backup_updater = current_updater + ".old"
             try:
                 if os.path.exists(backup_updater):
-                    os.remove(backup_updater)  # Remove previous backup if it exists
-                os.rename(current_updater, backup_updater)  # Rename current instance
+                    os.remove(backup_updater)
+                os.rename(current_updater, backup_updater)
             except Exception:
                 pass
 
         # 4. Overwrite the old files with the newly extracted ones
         shutil.copytree(source_dir, args.target, dirs_exist_ok=True)
+        update_success = True
 
     except Exception as e:
+        error_message = str(e)
         # Log failure silently for debugging purposes
-        with open(os.path.join(args.target, "updater_crash.log"), "w") as f:
-            f.write(f"Update failed: {e}")
+        with open(os.path.join(args.target, "updater_crash.log"), "w", encoding="utf-8") as f:
+            f.write(f"Update failed: {error_message}")
     finally:
         # 5. Cleanup temporary extraction folder and the downloaded archive
         shutil.rmtree(temp_ext_dir, ignore_errors=True)
@@ -86,9 +90,19 @@ def main():
         except Exception:
             pass
 
+        # Write telemetry flag for the main application to read on next startup
+        flag_file = os.path.join(args.userdata, "update_status.json")
+        try:
+            with open(flag_file, "w", encoding="utf-8") as f:
+                json.dump({
+                    "success": update_success,
+                    "error": error_message
+                }, f)
+        except:
+            pass
+
     # 6. Restart the main application
     if os.path.exists(target_exe_path):
-        # DETACHED_PROCESS ensures the new app doesn't die when this script exits (Windows)
         if sys.platform == "win32":
             subprocess.Popen([target_exe_path], creationflags=subprocess.DETACHED_PROCESS)
         else:

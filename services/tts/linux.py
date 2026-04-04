@@ -39,6 +39,15 @@ class LinuxTTS(BaseTTS):
         self.backend = self._detect_backend()
 
         # =========================
+        # Telemetry Hook
+        # =========================
+        # Track exactly which backend Linux managed to use after the fallback chain
+        self._track_event("tts_initialized", {
+            "platform": "Linux",
+            "backend": self.backend
+        })
+
+        # =========================
         # Queue System
         # =========================
         self._queue: queue.Queue[Tuple[str, bool]] = queue.Queue()

@@ -1,6 +1,7 @@
 from core.modes import TypingMode
 from core.statistics import TypingStatistics
 import logging
+from PySide6.QtWidgets import QApplication
 
 logger = logging.getLogger(__name__)
 
@@ -21,16 +22,21 @@ class TypingEngine:
     - Backspace support
     - Modes (character / word / sentence)
     - Integrated statistics tracking
+    - Automated telemetry reporting
     """
-    def __init__(self, text: str, mode: TypingMode = TypingMode.CHARACTER):
+    def __init__(self, text: str, mode: TypingMode = TypingMode.CHARACTER, lesson_id: str = "custom_lesson"):
         self.text = text
         self.mode = mode
+        self.lesson_id = lesson_id
 
         self.current_index = 0
         self.typed = []
         
         # Initialize statistics tracker
         self.stats = TypingStatistics()
+        
+        # Flag to ensure we only send completion telemetry once
+        self._completion_tracked = False
 
         logger.info(f"TypingEngine initialized (mode={mode.name})")
 
@@ -60,7 +66,26 @@ class TypingEngine:
 
         logger.debug(f"[CHAR] '{char}' | Expected: '{expected}' | Correct: {correct}")
 
+        # Check if this keystroke finished the lesson
+        if self.is_finished() and not self._completion_tracked:
+            self._track_lesson_completion()
+
         return TypingResult(expected, char, correct, self.current_index)
+
+    def _track_lesson_completion(self):
+        """ Privately handles sending telemetry data when the text is fully typed. """
+        self._completion_tracked = True
+        app = QApplication.instance()
+        
+        if app and hasattr(app, "telemetry"):
+            stats_dict = self.stats.get_current_stats()
+            app.telemetry.track("lesson_completed", {
+                "lesson_id": self.lesson_id,
+                "wpm": stats_dict.get("wpm", 0),
+                "accuracy": stats_dict.get("accuracy", 0),
+                "mode": self.mode.name
+            })
+            logger.debug("Telemetry: lesson_completed event queued.")
 
     def backspace(self):
         if not self.typed:

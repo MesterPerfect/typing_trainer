@@ -4,6 +4,7 @@ filelock==3.25.2
 packaging==26.0
 platformdirs==4.9.4
 pyttsx3==2.99
+posthog
 
 # Windows-only dependencies
 comtypes==1.4.16; sys_platform == 'win32'
