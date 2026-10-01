@@ -46,6 +46,7 @@ class ResultService:
         self.cached_results.append({
             "lesson_id": result.lesson_id,
             "wpm": result.wpm,
+            "cpm": result.cpm,
             "accuracy": result.accuracy,
             "errors": result.errors,
             "time_elapsed": result.time_elapsed,
@@ -53,7 +54,7 @@ class ResultService:
         })
 
         self._save_data(self.cached_results)
-        logger.info(f"Saved result for lesson {result.lesson_id} (WPM: {result.wpm})")
+        logger.info(f"Saved result for lesson {result.lesson_id} (WPM: {result.wpm}, CPM: {result.cpm})")
 
     def get_results_by_lesson(self, lesson_id: str) -> List[LessonResult]:
         """ Retrieve stored results for a specific lesson ID from the memory cache. """
@@ -61,3 +62,71 @@ class ResultService:
             LessonResult(**item) for item in self.cached_results 
             if item.get("lesson_id") == lesson_id
         ]
+
+    def clear_all_results(self) -> bool:
+        """ Wipe all cached and saved results history. """
+        self.cached_results = []
+        self._save_data(self.cached_results)
+        logger.info("Cleared all typing results history.")
+        return True
+
+    def get_lifetime_summary(self) -> dict:
+        """ Compute aggregate statistics across all recorded sessions. """
+        total_sessions = len(self.cached_results)
+        if total_sessions == 0:
+            return {
+                "total_sessions": 0,
+                "peak_wpm": 0,
+                "peak_cpm": 0,
+                "avg_wpm": 0.0,
+                "avg_accuracy": 100.0,
+                "total_time_seconds": 0.0
+            }
+
+        wpms = [item.get("wpm", 0) for item in self.cached_results]
+        cpms = [item.get("cpm", 0) for item in self.cached_results]
+        accuracies = [item.get("accuracy", 100.0) for item in self.cached_results]
+        times = [item.get("time_elapsed", 0.0) for item in self.cached_results]
+
+        return {
+            "total_sessions": total_sessions,
+            "peak_wpm": max(wpms, default=0),
+            "peak_cpm": max(cpms, default=0),
+            "avg_wpm": round(sum(wpms) / total_sessions, 1),
+            "avg_accuracy": round(sum(accuracies) / total_sessions, 1),
+            "total_time_seconds": round(sum(times), 1)
+        }
+
+    def export_to_csv(self, target_path: Path, lesson_titles: dict = None) -> bool:
+        """ Export all results history to a CSV file. """
+        import csv
+        from datetime import datetime
+        
+        lesson_titles = lesson_titles or {}
+        target_path = Path(target_path)
+        try:
+            target_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(target_path, "w", newline="", encoding="utf-8-sig") as f:
+                writer = csv.writer(f)
+                writer.writerow(["Timestamp", "Date", "Lesson ID", "Lesson Title", "WPM", "CPM", "Accuracy (%)", "Errors", "Time (seconds)"])
+                for item in self.cached_results:
+                    ts = item.get("timestamp", 0)
+                    date_str = datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S") if ts else ""
+                    lid = str(item.get("lesson_id", ""))
+                    ltitle = lesson_titles.get(lid, lid)
+                    writer.writerow([
+                        ts,
+                        date_str,
+                        lid,
+                        ltitle,
+                        item.get("wpm", 0),
+                        item.get("cpm", 0),
+                        item.get("accuracy", 100.0),
+                        item.get("errors", 0),
+                        item.get("time_elapsed", 0.0)
+                    ])
+            logger.info(f"Exported results to CSV at {target_path}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to export CSV: {e}")
+            return False
