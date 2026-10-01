@@ -1,9 +1,13 @@
 import logging
+import builtins
 from PySide6.QtCore import QObject, QEvent
 from PySide6.QtWidgets import QWidget, QPushButton, QLabel
 
 logger = logging.getLogger(__name__)
 
+# Fallback for gettext translation function if not already installed in builtins
+if not hasattr(builtins, "_"):
+    builtins._ = lambda s: s
 
 class SelfVoicingFilter(QObject):
     def __init__(self, tts):
