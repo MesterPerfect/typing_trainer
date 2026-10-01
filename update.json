@@ -2,25 +2,28 @@
   "stable": {
     "version": "1.0.0",
     "release_notes": {
-      "en": "- Stable release with improved typing engine.",
-      "ar": "- إصدار مستقر مع تحسين محرك الطباعة."
+      "ar": "🚀 **الإصدار v1.0.0 (الإصدار الرسمي الأول لمدرب الطباعة الميسر)**\n\n- ⌨️ محرك تدريب متقدم يدعم أوضاع الحروف والكلمات والجمل باللغتين العربية والإنجليزية.\n- 🔊 دعم استثنائي لقارئات الشاشة (100% Accessible) عبر UniversalSpeech و VoiceOver و Speech-Dispatcher.\n- 🧠 محرك نطق ذكي (TTS Verbalizer) مع منع التداخل الصوتي ونطق الحركات والرموز الرياضية وعلامات الترقيم بدقة.\n- 🔍 وضع استكشاف لوحة المفاتيح والتعرف على تموضع الأصابع ومفاتيح التحكم مع نظام الخروج الآمن.\n- 🔄 نظام تحديث تلقائي ذكي يعمل في الخلفية بسلاسة وأمان تام.\n- 📊 إحصائيات متقدمة وحساب دقيق لمعدل الكلمات في الدقيقة (WPM) ونسبة الدقة.",
+      "en": "🚀 **Version 1.0.0 (Official Launch of Accessible Typing Trainer)**\n\n- ⌨️ Advanced typing engine supporting Character, Word, and Sentence modes in English & Arabic.\n- 🔊 Full Screen Reader Accessibility (UniversalSpeech, VoiceOver, and Speech-Dispatcher).\n- 🧠 Smart TTS verbalizer with queue management, punctuation, and Arabic Tashkeel pronunciation.\n- 🔍 Safe Keyboard Explorer modes for discovering layout, finger placement, and action keys.\n- 🔄 Integrated silent background auto-updater across platforms.\n- 📊 In-depth statistics calculating Net WPM and real-time accuracy."
     },
     "downloads": {
-      "windows": "https://link-to-stable-windows.zip",
-      "linux": "https://link-to-stable-linux.zip",
-      "darwin": "https://link-to-stable-macos.zip"
-    }
-  },
-  "beta": {
-    "version": "1.1.0-beta6",
-    "release_notes": {
-      "en": "- Major architectural overhaul for enhanced stability, Clean Architecture, and optimized performance.\n- Added 'Keyboard Layout Explorer' mode to safely discover hardware and modifier keys.\n- Advanced TTS Engine: Implemented smart audio queuing to prevent overlapping, and comprehensive verbalization for perfect pronunciation of punctuation, math operators, and Arabic diacritics (Tashkeel).\n- New Content: Added advanced lessons for Numbers, Symbols, Brackets, and Diacritics in both English and Arabic.\n- Smart Sync: Seamlessly updates default lessons without overwriting your custom-created lessons.\n- Bug Fixes: Resolved phantom timers, ghost lesson deletion bugs, and optimized disk I/O with strict memory caching.",
-      "ar": "- تحديث معماري جذري لتعزيز استقرار البرنامج وتحسين الأداء وتقليل استهلاك موارد الجهاز.\n- إضافة وضع 'مستكشف لوحة المفاتيح' للتعرف بأمان على مفاتيح النظام والتعديل (Shift, Alt, إلخ).\n- محرك نطق (TTS) متطور: تطبيق نظام طابور ذكي لمنع تداخل الأصوات عند الكتابة السريعة، ونطق لفظي دقيق لعلامات الترقيم والعمليات الحسابية والتشكيل.\n- محتوى جديد: إضافة دروس متقدمة للتدريب على الأرقام، الرموز، الأقواس، والتشكيل باللغتين العربية والإنجليزية.\n- المزامنة الذكية: تحديث الدروس الافتراضية بصمت وبشكل آمن دون المساس بالدروس التي أنشأها المستخدم.\n- إصلاحات شاملة: حل مشكلة تداخل المؤقتات، وإصلاح خطأ الدروس الوهمية عند الحذف، وتفعيل الحفظ المجمع للإعدادات."
-    },
-    "downloads": {
-      "windows": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0-beta.6/TypingTrainer_windows-latest.zip",
-      "linux": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0-beta.6/TypingTrainer_ubuntu-latest.zip",
-      "darwin": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0-beta.6/TypingTrainer_macos-latest.zip"
+      "windows": {
+        "installed": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0/TypingTrainer_Setup_v1.0.0.exe",
+        "installed_hash": "",
+        "portable": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0/TypingTrainer_Windows_Portable_v1.0.0.zip",
+        "portable_hash": ""
+      },
+      "darwin": {
+        "installed": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0/TypingTrainer_macOS_Installer_v1.0.0.dmg",
+        "installed_hash": "",
+        "portable": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0/TypingTrainer_macOS_Portable_v1.0.0.zip",
+        "portable_hash": ""
+      },
+      "linux": {
+        "installed": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0/TypingTrainer_Linux_Installer_v1.0.0.deb",
+        "installed_hash": "",
+        "portable": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0/TypingTrainer_Linux_Portable_v1.0.0.tar.gz",
+        "portable_hash": ""
+      }
     }
   }
 }
