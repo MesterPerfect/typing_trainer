@@ -6,19 +6,27 @@ from pathlib import Path
 # Application Info
 # =========================================================
 
-APP_VERSION = "1.0.0"
+from platformdirs import user_data_dir, user_log_dir
 
-# =========================================================
-# Paths & Directories
-# =========================================================
+APP_NAME = "TypingTrainer"
+APP_AUTHOR = "MesterPerfect"
+APP_VERSION = "1.0.0"
 
 # Detect if the application is running as a frozen executable (cx_Freeze / PyInstaller)
 if getattr(sys, 'frozen', False):
     # If frozen, the root is the directory containing the executable
     BASE_DIR = Path(os.path.dirname(sys.executable))
+    # Standard user directory to guarantee write permissions on all operating systems
+    USER_DATA_DIR = Path(user_data_dir(APP_NAME, APP_AUTHOR))
+    LOG_DIR = Path(user_log_dir(APP_NAME, APP_AUTHOR))
 else:
     # Base directory of the project (2 levels up from this file)
     BASE_DIR = Path(__file__).resolve().parent.parent
+    USER_DATA_DIR = BASE_DIR / "user_data"
+    LOG_DIR = BASE_DIR / "logs"
+
+USER_DATA_DIR.mkdir(parents=True, exist_ok=True)
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 # Assets Directory
 ASSETS_DIR = BASE_DIR / "assets"
@@ -27,16 +35,12 @@ ASSETS_DIR = BASE_DIR / "assets"
 ICON_FILE_ICO = ASSETS_DIR / "icon.ico"
 ICON_FILE_PNG = ASSETS_DIR / "icon.png"
 
-# We create a specific folder for user data to avoid mixing with the 'data' python package
-USER_DATA_DIR = BASE_DIR / "user_data"
-
 # JSON File Paths
 SETTINGS_FILE = USER_DATA_DIR / "settings.json"
 RESULTS_FILE = USER_DATA_DIR / "results.json"
 LESSONS_FILE = USER_DATA_DIR / "lessons.json"
 
 # Logs
-LOG_DIR = BASE_DIR / "logs"
 LOG_FILE = LOG_DIR / "app.log"
 
 # =========================================================
