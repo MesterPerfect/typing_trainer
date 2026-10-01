@@ -11,10 +11,13 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QMessageBox,
     QSpinBox,
+    QFileDialog,
 )
 from PySide6.QtCore import Signal, Qt
+from pathlib import Path
 import logging
 import uuid
+import re
 
 from services.lesson import LessonService
 from models.lesson_model import Lesson
@@ -40,7 +43,7 @@ class LessonEditorView(QWidget):
         main_layout.setSpacing(20)
 
         # ==========================================
-        # Left Panel: Lesson List
+        # Left Panel: Lesson List & Package Tools
         # ==========================================
         left_panel = QVBoxLayout()
 
@@ -55,9 +58,24 @@ class LessonEditorView(QWidget):
 
         self.btn_new = QPushButton(_("Create New Lesson (Ctrl+N)"))
         self.btn_new.setFont(self._get_font(12, bold=True))
-        self.btn_new.setMinimumHeight(40)
+        self.btn_new.setMinimumHeight(38)
         self.btn_new.clicked.connect(self.clear_form)
         left_panel.addWidget(self.btn_new)
+
+        pkg_layout = QHBoxLayout()
+        self.btn_import_pkg = QPushButton(_("Import Package"))
+        self.btn_import_pkg.setFont(self._get_font(11, bold=True))
+        self.btn_import_pkg.setMinimumHeight(35)
+        self.btn_import_pkg.clicked.connect(self.import_package)
+
+        self.btn_export_pkg = QPushButton(_("Export Package"))
+        self.btn_export_pkg.setFont(self._get_font(11, bold=True))
+        self.btn_export_pkg.setMinimumHeight(35)
+        self.btn_export_pkg.clicked.connect(self.export_package)
+
+        pkg_layout.addWidget(self.btn_import_pkg)
+        pkg_layout.addWidget(self.btn_export_pkg)
+        left_panel.addLayout(pkg_layout)
 
         main_layout.addLayout(left_panel, 1)  # Takes 1 part of screen
 
@@ -181,14 +199,48 @@ class LessonEditorView(QWidget):
         self.title_input.setFocus()
         self.tts.speak("New lesson form ready")
 
+    def _validate_language_match(self, text: str, lang: str) -> bool:
+        """Check if the text content matches the selected language script."""
+        arabic_chars = len(re.findall(r'[\u0600-\u06FF]', text))
+        latin_chars = len(re.findall(r'[a-zA-Z]', text))
+
+        if lang == "ar" and latin_chars > 0 and arabic_chars == 0:
+            reply = QMessageBox.question(
+                self,
+                _("Language Mismatch Warning"),
+                _("The lesson language is set to Arabic, but the text contains English letters and no Arabic letters. Do you want to save anyway?"),
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+            return reply == QMessageBox.StandardButton.Yes
+
+        if lang == "en" and arabic_chars > 0 and latin_chars == 0:
+            reply = QMessageBox.question(
+                self,
+                _("Language Mismatch Warning"),
+                _("The lesson language is set to English, but the text contains Arabic letters and no English letters. Do you want to save anyway?"),
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+            return reply == QMessageBox.StandardButton.Yes
+
+        return True
+
     def save_lesson(self):
         """Save the current form data as a new lesson or update existing."""
         title = self.title_input.text().strip()
         text = self.text_input.toPlainText().strip()
+        lang = self.lang_combo.currentText()
 
         # Enhanced validation
         if not title or not text:
-            self.tts.speak("Title and text must contain at least 2 characters")
+            msg = _("Title and text must contain at least 2 characters")
+            self.tts.speak(msg)
+            QMessageBox.warning(self, _("Validation Error"), msg)
+            return
+
+        # Script / Language validation
+        if not self._validate_language_match(text, lang):
             return
 
         # Create or update lesson object
@@ -203,7 +255,7 @@ class LessonEditorView(QWidget):
             title=title,
             text=text,
             difficulty=self.diff_spin.value(),
-            language=self.lang_combo.currentText(),
+            language=lang,
             lesson_type=self.type_combo.currentText()
         )
 
@@ -220,26 +272,90 @@ class LessonEditorView(QWidget):
         success = self.lesson_service.save_all_lessons(self.lessons)
 
         if success:
-            self.tts.speak("Lesson saved successfully")
+            self.tts.speak(_("Lesson saved successfully"))
             self.load_data()  # Refresh the list
         else:
-            self.tts.speak("Failed to save lesson")
+            self.tts.speak(_("Failed to save lesson"))
 
     def delete_lesson(self):
         """Delete the currently selected lesson and clear the form."""
         if not self.current_lesson_id:
-            self.tts.speak("No lesson selected to delete")
+            self.tts.speak(_("No lesson selected to delete"))
+            return
+
+        reply = QMessageBox.question(
+            self,
+            _("Delete Lesson"),
+            _("Are you sure you want to delete this lesson?"),
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+        if reply != QMessageBox.StandardButton.Yes:
             return
 
         self.lessons = [l for l in self.lessons if l.id != self.current_lesson_id]
 
         success = self.lesson_service.save_all_lessons(self.lessons)
         if success:
-            self.tts.speak("Lesson deleted")
+            self.tts.speak(_("Lesson deleted"))
             self.load_data()
             self.clear_form() # Reset the form to prevent ghost saving
         else:
-            self.tts.speak("Failed to delete lesson")
+            self.tts.speak(_("Failed to delete lesson"))
+
+    def export_package(self):
+        """Export all lessons to a JSON package file."""
+        if not self.lessons:
+            QMessageBox.information(self, _("Export Package"), _("No lessons available to export."))
+            return
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            _("Export Lesson Package"),
+            "lessons_package.json",
+            "JSON Package (*.json);;All Files (*)"
+        )
+        if file_path:
+            success = self.lesson_service.export_package(Path(file_path), self.lessons)
+            if success:
+                msg = _("Lesson package exported successfully.")
+                self.tts.speak(msg)
+                QMessageBox.information(self, _("Export Successful"), msg)
+            else:
+                msg = _("Failed to export lesson package.")
+                self.tts.speak(msg)
+                QMessageBox.warning(self, _("Export Failed"), msg)
+
+    def import_package(self):
+        """Import lessons from a JSON package file and merge with existing."""
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            _("Import Lesson Package"),
+            "",
+            "JSON Package (*.json);;All Files (*)"
+        )
+        if file_path:
+            imported_lessons = self.lesson_service.import_package(Path(file_path))
+            if not imported_lessons:
+                msg = _("No valid lessons found in the selected package.")
+                self.tts.speak(msg)
+                QMessageBox.warning(self, _("Import Failed"), msg)
+                return
+
+            existing_ids = {l.id for l in self.lessons}
+            added_count = 0
+            for l in imported_lessons:
+                if not l.id or l.id in existing_ids:
+                    l.id = f"custom_{uuid.uuid4().hex[:8]}"
+                self.lessons.append(l)
+                existing_ids.add(l.id)
+                added_count += 1
+
+            self.lesson_service.save_all_lessons(self.lessons)
+            self.load_data()
+            msg = f"{_('Successfully imported')} {added_count} {_('lessons.')}"
+            self.tts.speak(msg)
+            QMessageBox.information(self, _("Import Successful"), msg)
 
     def keyPressEvent(self, event):
         """Handle shortcuts."""
