@@ -1,27 +1,36 @@
 import sys
 import os
 from pathlib import Path
+from platformdirs import user_data_dir, user_log_dir
 
 # =========================================================
 # Application Info
 # =========================================================
-
-from platformdirs import user_data_dir, user_log_dir
 
 APP_NAME = "TypingTrainer"
 APP_AUTHOR = "MesterPerfect"
 APP_VERSION = "1.0.0"
 
 # Detect if the application is running as a frozen executable (cx_Freeze / PyInstaller)
-if getattr(sys, 'frozen', False):
+IS_FROZEN = getattr(sys, 'frozen', False)
+
+if IS_FROZEN:
     # If frozen, the root is the directory containing the executable
     BASE_DIR = Path(os.path.dirname(sys.executable))
-    # Standard user directory to guarantee write permissions on all operating systems
-    USER_DATA_DIR = Path(user_data_dir(APP_NAME, APP_AUTHOR))
-    LOG_DIR = Path(user_log_dir(APP_NAME, APP_AUTHOR))
+    IS_PORTABLE = (BASE_DIR / ".portable").exists()
+    
+    if IS_PORTABLE:
+        # In portable mode, data and logs reside within the application folder
+        USER_DATA_DIR = BASE_DIR / "user_data"
+        LOG_DIR = BASE_DIR / "logs"
+    else:
+        # Standard user directory to guarantee write permissions on all operating systems
+        USER_DATA_DIR = Path(user_data_dir(APP_NAME, APP_AUTHOR))
+        LOG_DIR = Path(user_log_dir(APP_NAME, APP_AUTHOR))
 else:
     # Base directory of the project (2 levels up from this file)
     BASE_DIR = Path(__file__).resolve().parent.parent
+    IS_PORTABLE = False
     USER_DATA_DIR = BASE_DIR / "user_data"
     LOG_DIR = BASE_DIR / "logs"
 
