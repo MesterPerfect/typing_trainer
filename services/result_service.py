@@ -29,6 +29,8 @@ class ResultService:
         try:
             with open(self.file_path, "r", encoding="utf-8") as f:
                 self.cached_results = json.load(f)
+            if not isinstance(self.cached_results, list):
+                self.cached_results = []
         except (FileNotFoundError, json.JSONDecodeError):
             self.cached_results = []
             self._save_data(self.cached_results)
@@ -57,11 +59,25 @@ class ResultService:
         logger.info(f"Saved result for lesson {result.lesson_id} (WPM: {result.wpm}, CPM: {result.cpm})")
 
     def get_results_by_lesson(self, lesson_id: str) -> List[LessonResult]:
-        """ Retrieve stored results for a specific lesson ID from the memory cache. """
-        return [
-            LessonResult(**item) for item in self.cached_results 
-            if item.get("lesson_id") == lesson_id
-        ]
+        """ Retrieve stored results for a specific lesson ID defensively from cache. """
+        results = []
+        for item in self.cached_results:
+            if isinstance(item, dict) and item.get("lesson_id") == lesson_id:
+                try:
+                    ts = item.get("timestamp", 0)
+                    ts_val = float(ts) if isinstance(ts, (int, float)) else 0.0
+                    results.append(LessonResult(
+                        lesson_id=str(item.get("lesson_id", "")),
+                        wpm=int(item.get("wpm", 0)),
+                        accuracy=float(item.get("accuracy", 100.0)),
+                        errors=int(item.get("errors", 0)),
+                        time_elapsed=float(item.get("time_elapsed", 0.0)),
+                        cpm=int(item.get("cpm", 0)),
+                        timestamp=ts_val
+                    ))
+                except Exception as e:
+                    logger.debug(f"Skipping malformed result entry: {e}")
+        return results
 
     def clear_all_results(self) -> bool:
         """ Wipe all cached and saved results history. """
@@ -83,22 +99,23 @@ class ResultService:
                 "total_time_seconds": 0.0
             }
 
-        wpms = [item.get("wpm", 0) for item in self.cached_results]
-        cpms = [item.get("cpm", 0) for item in self.cached_results]
-        accuracies = [item.get("accuracy", 100.0) for item in self.cached_results]
-        times = [item.get("time_elapsed", 0.0) for item in self.cached_results]
+        wpms = [item.get("wpm", 0) for item in self.cached_results if isinstance(item, dict)]
+        cpms = [item.get("cpm", 0) for item in self.cached_results if isinstance(item, dict)]
+        accuracies = [item.get("accuracy", 100.0) for item in self.cached_results if isinstance(item, dict)]
+        times = [item.get("time_elapsed", 0.0) for item in self.cached_results if isinstance(item, dict)]
 
+        count = len(wpms) or 1
         return {
             "total_sessions": total_sessions,
             "peak_wpm": max(wpms, default=0),
             "peak_cpm": max(cpms, default=0),
-            "avg_wpm": round(sum(wpms) / total_sessions, 1),
-            "avg_accuracy": round(sum(accuracies) / total_sessions, 1),
+            "avg_wpm": round(sum(wpms) / count, 1),
+            "avg_accuracy": round(sum(accuracies) / count, 1),
             "total_time_seconds": round(sum(times), 1)
         }
 
     def export_to_csv(self, target_path: Path, lesson_titles: dict = None) -> bool:
-        """ Export all results history to a CSV file. """
+        """ Export all results history safely to a CSV file. """
         import csv
         from datetime import datetime
         
@@ -110,8 +127,18 @@ class ResultService:
                 writer = csv.writer(f)
                 writer.writerow(["Timestamp", "Date", "Lesson ID", "Lesson Title", "WPM", "CPM", "Accuracy (%)", "Errors", "Time (seconds)"])
                 for item in self.cached_results:
+                    if not isinstance(item, dict):
+                        continue
                     ts = item.get("timestamp", 0)
-                    date_str = datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S") if ts else ""
+                    date_str = ""
+                    if ts:
+                        try:
+                            if isinstance(ts, (int, float)):
+                                date_str = datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M:%S")
+                            else:
+                                date_str = str(ts)
+                        except Exception:
+                            date_str = str(ts)
                     lid = str(item.get("lesson_id", ""))
                     ltitle = lesson_titles.get(lid, lid)
                     writer.writerow([

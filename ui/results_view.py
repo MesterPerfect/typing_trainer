@@ -143,10 +143,18 @@ class ResultsView(QWidget):
             for row_idx, item in enumerate(data):
                 self.table.insertRow(row_idx)
 
-                # Format Date
-                date_str = datetime.fromtimestamp(item.get("timestamp", 0)).strftime(
-                    "%Y-%m-%d %H:%M"
-                )
+                # Format Date safely
+                ts = item.get("timestamp", 0)
+                date_str = ""
+                if ts:
+                    try:
+                        if isinstance(ts, (int, float)):
+                            date_str = datetime.fromtimestamp(ts).strftime("%Y-%m-%d %H:%M")
+                        else:
+                            date_str = str(ts)
+                    except Exception:
+                        date_str = str(ts)
+
 
                 # Get Lesson Title
                 lesson_id = str(item.get("lesson_id", ""))
