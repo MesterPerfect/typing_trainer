@@ -31,6 +31,7 @@ class TelemetryService:
         self.client_id = self._init_client_id(client_id_file)
         self.global_properties = self._gather_global_properties(app_version, language, screen_reader)
         
+        self._lock = threading.Lock()
         self.events_queue: List[Dict[str, Any]] = self.storage.load()
         self.session_start_time = 0.0
 
@@ -78,7 +79,8 @@ class TelemetryService:
             }
         }
         
-        self.events_queue.append(event_data)
+        with self._lock:
+            self.events_queue.append(event_data)
         logger.debug(f"Telemetry event tracked: {event_name}")
         
         threading.Thread(target=self._save_cache, daemon=True).start()
@@ -98,20 +100,28 @@ class TelemetryService:
 
     def flush_async(self):
         """ Spawns a background thread to upload events without blocking the UI. """
-        if not self.enabled or not self.events_queue:
+        if not self.enabled:
             return
+        with self._lock:
+            if not self.events_queue:
+                return
         threading.Thread(target=self._flush_sync, daemon=True).start()
 
     def _flush_sync(self):
         """ Core upload logic. Clears local queue if network upload succeeds. """
-        if not self.events_queue:
-            return
+        with self._lock:
+            if not self.events_queue:
+                return
+            events_to_send = list(self.events_queue)
             
-        success = self.network.send_events(self.events_queue)
+        success = self.network.send_events(events_to_send)
         if success:
-            # Clear the local queue and overwrite the cache file with an empty list
-            self.events_queue.clear()
+            with self._lock:
+                # Remove only the events that were successfully sent
+                del self.events_queue[:len(events_to_send)]
             self._save_cache()
 
     def _save_cache(self):
-        self.storage.save(self.events_queue)
+        with self._lock:
+            data_to_save = list(self.events_queue)
+        self.storage.save(data_to_save)
