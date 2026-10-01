@@ -38,7 +38,7 @@ jobs:
         shell: bash
         run: |
           # Extract version and strictly remove Windows carriage returns (\r)
-          VERSION=$(python -c "import sys; sys.path.append('.'); from core.constants import APP_VERSION; print(APP_VERSION.strip())" | tr -d '\r')
+          VERSION=$(python -c "import re; f=open('core/constants.py', 'r', encoding='utf-8'); m=re.search(r'APP_VERSION\s*=\s*[\x22\x27]([^\x22\x27]*)[\x22\x27]', f.read()); print(m.group(1) if m else '1.0.0')" | tr -d '\r')
           echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Upgrade pip and install dependencies
@@ -185,7 +185,7 @@ jobs:
         id: release_info
         run: |
           # 1. Extract application version
-          export APP_VERSION=$(python -c "import sys; sys.path.append('.'); from core.constants import APP_VERSION; print(APP_VERSION.strip())" | tr -d '\r')
+          export APP_VERSION=$(python -c "import re; f=open('core/constants.py', 'r', encoding='utf-8'); m=re.search(r'APP_VERSION\s*=\s*[\x22\x27]([^\x22\x27]*)[\x22\x27]', f.read()); print(m.group(1) if m else '1.0.0')" | tr -d '\r')
           
           if [ -n "${{ github.event.inputs.tag_name }}" ]; then
             echo "TAG_NAME=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
