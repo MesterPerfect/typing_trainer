@@ -16,6 +16,7 @@ class StatsPanel(QFrame):
 
         # Initialize labels with default values, translating only the static text
         self.wpm_label = QLabel(f"{_('WPM:')} 0")
+        self.cpm_label = QLabel(f"{_('CPM:')} 0")
         self.accuracy_label = QLabel(f"{_('Accuracy:')} 100%")
         self.errors_label = QLabel(f"{_('Errors:')} 0")
         self.time_label = QLabel(f"{_('Time:')} 0.0s")
@@ -27,6 +28,7 @@ class StatsPanel(QFrame):
 
         for label in (
             self.wpm_label,
+            self.cpm_label,
             self.accuracy_label,
             self.errors_label,
             self.time_label,
@@ -40,6 +42,7 @@ class StatsPanel(QFrame):
     def update_stats(self, stats: dict):
         """Update the labels with new statistics."""
         self.wpm_label.setText(f"{_('WPM:')} {stats.get('wpm', 0)}")
+        self.cpm_label.setText(f"{_('CPM:')} {stats.get('cpm', 0)}")
         self.accuracy_label.setText(f"{_('Accuracy:')} {stats.get('accuracy', 100.0)}%")
         self.errors_label.setText(f"{_('Errors:')} {stats.get('errors', 0)}")
         self.time_label.setText(f"{_('Time:')} {stats.get('time', 0.0)}s")

@@ -11,4 +11,5 @@ class LessonResult:
     accuracy: float
     errors: int
     time_elapsed: float
+    cpm: int = 0
     timestamp: float = field(default_factory=time.time)

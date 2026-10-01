@@ -49,6 +49,8 @@ class TypingView(QWidget):
         self.typing_input.char_typed.connect(self.handle_char_typed)
         self.typing_input.backspace_pressed.connect(self.handle_backspace)
         self.typing_input.escape_pressed.connect(self.trigger_return)
+        self.typing_input.pause_requested.connect(self.toggle_pause)
+        self.typing_input.repeat_requested.connect(self.repeat_prompt)
 
         layout.addWidget(self.stats_panel)
         layout.addWidget(self.text_display)
@@ -94,7 +96,7 @@ class TypingView(QWidget):
         self.speech_handler.setup_session(self.engine, self.is_test)
 
         self.stats_panel.update_stats(
-            {"wpm": 0, "accuracy": 100.0, "errors": 0, "time": 0.0}
+            {"wpm": 0, "cpm": 0, "accuracy": 100.0, "errors": 0, "time": 0.0}
         )
 
         self.typing_input.setFocus()
@@ -104,8 +106,26 @@ class TypingView(QWidget):
         # Trigger initial start message
         self.speech_handler.speak_start()
 
+    def toggle_pause(self):
+        """Toggles between paused and active states."""
+        if not self.engine or self.engine.is_finished():
+            return
+
+        is_paused = self.engine.stats.toggle_pause()
+        if is_paused:
+            self.stats_timer.stop()
+            self.speech_handler.speak_pause(True)
+        else:
+            self.stats_timer.start(500)
+            self.speech_handler.speak_pause(False)
+
+    def repeat_prompt(self):
+        """Repeats the current prompt on demand."""
+        if self.engine and not getattr(self.engine.stats, "is_paused", False):
+            self.speech_handler.speak_repeat()
+
     def update_stats_display(self):
-        if self.engine and self.engine.stats.is_running:
+        if self.engine and self.engine.stats.is_running and not self.engine.stats.is_paused:
             self.stats_panel.update_stats(self.engine.get_stats())
 
     def update_display_and_stats(self):
@@ -123,7 +143,7 @@ class TypingView(QWidget):
             self.virtual_keyboard.highlight_key("")
 
     def handle_char_typed(self, char: str):
-        if not self.engine:
+        if not self.engine or getattr(self.engine.stats, "is_paused", False):
             return
 
         result = self.engine.process_char(char)
@@ -138,7 +158,7 @@ class TypingView(QWidget):
             self.handle_completion()
 
     def handle_backspace(self):
-        if self.engine:
+        if self.engine and not getattr(self.engine.stats, "is_paused", False):
             self.engine.backspace()
             self.update_display_and_stats()
             self.speech_handler.speak_backspace()
@@ -158,6 +178,7 @@ class TypingView(QWidget):
             result = LessonResult(
                 lesson_id=self.current_lesson_id,
                 wpm=stats["wpm"],
+                cpm=stats.get("cpm", 0),
                 accuracy=stats["accuracy"],
                 errors=stats["errors"],
                 time_elapsed=stats["time"],
