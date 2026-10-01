@@ -1,43 +1,49 @@
 # ⌨️ TypingTrainer (Accessible Typing Tutor) - مدرب الطباعة الميسر
 
-![Python Version](https://img.shields.io/badge/Python-3.11%2B-blue.svg)
-![Framework](https://img.shields.io/badge/PySide6-Qt-green.svg)
-![Platform](https://img.shields.io/badge/Platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
-![Accessibility](https://img.shields.io/badge/Accessibility-100%25-success.svg)
-![License](https://img.shields.io/badge/License-GPLv3-orange.svg)
+<div align="center">
 
-**TypingTrainer** هو برنامج تدريب طباعة تفاعلي وشامل ومفتوح المصدر، مصمم خصيصاً لتمكين الجميع من إتقان الطباعة السريعة باللمس (Touch Typing) باللغتين العربية والإنجليزية. يضع البرنامج إمكانية الوصول الشاملة (**100% Accessibility**) في صلب تصميمه لضمان تجربة تعليمية متميزة للمكفوفين وضعاف البصر عبر التكامل الكامل مع قارئات الشاشة والتعليق الصوتي الدقيق.
+![Python Version](https://img.shields.io/badge/Python-3.11%2B-blue.svg?style=for-the-badge&logo=python&logoColor=white)
+![Framework](https://img.shields.io/badge/PySide6-Qt6-green.svg?style=for-the-badge&logo=qt&logoColor=white)
+![Platform](https://img.shields.io/badge/Platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg?style=for-the-badge)
+![Accessibility](https://img.shields.io/badge/Accessibility-100%25-success.svg?style=for-the-badge)
+![License](https://img.shields.io/badge/License-GPLv3-orange.svg?style=for-the-badge)
+
+</div>
+
+---
+
+**TypingTrainer** هو برنامج تفاعلي ومفتوح المصدر لتعليم وتدريب الطباعة السريعة باللمس (**Touch Typing**) باللغتين العربية والإنجليزية. صُمم البرنامج من الأساس ليضع معايير إمكانية الوصول الشاملة (**100% Accessibility**) في المقام الأول، مما يتيح تجربة تعليمية سلسة وممتعة للمكفوفين وضعاف البصر والمستخدمين كافة عبر التوافق التام مع قارئات الشاشة والتعليق الصوتي الفوري.
 
 ---
 
 ## ✨ المميزات الرئيسية (Key Features)
 
-* 🎯 **محرك طباعة متقدم (Advanced Typing Engine):**
-  * يدعم 3 أوضاع تدريبية: وضع الحروف، وضع الكلمات، ووضع الجمل الكاملة.
-  * حساب دقيق وفوري لمعدل سرعة الطباعة الصافية (**Net WPM**) ونسبة الدقة (**Accuracy**).
-* ♿ **إمكانية الوصول الشاملة (100% Accessible):**
-  * دعم مدمج وعميق لقارئات الشاشة بدون الحاجة لإعدادات إضافية:
-    * **Windows:** دعم مباشر عبر `UniversalSpeech` (NVDA, JAWS, SAPI).
+* 🎯 **محرك تدريب متطور (Advanced Typing Engine):**
+  * يدعم 3 أنماط تدريبية متدرجة: نمط الحروف الفردية، نمط الكلمات، ونمط الجمل والنصوص الكاملة.
+  * قياس فوري ودقيق لسرعة الطباعة الصافية (**Net WPM**) وعدد الحروف في الدقيقة (**CPM**) ونسبة الدقة (**Accuracy**).
+* ♿ **إمكانية وصول كاملة (100% Screen Reader Accessible):**
+  * تكامل مدمج وعميق مع محركات قراءة الشاشة في مختلف البيئات:
+    * **Windows:** عبر `UniversalSpeech` لدعم برامج NVDA و JAWS ومحركات SAPI.
     * **macOS:** دعم مباشر لـ `VoiceOver` عبر `AppleScript`.
-    * **Linux:** دعم مباشر لـ `Speech-Dispatcher` و `Orca`.
+    * **Linux:** دعم كامل لـ `Speech-Dispatcher` و `Orca`.
 * 🧠 **محرك نطق ذكي وطابور صوتي (Smart TTS Verbalizer & Queue):**
-  * نطق صوتي دقيق لجميع علامات الترقيم، الرموز الحسابية، والأقواس.
-  * نطق الحركات والتشكيل في اللغة العربية بدقة لمنع الالتباس.
-  * نظام طابور صوتي متقدم يمنع تداخل الأصوات عند الكتابة السريعة.
-* 🔍 **أوضاع الاستكشاف الآمنة (Keyboard Explorer Modes):**
-  * استكشاف مفاتيح لوحة المفاتيح والتعرف على تموضع الأصابع ومفاتيح التعديل والنظام (Shift, Ctrl, Alt).
-  * **نظام خروج آمن:** يتطلب الضغط 3 مرات متتالية على مفتاح `Escape` لمنع الخروج غير المقصود أثناء الاستكشاف.
-* ✋ **توجيهات صوتية لتموضع الأصابع (Guided Finger Prompts):**
-  * توجيهات صوتية فورية توضح الإصبع المناسب لكل حرف (الخنصر، البنصر، الوسطى، السبابة، الإبهام) على لوحتي المفاتيح العربية والإنجليزية.
-* 📝 **محرر دروس ذكي مع مزامنة المحتوى (Lesson Editor & Smart Merge):**
-  * إنشاء وتعديل وحذف الدروس المخصصة بسهولة.
-  * مزامنة الدروس الافتراضية مع التحديثات دون المساس بالدروس التي أنشأها المستخدم.
-* 🔄 **نظام تحديث تلقائي ذكي (Smart Auto-Updater):**
-  * فحص دوري في الخلفية لتحديثات البرنامج عبر GitHub Releases.
-  * تحميل وتثبيت التحديثات بصمت تام وسلاسة للنسخ المثبتة والمحمولة مع التحقق من تجزئة `SHA-256`.
-* 🎨 **واجهة بصرية متوافقة ومريحة:**
+  * نطق لفظي دقيق لعلامات الترقيم، الرموز الحسابية، والأقواس بدون تشويش.
+  * قراءة الحركات والتشكيل في اللغة العربية بدقة لمنع أي التباس في الكلمات المشكولة.
+  * نظام طابور صوتي متقدم يمنع تداخل الأصوات (Debounced Audio Queue) أثناء الكتابة السريعة.
+* 🔍 **أوضاع استكشاف لوحة المفاتيح (Safe Explorer Modes):**
+  * استكشاف أزرار لوحة المفاتيح والتعرف على تموضع الأصابع ومفاتيح التعديل والنظام (Shift, Ctrl, Alt).
+  * **نظام الخروج الآمن:** يتطلب الضغط 3 مرات متتالية على مفتاح `Escape` لمنع الخروج غير المقصود.
+* ✋ **توجيهات صوتية حية لمواضع الأصابع (Guided Finger Prompts):**
+  * إرشادات صوتية توضح الإصبع المخصص لكل مفتاح (الخنصر، البنصر، الوسطى، السبابة، الإبهام) على لوحتي المفاتيح العربية والإنجليزية.
+* 📝 **محرر دروس متكامل ومزامنة ذكية (Lesson Editor & Smart Merge):**
+  * إنشاء وتعديل وحفظ الدروس والاختبارات المخصصة، مع إمكانية تصدير واستيراد الحزم.
+  * مزامنة الدروس الرسمية الجديدة دون المساس بدروس المستخدم المخصصة.
+* 🔄 **نظام تحديث تلقائي صامت (Smart Auto-Updater):**
+  * فحص دوري في الخلفية لأحدث الإصدارات عبر GitHub Releases مع التحقق من تجزئة `SHA-256`.
+  * تحديث سلس وتلقائي يدعم كلاً من النسخ المثبتة والنسخ المحمولة (Portable).
+* 🎨 **واجهة رسومية ومؤثرات صوتية متقدمة:**
   * دعم الوضع الليلي (Dark Theme) ووضع التباين العالي (High Contrast).
-  * مؤثرات صوتية تفاعلية للطباعة الصحيحة والأخطاء واكتمال الدروس عبر `PySide6.QtMultimedia`.
+  * مؤثرات صوتية تفاعلية للطباعة الصحيحة، الأخطاء، واكتمال الدروس عبر `PySide6.QtMultimedia`.
 
 ---
 
@@ -45,13 +51,21 @@
 
 <div align="center">
 
-| الشاشة الرئيسية وقائمة الدروس | شاشة التدريب والتوجيه الصوتي |
+| القائمة الرئيسية واختيار الدروس | جلسة التدريب والتوجيه الصوتي |
 | :---: | :---: |
-| ![الشاشة الرئيسية](docs/screenshots/01_main_menu.png) | ![شاشة التدريب](docs/screenshots/02_typing_session.png) |
+| ![القائمة الرئيسية](docs/screenshots/01_main_menu.png) | ![جلسة التدريب](docs/screenshots/02_typing_session.png) |
 
-| شاشة النتائج والإحصائيات | مستكشف لوحة المفاتيح |
+| سجل التقدم والنتائج | مستكشف لوحة المفاتيح والتموضع |
 | :---: | :---: |
-| ![شاشة النتائج](docs/screenshots/03_results.png) | ![مستكشف لوحة المفاتيح](docs/screenshots/04_explorer.png) |
+| ![سجل النتائج](docs/screenshots/03_results.png) | ![مستكشف لوحة المفاتيح](docs/screenshots/04_explorer.png) |
+
+| محرر الدروس وإدارة الحزم | نافذة الإعدادات والتخصيص |
+| :---: | :---: |
+| ![محرر الدروس](docs/screenshots/05_editor.png) | ![الإعدادات](docs/screenshots/06_settings.png) |
+
+| دليل اختصارات لوحة المفاتيح التفاعلي |
+| :---: |
+| ![دليل الاختصارات](docs/screenshots/07_shortcuts.png) |
 
 </div>
 
@@ -59,18 +73,14 @@
 
 ## 📥 التحميل والتثبيت (Downloads)
 
-البرنامج متاح للتحميل مجاناً لكافة أنظمة التشغيل (نسخ تثبيت قياسية ونسخ محمولة لا تتطلب تثبيتاً).
+البرنامج متاح للتحميل مجاناً لكافة منصات التشغيل (نسخ تثبيت قياسية ونسخ محمولة جاهزة للتشغيل المباشر).
 يمكنك تحميل أحدث إصدار دائماً من صفحة **[الإصدارات (Releases)](https://github.com/MesterPerfect/typing_trainer/releases)**.
 
-* **Windows:**
-  * 📦 `TypingTrainer_Setup_vX.X.X.exe` (ملف التثبيت التلقائي مع اختصارات سطح المكتب)
-  * 💼 `TypingTrainer_Windows_Portable_vX.X.X.zip` (نسخة محمولة تعمل مباشرة)
-* **macOS:**
-  * 💿 `TypingTrainer_macOS_Installer_vX.X.X.dmg` (حزمة تثبيت بنظام السحب والإفلات)
-  * 💼 `TypingTrainer_macOS_Portable_vX.X.X.zip` (نسخة محمولة)
-* **Linux:**
-  * 📦 `TypingTrainer_Linux_Installer_vX.X.X.deb` (حزمة Debian/Ubuntu مع اختصار قائمة التطبيقات)
-  * 💼 `TypingTrainer_Linux_Portable_vX.X.X.tar.gz` (نسخة محمولة)
+| نظام التشغيل | نسخة التثبيت (Installer) | النسخة المحمولة (Portable) |
+| :--- | :--- | :--- |
+| **🪟 Windows** | [`TypingTrainer_Setup.exe`](https://github.com/MesterPerfect/typing_trainer/releases) | [`TypingTrainer_Windows_Portable.zip`](https://github.com/MesterPerfect/typing_trainer/releases) |
+| **🍎 macOS** | [`TypingTrainer_macOS_Installer.dmg`](https://github.com/MesterPerfect/typing_trainer/releases) | [`TypingTrainer_macOS_Portable.zip`](https://github.com/MesterPerfect/typing_trainer/releases) |
+| **🐧 Linux** | [`TypingTrainer_Linux_Installer.deb`](https://github.com/MesterPerfect/typing_trainer/releases) | [`TypingTrainer_Linux_Portable.tar.gz`](https://github.com/MesterPerfect/typing_trainer/releases) |
 
 ---
 
@@ -78,25 +88,34 @@
 
 | المفتاح | الوظيفة |
 | :--- | :--- |
-| `Enter` / `Return` | بدء الدرس المحدد |
-| `Escape` | العودة للخلف / الخروج من وضع الاستكشاف (بالضغط 3 مرات متتالية) |
-| `F2` | تفعيل / تعطيل التوجيهات الصوتية لتموضع الأصابع |
-| `F3` | فتح نافذة الإعدادات |
-| `F4` | عرض سجل النتائج والإحصائيات |
-| `F5` – `F8` | أوضاع الاستكشاف (حر، الحروف العربية، الحروف الإنجليزية، الأرقام) |
-| `F9` | مستكشف مفاتيح النظام / محرر الدروس |
+| `Enter` / `Return` | بدء الدرس أو النمط المحدد |
+| `Escape` | الرجوع للقائمة السابقة / الخروج من وضع الاستكشاف (3 ضغطات) |
+| `F1` | فتح دليل المستخدم والمساعدة |
+| `F2` | تبديل وضع التوجيه الصوتي لمواضع الأصابع والإرشادات |
+| `F3` | فتح شاشة الإعدادات |
+| `F4` | فتح شاشة النتائج وسجل التقدم |
+| `Ctrl + L` | فتح محرر ومدير الدروس |
+| `Ctrl + H` | فتح دليل اختصارات لوحة المفاتيح التفاعلي |
+| `F5` | وضع الاستكشاف الحر للوحة المفاتيح |
+| `F6` | وضع استكشاف الحروف العربية |
+| `F7` | وضع استكشاف الحروف الإنجليزية |
+| `F8` | وضع استكشاف الأرقام |
+| `F9` | وضع استكشاف مفاتيح النظام والتعديل |
+| `Ctrl + P` / `Pause` | إيقاف مؤقت / استئناف جلسة الطباعة الحالية |
+| `Ctrl + R` | إعادة نطق الحرف المطلوب وموضع الإصبع |
 | `Ctrl + N` | إنشاء درس جديد في محرر الدروس |
-| `Ctrl + S` | حفظ الدرس في محرر الدروس |
+| `Ctrl + S` | حفظ التعديلات في محرر الدروس |
+| `Ctrl + E` | تصدير سجل النتائج إلى ملف CSV |
 
 ---
 
 ## 🛠️ للمطورين (For Developers)
 
-تم بناء المشروع بالكامل بلغة **Python** وإطار عمل **PySide6**.
+تم بناء وتطوير المشروع باستخدام لغة **Python 3.11+** وإطار عمل **PySide6 (Qt6)**.
 
 ### إعداد بيئة التطوير (Setup Environment)
 
-1. استنسخ المستودع:
+1. استنسخ مستودع المشروع:
    ```bash
    git clone https://github.com/MesterPerfect/typing_trainer.git
    cd typing_trainer
@@ -111,7 +130,7 @@
    source venv/bin/activate
    ```
 
-3. ثبّت الحزم والمكتبات المطلوبة:
+3. ثبّت الحزم والاعتماديات المطلوبة:
    ```bash
    pip install -r requirements.txt
    ```
@@ -121,37 +140,51 @@
    python main.py
    ```
 
-### 🏗️ الهيكل المعماري للمشروع (Architecture)
+### 📸 التقاط لقطات الشاشة آلياً (Generate Screenshots)
+يمكنك إعادة توليد كافة صور الواجهة التوثيقية تلقائياً بتشغيل السكربت المخصص:
+```bash
+python tests/capture_screenshots.py
+```
 
-يتبع المشروع معمارية الخدمات المنفصلة والطبقات النظيفة (**Clean Architecture**):
-* `core/`: محرك الطباعة (`TypingEngine`)، محرك الاستكشاف، الإحصائيات، وثوابت البرنامج.
-* `models/`: نماذج البيانات والدروس وحفظ النتائج المبنية على `@dataclass`.
-* `services/`: طبقة الخدمات المستقلة (نظام التحديثات `updater`، تحويل النص لكلام `tts`، المؤثرات الصوتية `audio`، إدارة الإعدادات `settings`، وتحليلات الاستخدام).
-* `ui/`: واجهات المستخدم الرسومية (`PySide6`)، إدارة النوافذ المشتركة (`QStackedWidget`)، وتنسيقات الـ QSS.
-* `utils/`: أدوات مساعدة ونظام التوثيق المتناوب (`RotatingFileHandler`).
-* `apply_update.py`: أداة مستقلة لتنفيذ التحديث الذاتي والكتابة الآمنة فوق الملفات أثناء التحديث التلقائي.
+### 🏗️ الهيكل المعماري للمشروع (Clean Architecture)
+
+يتبع المشروع معمارية الخدمات المنفصلة والنظيفة لضمان سهولة الصيانة وقابلية التوسع:
+* `core/`: المحركات الأساسية (`TypingEngine`, `ExplorerEngine`) وحساب الإحصائيات والثوابت.
+* `models/`: هياكل ونماذج البيانات للدروس (`Lesson`) والنتائج (`LessonResult`) المعتمدة على `@dataclass`.
+* `services/`: الخدمات المستقلة:
+  * `updater/`: نظام التحقق وتنزيل التحديثات في الخلفية مع تجزئة SHA-256.
+  * `tts/`: محركات تحويل النص إلى كلام متعددة المنصات مع معالجة النطق والتشكيل.
+  * `audio.py`: مشغل المؤثرات الصوتية التفاعلية.
+  * `settings_service.py` & `result_service.py`: إدارة الإعدادات وتخزين السجلات.
+* `ui/`: الواجهات الرسومية المبنية بـ PySide6 وإدارة الشاشات عبر `QStackedWidget`.
+* `utils/`: الأدوات المساعدة، التدويل والترجمة (`i18n`)، ونظام التوثيق المتناوب (`RotatingFileHandler`).
+* `apply_update.py`: أداة التحديث الذاتي المستقلة والمؤمنة ضد هجمات مسارات الملفات.
 
 ---
 
 ## ⚙️ البناء والنشر المؤتمت (CI/CD Pipeline)
 
-يحتوي المستودع على خط أنابيب **GitHub Actions** متكامل يقوم عند رفع تحديث أو وسم جديد ببناء وتجهيز 6 حزم تنفيذية لجميع الأنظمة عبر **cx_Freeze** و **Inno Setup**، واحتساب قيم تجزئة **SHA-256**، وتحديث ملف `update.json` ونشر الإصدار تلقائياً.
+يحتوي المستودع على خط أنابيب **GitHub Actions** متكامل يقوم عند دفع التحديثات بـ:
+1. بناء الحزم التنفيذية لجميع الأنظمة عبر **cx_Freeze** ومترجم **Inno Setup**.
+2. توليد المثبتات والنسخ المحمولة لأنظمة Windows و macOS و Linux.
+3. حساب تجزئات `SHA-256` وتحديث ملف `update.json` تلقائياً.
+4. نشر الإصدار مباشرة على صفحة **GitHub Releases** ونشره على **WinGet**.
 
 ---
 
 ## 🤝 المساهمة (Contributing)
 
-نرحب بجميع المساهمات والأفكار لتطوير البرنامج!
-1. قم بعمل Fork للمشروع.
-2. أنشئ فرعاً لميزتك (`git checkout -b feature/AmazingFeature`).
-3. سجّل التعديلات (`git commit -m 'Add some AmazingFeature'`).
-4. ارفع الفرع (`git push origin feature/AmazingFeature`).
-5. افتح Pull Request.
+نرحب بجميع المساهمات والاقتراحات لتطوير البرنامج وإثراء محتواه!
+1. قم بعمل **Fork** للمستودع.
+2. أنشئ فرعاً جديداً لميزتك (`git checkout -b feature/AmazingFeature`).
+3. سجّل تعديلاتك في Commit منظم (`git commit -m 'feat: Add some AmazingFeature'`).
+4. ادفع الفرع لمستودعك (`git push origin feature/AmazingFeature`).
+5. افتح **Pull Request** لمراجعة التعديلات ودمجها.
 
 ---
 
 ## 📄 حقوق النشر والترخيص (License)
 
-هذا المشروع مفتوح المصدر ومرخص تحت رخصة **GPLv3**.
-جميع الحقوق محفوظة © 2026 لـ [MesterPerfect](https://github.com/MesterPerfect).
-نسأل الله أن ينفع بهذا العمل ويكون عوناً لكل من يسعى لتطوير مهاراته في الطباعة.
+هذا المشروع حر ومفتوح المصدر وتحت رخصة **GPLv3**.  
+جميع الحقوق محفوظة © 2026 لـ [MesterPerfect](https://github.com/MesterPerfect).  
+نسأل الله العلي القدير أن ينفع بهذا العمل ويكون عوناً للجميع.
