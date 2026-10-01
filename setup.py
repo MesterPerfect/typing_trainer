@@ -1,31 +1,41 @@
 import sys
 import os
 import shutil
-import platform
+import re
 from cx_Freeze import setup, Executable
-from core.constants import ICON_FILE_ICO
+
+def get_version():
+    """Extracts the version directly from core/constants.py to avoid manual duplication."""
+    constants_path = os.path.join("core", "constants.py")
+    try:
+        with open(constants_path, "r", encoding="utf-8") as f:
+            content = f.read()
+            # Searches for lines like: APP_VERSION = "1.0.0" or VERSION = '1.0.0'
+            match = re.search(r'^(?:APP_)?VERSION\s*=\s*[\'"]([^\'"]*)[\'"]', content, re.MULTILINE)
+            if match:
+                return match.group(1)
+    except Exception as e:
+        print(f"Warning: Could not read version from {constants_path}. {e}")
+    
+    return "1.0.0"
 
 def get_platform_config():
-    """Determine platform-specific base and executable extension."""
     if sys.platform == "win32":
-        # 'gui' hides the console window on Windows (cx_Freeze 8+)
         return "gui", ".exe"
     return None, ""
 
 def get_include_files():
-    """Return a list of files and folders to include in the build."""
     base_files = [("assets", "assets"), ("locales", "locales")]
 
-    # Include UniversalSpeech strictly for Windows
+    # Include UniversalSpeech strictly for Windows if present locally
     if sys.platform == "win32":
-        # Adjust the path if UniversalSpeech is located elsewhere in your project
         if os.path.exists("UniversalSpeech"):
             base_files.append(("UniversalSpeech", "UniversalSpeech"))
 
     return base_files
 
 def clean_unused_folders(build_dir):
-    """Remove unnecessary PySide6 bloat to reduce the final build size."""
+    # Clean up Qt translations to reduce size, keeping multimedia plugins
     folder_paths = [
         os.path.join(build_dir, "lib", "PySide6", "Qt6", "translations"),
     ]
@@ -39,21 +49,15 @@ def clean_unused_folders(build_dir):
             print(f"Error removing {folder}: {e}")
 
 def main():
-    version = os.environ.get("APP_VERSION", "1.1.0")
+    version = get_version()
+    print(f"Building TypingTrainer Version: {version}")
+    
     base, ext = get_platform_config()
 
-    # Determine accurate OS name for the build directory
-    if sys.platform == "win32":
-        os_name = "Windows"
-    elif sys.platform == "darwin":
-        os_name = "macOS"
-    else:
-        os_name = "Linux"
-        
-    arch = platform.machine()  # e.g., 'AMD64', 'x86_64', or 'arm64'
-
     target_name = f"TypingTrainer{ext}"
-    build_dir = f"build/TypingTrainer_{os_name}_{arch}_v{version}"
+    
+    # Output directly to dist/TypingTrainer to match the Inno Setup script and packaging pipelines
+    build_dir = os.path.join("dist", "TypingTrainer")
 
     include_files = get_include_files()
 
@@ -62,14 +66,33 @@ def main():
         "optimize": 2,
         "include_files": include_files,
         "packages": ["app", "core", "models", "services", "ui", "utils"],
-        "includes": ["PySide6.QtCore", "PySide6.QtWidgets", "PySide6.QtGui"],
-        "excludes": ["tkinter", "test", "setuptools", "pip", "numpy", "unittest"],
+        "includes": [
+            "PySide6.QtCore",
+            "PySide6.QtWidgets",
+            "PySide6.QtGui",
+            "PySide6.QtMultimedia",
+            "ssl",
+            "urllib",
+            "platformdirs",
+            "packaging",
+        ],
+        "excludes": [
+            "tkinter", "test", "setuptools", "pip", "numpy", "unittest",
+            "PySide6.QtNetwork", "PySide6.QtQml", "PySide6.QtQuick", 
+            "PySide6.QtOpenGL", "PySide6.QtSql", "PySide6.QtSvg", 
+            "PySide6.QtXml", "PySide6.QtTest", "PySide6.QtPrintSupport",
+            "PySide6.QtSensors", "PySide6.QtPositioning", "PySide6.QtBluetooth"
+        ],
     }
 
+    # Define icon path
+    icon_path = os.path.join("assets", "icon.ico")
+    icon_file = icon_path if sys.platform == "win32" and os.path.exists(icon_path) else None
+
     setup(
-        name="Typing Trainer",
+        name="TypingTrainer",
         version=version,
-        description="Accessible Typing Tutor",
+        description="TypingTrainer - Accessible Typing Tutor",
         author="MesterPerfect",
         options={"build_exe": build_exe_options},
         executables=[
@@ -78,18 +101,17 @@ def main():
                 "main.py",
                 base=base,
                 target_name=target_name,
-                icon=(str(ICON_FILE_ICO) if sys.platform == "win32" and ICON_FILE_ICO.exists() else None),
+                icon=icon_file,
             ),
             # 2. The Silent Background Updater
             Executable(
                 "apply_update.py",
-                base=base,  # using "gui" prevents the console window from flashing
+                base=base,
                 target_name=f"apply_update{ext}",
             )
         ],
     )
 
-    # Run post-build cleanup
     clean_unused_folders(build_dir)
 
 if __name__ == "__main__":
