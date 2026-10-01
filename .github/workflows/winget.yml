@@ -1,0 +1,23 @@
+name: Publish to WinGet
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag to publish (e.g. v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+jobs:
+  winget:
+    runs-on: windows-latest
+    steps:
+      - name: Run WinGet Releaser
+        uses: vedantmgoyal9/winget-releaser@v2
+        with:
+          identifier: MesterPerfect.TypingTrainer
+          token: ${{ secrets.WINGET_TOKEN }}
+          installers-regex: 'TypingTrainer_Setup_.*\.exe'
+          release-tag: ${{ github.event.inputs.tag_name || github.event.release.tag_name }}
