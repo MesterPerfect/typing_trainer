@@ -8,21 +8,21 @@
     "downloads": {
       "windows": {
         "installed": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0/TypingTrainer_Setup_v1.0.0.exe",
-        "installed_hash": "",
+        "installed_hash": "sha256:8fdf3b86539370c953fcf13fb90805c7de2607fd9326af476d32a74615d3f92e",
         "portable": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0/TypingTrainer_Windows_Portable_v1.0.0.zip",
-        "portable_hash": ""
+        "portable_hash": "sha256:e7a1234c9fe64052fe98e0d506b9aaba7dda6a2fcdd98f06667b108b4e1c9baf"
       },
       "darwin": {
         "installed": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0/TypingTrainer_macOS_Installer_v1.0.0.dmg",
-        "installed_hash": "",
+        "installed_hash": "sha256:d346e327db279b7d53b67ed020096e666c4bf1920e3a67144292a3f47466d3f4",
         "portable": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0/TypingTrainer_macOS_Portable_v1.0.0.zip",
-        "portable_hash": ""
+        "portable_hash": "sha256:afad81898b2a4591857caf2e630a97fcad401b311ca9a4bc395927530c6a36f9"
       },
       "linux": {
         "installed": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0/TypingTrainer_Linux_Installer_v1.0.0.deb",
-        "installed_hash": "",
+        "installed_hash": "sha256:1553b9abc02a80b4b5be7bcfe0068e2da03dd4f60ea120256cf46fca8abdffe7",
         "portable": "https://github.com/MesterPerfect/typing_trainer/releases/download/v1.0.0/TypingTrainer_Linux_Portable_v1.0.0.tar.gz",
-        "portable_hash": ""
+        "portable_hash": "sha256:5548deca38873b39ec71ef142f041a47912d102517b6e3d80db0cb09016f419e"
       }
     }
   }
