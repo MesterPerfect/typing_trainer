@@ -52,6 +52,11 @@ class AppMenu(QMenuBar):
         # --- Help Menu ---
         help_menu = self.addMenu(_("Help"))
         
+        action_shortcuts = QAction(_("Keyboard Shortcuts Guide"), self.window)
+        action_shortcuts.setShortcut("Ctrl+H")
+        action_shortcuts.triggered.connect(self.window.show_shortcuts_guide)
+        help_menu.addAction(action_shortcuts)
+
         action_update = QAction(_("Check for Updates"), self.window)
         action_update.triggered.connect(lambda: self.window.check_for_updates(silent=False))
         help_menu.addAction(action_update)

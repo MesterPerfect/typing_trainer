@@ -16,6 +16,7 @@ from ui.settings.settings_view import SettingsView
 from ui.results_view import ResultsView
 from ui.explorer_view import ExplorerView
 from ui.components.update_dialog import UpdateDialog
+from ui.components.shortcuts_dialog import ShortcutsDialog
 from ui.components.app_menu import AppMenu
 from core.modes import ExplorerMode
 from core.constants import (
@@ -117,6 +118,9 @@ class MainWindow(QMainWindow):
         # F2: Toggle Guided Mode
         QShortcut(QKeySequence(Qt.Key.Key_F2), self, self._toggle_guided_mode)
         
+        # Ctrl+H: Shortcuts Guide
+        QShortcut(QKeySequence("Ctrl+H"), self, self.show_shortcuts_guide)
+
         # F5 - F9: Explorer Modes
         QShortcut(QKeySequence(Qt.Key.Key_F5), self, lambda: self.start_explorer(ExplorerMode.FREE))
         QShortcut(QKeySequence(Qt.Key.Key_F6), self, lambda: self.start_explorer(ExplorerMode.ARABIC))
@@ -130,6 +134,12 @@ class MainWindow(QMainWindow):
         self.settings.set("guided_mode", new_mode)
         status = _("Enabled") if new_mode else _("Disabled")
         self.tts.speak(f"{_('Guided mode')} {status}")
+
+    def show_shortcuts_guide(self):
+        """Open the interactive keyboard shortcuts guide dialog."""
+        dialog = ShortcutsDialog(self, self.tts)
+        self.tts.speak(_("Keyboard Shortcuts Guide"))
+        dialog.exec()
 
     # ===============================
     # Navigation Methods (Routing)

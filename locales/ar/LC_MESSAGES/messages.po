@@ -478,3 +478,183 @@ msgstr "سجل تقدمك والنتائج"
 msgid "percent"
 msgstr "بالمائة"
 
+msgid "CPM:"
+msgstr "الحروف/د:"
+
+msgid "Your Progress & Results History"
+msgstr "سجل تقدمك ونتائجك"
+
+msgid "Total Sessions:"
+msgstr "إجمالي الجلسات:"
+
+msgid "Peak Speed:"
+msgstr "أعلى سرعة:"
+
+msgid "Average WPM:"
+msgstr "متوسط الكلمات/د:"
+
+msgid "Avg Accuracy:"
+msgstr "متوسط الدقة:"
+
+msgid "Total Time:"
+msgstr "إجمالي الوقت:"
+
+msgid "min"
+msgstr "دقيقة"
+
+msgid "Export to CSV (Ctrl+E)"
+msgstr "تصدير كـ CSV (Ctrl+E)"
+
+msgid "Clear History"
+msgstr "مسح السجل"
+
+msgid "Export Results"
+msgstr "تصدير النتائج"
+
+msgid "Results exported successfully."
+msgstr "تم تصدير النتائج بنجاح."
+
+msgid "Export Successful"
+msgstr "نجاح التصدير"
+
+msgid "Failed to export results."
+msgstr "فشل تصدير النتائج."
+
+msgid "Export Failed"
+msgstr "فشل التصدير"
+
+msgid "Are you sure you want to permanently delete all typing test results and history?"
+msgstr "هل أنت متأكد من رغبتك في حذف كافة نتائج واختبارات الطباعة السابقة نهائياً؟"
+
+msgid "Results history cleared."
+msgstr "تم مسح سجل النتائج."
+
+msgid "Session paused. Press Ctrl+P to resume."
+msgstr "تم إيقاف الجلسة مؤقتاً. اضغط Ctrl+P للاستئناف."
+
+msgid "Session resumed."
+msgstr "تم استئناف الجلسة."
+
+msgid "Automatically repeat current character prompt when idle"
+msgstr "إعادة نطق الحرف أو الكلمة المطلوبة تلقائياً عند التوقف"
+
+msgid "Repeat interval (seconds):"
+msgstr "فاصل التكرار (بالثواني):"
+
+msgid "Import Package"
+msgstr "استيراد حزمة"
+
+msgid "Export Package"
+msgstr "تصدير حزمة"
+
+msgid "Export Lesson Package"
+msgstr "تصدير حزمة الدروس"
+
+msgid "Import Lesson Package"
+msgstr "استيراد حزمة الدروس"
+
+msgid "No lessons available to export."
+msgstr "لا توجد دروس متاحة للتصدير."
+
+msgid "Lesson package exported successfully."
+msgstr "تم تصدير حزمة الدروس بنجاح."
+
+msgid "Failed to export lesson package."
+msgstr "فشل تصدير حزمة الدروس."
+
+msgid "No valid lessons found in the selected package."
+msgstr "لم يتم العثور على دروس صالحة في الحزمة المحددة."
+
+msgid "Successfully imported"
+msgstr "تم استيراد"
+
+msgid "lessons."
+msgstr "دروس بنجاح."
+
+msgid "Language Mismatch Warning"
+msgstr "تنبيه عدم تطابق لغة الدرس"
+
+msgid "The lesson language is set to Arabic, but the text contains English letters and no Arabic letters. Do you want to save anyway?"
+msgstr "لغة الدرس محددة كعربية، لكن النص يحتوي على أحرف إنجليزية ولا يحتوي على أحرف عربية. هل ترغب في الحفظ على أي حال؟"
+
+msgid "The lesson language is set to English, but the text contains Arabic letters and no English letters. Do you want to save anyway?"
+msgstr "لغة الدرس محددة كإنجليزية، لكن النص يحتوي على أحرف عربية ولا يحتوي على أحرف إنجليزية. هل ترغب في الحفظ على أي حال؟"
+
+msgid "Keyboard Shortcuts Guide"
+msgstr "دليل اختصارات لوحة المفاتيح"
+
+msgid "Category"
+msgstr "التصنيف"
+
+msgid "Shortcut"
+msgstr "الاختصار"
+
+msgid "Description"
+msgstr "الوصف"
+
+msgid "General"
+msgstr "عام"
+
+msgid "Typing"
+msgstr "الطباعة"
+
+msgid "Explorer"
+msgstr "المستكشف"
+
+msgid "Editor"
+msgstr "المحرر"
+
+msgid "Results"
+msgstr "النتائج"
+
+msgid "Open User Guide Documentation"
+msgstr "فتح دليل المستخدم"
+
+msgid "Toggle Spoken Guided Mode (Finger & Keyboard Instructions)"
+msgstr "تبديل وضع التوجيه الصوتي (مواضع الأصابع والإرشادات)"
+
+msgid "Open Settings Screen"
+msgstr "فتح شاشة الإعدادات"
+
+msgid "Open Results & Progress History"
+msgstr "فتح شاشة النتائج وسجل التقدم"
+
+msgid "Open Lesson Manager / Editor"
+msgstr "فتح محرر ومدير الدروس"
+
+msgid "Open Keyboard Shortcuts Guide"
+msgstr "فتح دليل اختصارات لوحة المفاتيح"
+
+msgid "Pause or Resume Active Typing Session"
+msgstr "إيقاف أو استئناف جلسة الطباعة الحالية"
+
+msgid "Repeat Current Target Character & Finger Position"
+msgstr "إعادة نطق الحرف المطلوب وموضع الإصبع"
+
+msgid "Delete Previous Character with Spoken Feedback"
+msgstr "حذف الحرف السابق مع نطق التراجع"
+
+msgid "Free Keyboard Exploration Mode"
+msgstr "وضع الاستكشاف الحر للوحة المفاتيح"
+
+msgid "Arabic Letters Learning Mode"
+msgstr "وضع تعلم الحروف العربية"
+
+msgid "English Letters Learning Mode"
+msgstr "وضع تعلم الحروف الإنجليزية"
+
+msgid "Numbers Learning Mode"
+msgstr "وضع تعلم الأرقام"
+
+msgid "Special Keys & Symbols Learning Mode"
+msgstr "وضع تعلم المفاتيح الخاصة والرموز"
+
+msgid "Create New Lesson"
+msgstr "إنشاء درس جديد"
+
+msgid "Save Current Lesson"
+msgstr "حفظ الدرس الحالي"
+
+msgid "Export Typing Results to CSV File"
+msgstr "تصدير نتائج الطباعة إلى ملف CSV"
+
