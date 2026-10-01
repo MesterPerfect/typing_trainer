@@ -89,13 +89,14 @@ class LessonView(QWidget):
 
     def _populate_explorer_modes(self):
         modes = [
-            ("Free Explorer (F5)", ExplorerMode.FREE),
-            ("Arabic Letters Explorer (F6)", ExplorerMode.ARABIC),
-            ("English Letters Explorer (F7)", ExplorerMode.ENGLISH),
-            ("Numbers Explorer (F8)", ExplorerMode.NUMBERS),
-            ("Keyboard Layout Explorer (F9)", ExplorerMode.KEYS), # New
+            (_("Free Explorer (F5)"), ExplorerMode.FREE),
+            (_("Arabic Letters Explorer (F6)"), ExplorerMode.ARABIC),
+            (_("English Letters Explorer (F7)"), ExplorerMode.ENGLISH),
+            (_("Numbers Explorer (F8)"), ExplorerMode.NUMBERS),
+            (_("Keyboard Layout Explorer (F9)"), ExplorerMode.KEYS),
         ]
 
+        self.explorer_list.clear()
         for title, mode_enum in modes:
             item = QListWidgetItem(title)
             item.setData(Qt.ItemDataRole.UserRole, mode_enum)
@@ -111,7 +112,8 @@ class LessonView(QWidget):
         self.test_list.clear()
 
         for lesson in self.lessons:
-            display_text = f"Level {lesson.difficulty}: {lesson.title}"
+            level_str = _("Level")
+            display_text = f"{level_str} {lesson.difficulty}: {lesson.title}"
             item = QListWidgetItem(display_text)
             item.setData(Qt.ItemDataRole.UserRole, lesson)
 

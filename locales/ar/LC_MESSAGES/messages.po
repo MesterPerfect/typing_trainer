@@ -1,139 +1,480 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-28 07:59+0200\n"
-"PO-Revision-Date: 2026-03-28 08:06+0200\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: ar\n"
+"Project-Id-Version: TypingTrainer 1.0.0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.8\n"
+"Language: ar\n"
 
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_editor_view.py:35
-msgid "Saved Lessons / Exams"
-msgstr "تم حفظ الدرس / التدريب"
+msgid "A new version is available:"
+msgstr "يتوفر إصدار جديد من البرنامج:"
 
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_editor_view.py:44
-msgid "Create New Lesson (Ctrl+N)"
-msgstr "إنشاء درس جديد"
+msgid "About Typing Trainer"
+msgstr "حول مدرب الطباعة"
 
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_editor_view.py:57
-msgid "Lesson Editor"
-msgstr "محرر الدروس"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_editor_view.py:63
-msgid "Title:"
-msgstr "العنوان:"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_editor_view.py:71
-msgid "Language:"
-msgstr "اللغة:"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_editor_view.py:76
-msgid "Type:"
-msgstr "النوع:"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_editor_view.py:81
-msgid "Difficulty (1-3):"
-msgstr "مستوى الصعوبة (1-3):"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_editor_view.py:95
-msgid "Text Content:"
-msgstr "المحتوى النصي"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_editor_view.py:103
-msgid "Save (Ctrl+S)"
-msgstr "حفظ (Ctrl+S)"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_editor_view.py:108
-msgid "Delete"
-msgstr "حذف"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_editor_view.py:113
-msgid "Return (Esc)"
-msgstr "الرجوع (Esc)"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_view.py:33
-msgid "Select a Category"
-msgstr "اختر تصنيف"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_view.py:54
-msgid "Arabic Lessons"
-msgstr "الدروس العربية"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_view.py:55
-msgid "English Lessons"
-msgstr "الدروس الإنجليزية"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_view.py:56
-msgid "Exams"
-msgstr "الإختبارات"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_view.py:57
-msgid "Explorer Modes"
-msgstr "وضع التعليم"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_view.py:64
-msgid "Start Selected (Enter)"
-msgstr "إبدأ المحدد (Enter)"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_view.py:69
-msgid "View Results (F4)"
-msgstr "عرض النتائج (F4)"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_view.py:74
-msgid "Settings (F3)"
-msgstr "الإعدادات (F3)"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\lesson_view.py:79
-msgid "Lesson Editor (F9)"
-msgstr "محرر الدروس (F9)"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\results_view.py:27
-msgid "Your Progress"
-msgstr "تقدمك"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\results_view.py:54
-msgid "Return to Menu (Esc)"
-msgstr "العودة إلى القائمة (Esc)"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\settings_view.py:22
-msgid "Settings"
-msgstr "الإعدادات"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\settings_view.py:38
-msgid "Sound Effects Volume:"
-msgstr "صوت المؤثرات الصوتية:"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\settings_view.py:51
-msgid "Save and Return (Esc)"
-msgstr "الحفظ والعودة (Esc)"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\components\stats_panel.py:17
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\components\stats_panel.py:36
-msgid "WPM:"
-msgstr "WPM:"
-
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\components\stats_panel.py:18
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\components\stats_panel.py:37
 msgid "Accuracy:"
 msgstr "الدقة:"
 
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\components\stats_panel.py:19
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\components\stats_panel.py:38
-msgid "Errors:"
-msgstr "أخطاء:"
+msgid "Alt, Modifier Key"
+msgstr "مفتاح ألت، مفتاح تعديل"
 
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\components\stats_panel.py:20
-#: C:\Users\Admin\Documents\GitHub\typing_trainer\ui\components\stats_panel.py:39
+msgid "An accessible typing tutor designed for screen reader users."
+msgstr "برنامج لتعليم سرعة ودقة الطباعة مخصص لمستخدمي قارئات الشاشة وضعاف البصر."
+
+msgid "Appearance"
+msgstr "المظهر"
+
+msgid "Application Theme (Requires Restart):"
+msgstr "سمة البرنامج (تتطلب إعادة التشغيل):"
+
+msgid "Arabic Lessons"
+msgstr "دروس اللغة العربية"
+
+msgid "Arabic Letters Explorer"
+msgstr "مستكشف الحروف العربية"
+
+msgid "Arabic Letters Explorer (F6)"
+msgstr "مستكشف الحروف العربية (F6)"
+
+msgid "Audio & Voice"
+msgstr "الصوت والنطق"
+
+msgid "Backspace"
+msgstr "حذف"
+
+msgid "Backspace, Action Key"
+msgstr "مفتاح الحذف للخلف Backspace، مفتاح تنفيذ"
+
+msgid "Button,"
+msgstr "زر"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Caps Lock, Toggle Key"
+msgstr "مفتاح قفل الأحرف الكبيرة Caps Lock"
+
+msgid "Check for Updates"
+msgstr "التحقق من التحديثات"
+
+msgid "Check for updates automatically on startup"
+msgstr "التحقق من التحديثات تلقائياً عند بدء التشغيل"
+
+msgid "Close (Esc)"
+msgstr "إغلاق (Esc)"
+
+msgid "Contact Developer"
+msgstr "التواصل مع المطور"
+
+msgid "Control, Modifier Key"
+msgstr "مفتاح كنترول، مفتاح تعديل"
+
+msgid "Copy Notes"
+msgstr "نسخ المستجدات"
+
+msgid "Could not check for updates. Please check your internet connection."
+msgstr "تعذر التحقق من التحديثات. يرجى التأكد من اتصال الإنترنت."
+
+msgid "Could not open the log file."
+msgstr "تعذر فتح ملف السجلات."
+
+msgid "Create New Lesson (Ctrl+N)"
+msgstr "إنشاء درس جديد (Ctrl+N)"
+
+msgid "Date"
+msgstr "التاريخ"
+
+msgid "Delete"
+msgstr "حذف"
+
+msgid "Delete, Action Key"
+msgstr "مفتاح الحذف Delete، مفتاح تنفيذ"
+
+msgid "Developed by MesterPerfect."
+msgstr "تطوير: MesterPerfect."
+
+msgid "Difficulty (1-3):"
+msgstr "مستوى الصعوبة (1-3):"
+
+msgid "Disabled"
+msgstr "معطّل"
+
+msgid "Down Arrow, Navigation"
+msgstr "سهم لأسفل، للتنقل"
+
+msgid "Download Complete"
+msgstr "اكتمل التنزيل"
+
+msgid "Download cancelled."
+msgstr "تم إلغاء التنزيل."
+
+msgid "Download complete. Closing application to apply update."
+msgstr "اكتمل تنزيل التحديث. سيتم إغلاق التطبيق لتطبيق التحديث."
+
+msgid "Download failed."
+msgstr "فشل تنزيل التحديث."
+
+msgid "Enable Application Logging"
+msgstr "تفعيل حفظ سجلات التطبيق (Logs)"
+
+msgid "Enable Guided Mode (Voice Prompts)"
+msgstr "تفعيل الوضع الإرشادي (التوجيه الصوتي)"
+
+msgid "Enable Sound Effects (Typing Clicks & Errors)"
+msgstr "تفعيل المؤثرات الصوتية (أصوات الكتابة والأخطاء)"
+
+msgid "Enabled"
+msgstr "مفعّل"
+
+msgid "End, Navigation"
+msgstr "مفتاح النهاية End، للتنقل"
+
+msgid "English Lessons"
+msgstr "دروس اللغة الإنجليزية"
+
+msgid "English Letters Explorer"
+msgstr "مستكشف الحروف الإنجليزية"
+
+msgid "English Letters Explorer (F7)"
+msgstr "مستكشف الحروف الإنجليزية (F7)"
+
+msgid "Enter, Action Key"
+msgstr "مفتاح الإدخال Enter، مفتاح تنفيذ"
+
+msgid "Error"
+msgstr "خطأ"
+
+msgid "Errors:"
+msgstr "الأخطاء:"
+
+msgid "Escape, System Key"
+msgstr "مفتاح الهروب Escape، مفتاح نظام"
+
+msgid "Exams"
+msgstr "الاختبارات"
+
+msgid "Exit"
+msgstr "خروج"
+
+msgid "Exiting Explorer Mode"
+msgstr "جاري الخروج من وضع الاستكشاف"
+
+msgid "Explorer"
+msgstr "المستكشف"
+
+msgid "Explorer Mode\n"
+"Press any key to identify it.\n"
+"To exit, press the Escape key three consecutive times."
+msgstr "وضع الاستكشاف\n"
+"اضغط على أي مفتاح للتعرف عليه.\n"
+"للخروج، اضغط على مفتاح الهروب Escape ثلاث مرات متتالية."
+
+msgid "Explorer Modes"
+msgstr "أوضاع الاستكشاف"
+
+msgid "F1, Function Key"
+msgstr "إف 1، مفتاح وظيفي"
+
+msgid "F10, Function Key"
+msgstr "إف 10، مفتاح وظيفي"
+
+msgid "F11, Function Key"
+msgstr "إف 11، مفتاح وظيفي"
+
+msgid "F12, Function Key"
+msgstr "إف 12، مفتاح وظيفي"
+
+msgid "F2, Function Key"
+msgstr "إف 2، مفتاح وظيفي"
+
+msgid "F3, Function Key"
+msgstr "إف 3، مفتاح وظيفي"
+
+msgid "F4, Function Key"
+msgstr "إف 4، مفتاح وظيفي"
+
+msgid "F5, Function Key"
+msgstr "إف 5، مفتاح وظيفي"
+
+msgid "F6, Function Key"
+msgstr "إف 6، مفتاح وظيفي"
+
+msgid "F7, Function Key"
+msgstr "إف 7، مفتاح وظيفي"
+
+msgid "F8, Function Key"
+msgstr "إف 8، مفتاح وظيفي"
+
+msgid "F9, Function Key"
+msgstr "إف 9، مفتاح وظيفي"
+
+msgid "File"
+msgstr "ملف"
+
+msgid "Free Explorer"
+msgstr "المستكشف الحر"
+
+msgid "Free Explorer (F5)"
+msgstr "المستكشف الحر (F5)"
+
+msgid "Guided mode"
+msgstr "الوضع الإرشادي"
+
+msgid "Help"
+msgstr "مساعدة"
+
+msgid "Home, Navigation"
+msgstr "مفتاح البداية Home، للتنقل"
+
+msgid "Insert, Action Key"
+msgstr "مفتاح الإدراج Insert"
+
+msgid "Keyboard Layout Explorer"
+msgstr "مستكشف لوحة المفاتيح"
+
+msgid "Keyboard Layout Explorer (F9)"
+msgstr "مستكشف لوحة المفاتيح (F9)"
+
+msgid "Language:"
+msgstr "اللغة:"
+
+msgid "Later"
+msgstr "لاحقاً"
+
+msgid "Left Arrow, Navigation"
+msgstr "سهم لليسار، للتنقل"
+
+msgid "Lesson"
+msgstr "الدرس"
+
+msgid "Lesson Editor"
+msgstr "محرر الدروس"
+
+msgid "Lesson Editor Screen"
+msgstr "شاشة محرر الدروس"
+
+msgid "Lesson Manager"
+msgstr "إدارة الدروس"
+
+msgid "Lesson completed"
+msgstr "اكتمل الدرس بنجاح"
+
+msgid "Level"
+msgstr "المستوى"
+
+msgid "Log Level:"
+msgstr "مستوى تفصيل السجلات:"
+
+msgid "Main Menu"
+msgstr "القائمة الرئيسية"
+
+msgid "Next word:"
+msgstr "الكلمة التالية:"
+
+msgid "Not a number"
+msgstr "ليس رقماً"
+
+msgid "Not an Arabic letter"
+msgstr "ليس حرفاً عربياً"
+
+msgid "Not an English letter"
+msgstr "ليس حرفاً إنجليزياً"
+
+msgid "Numbers Explorer"
+msgstr "مستكشف الأرقام"
+
+msgid "Numbers Explorer (F8)"
+msgstr "مستكشف الأرقام (F8)"
+
+msgid "Open Log File"
+msgstr "فتح ملف السجلات"
+
+msgid "Page Down, Navigation"
+msgstr "مفتاح الصفحة لأسفل Page Down، للتنقل"
+
+msgid "Page Up, Navigation"
+msgstr "مفتاح الصفحة لأعلى Page Up، للتنقل"
+
+msgid "Press Tab to read release notes, copy them, or update."
+msgstr "اضغط مفتاح Tab لقراءة المستجدات، نسخها، أو بدء التحديث."
+
+msgid "Press once to exit"
+msgstr "اضغط مرة واحدة للخروج"
+
+msgid "Press the escape key three times to exit."
+msgstr "اضغط على مفتاح الهروب ثلاث مرات للخروج."
+
+msgid "Press twice to exit"
+msgstr "اضغط مرتين للخروج"
+
+msgid "Release Notes"
+msgstr "مستجدات الإصدار"
+
+msgid "Release notes copied to clipboard."
+msgstr "تم نسخ مستجدات الإصدار إلى الحافظة بنجاح."
+
+msgid "Remove Timestamp from Logs"
+msgstr "إزالة الطابع الزمني من ملفات السجلات"
+
+msgid "Restart Required"
+msgstr "إعادة التشغيل مطلوبة"
+
+msgid "Results & Stats"
+msgstr "النتائج والإحصائيات"
+
+msgid "Results Screen"
+msgstr "شاشة النتائج"
+
+msgid "Return (Esc)"
+msgstr "رجوع (Esc)"
+
+msgid "Return to Menu (Esc)"
+msgstr "العودة إلى القائمة (Esc)"
+
+msgid "Right Arrow, Navigation"
+msgstr "سهم لليمين، للتنقل"
+
+msgid "Save (Ctrl+S)"
+msgstr "حفظ (Ctrl+S)"
+
+msgid "Save Settings"
+msgstr "حفظ الإعدادات"
+
+msgid "Saved Lessons / Exams"
+msgstr "الدروس والاختبارات المحفوظة"
+
+msgid "Select a Category"
+msgstr "اختر تصنيفاً"
+
+msgid "Sentence:"
+msgstr "الجملة:"
+
+msgid "Settings"
+msgstr "الإعدادات"
+
+msgid "Settings Screen"
+msgstr "شاشة الإعدادات"
+
+msgid "Settings canceled."
+msgstr "تم إلغاء تعديل الإعدادات."
+
+msgid "Settings saved."
+msgstr "تم حفظ الإعدادات بنجاح."
+
+msgid "Shift, Modifier Key"
+msgstr "مفتاح شفت، مفتاح تعديل"
+
+msgid "Show Virtual Keyboard during lessons"
+msgstr "إظهار لوحة المفاتيح الافتراضية أثناء التدريب"
+
+msgid "Some changes (like Language or Theme) require the application to be restarted to take full effect."
+msgstr "بعض التغييرات (مثل لغة الواجهة أو السمة) تتطلب إعادة تشغيل البرنامج لتطبيقها بالكامل."
+
+msgid "Sound Effects Volume:"
+msgstr "مستوى صوت المؤثرات الصوتية:"
+
+msgid "Spacebar"
+msgstr "مسطرة المسافة"
+
+msgid "Speed:"
+msgstr "السرعة:"
+
+msgid "Standard Key:"
+msgstr "مفتاح عادي:"
+
+msgid "Start Selected (Enter)"
+msgstr "بدء المحدد (Enter)"
+
+msgid "Starting download. Please wait."
+msgstr "بدأ تنزيل التحديث. يرجى الانتظار."
+
+msgid "System"
+msgstr "النظام"
+
+msgid "Tab, Functional Key"
+msgstr "مفتاح تاب، مفتاح وظيفي"
+
+msgid "Test completed."
+msgstr "اكتمل الاختبار."
+
+msgid "Test started. Good luck."
+msgstr "بدأ الاختبار. بالتوفيق."
+
+msgid "Text Content:"
+msgstr "المحتوى النصي:"
+
+msgid "The update has been downloaded. The application will now close to apply the update."
+msgstr "تم تنزيل التحديث بنجاح. سيتم إغلاق البرنامج الآن لتطبيق التحديث."
+
 msgid "Time:"
 msgstr "الوقت:"
+
+msgid "Title:"
+msgstr "العنوان:"
+
+msgid "Tools"
+msgstr "أدوات"
+
+msgid "Type"
+msgstr "اكتب"
+
+msgid "Type:"
+msgstr "النوع:"
+
+msgid "Typing Setup"
+msgstr "إعدادات الطباعة"
+
+msgid "Typing Trainer"
+msgstr "مدرب الطباعة"
+
+msgid "UI Language (Requires Restart):"
+msgstr "لغة الواجهة (تتطلب إعادة التشغيل):"
+
+msgid "Unknown Key"
+msgstr "مفتاح غير معروف"
+
+msgid "Up Arrow, Navigation"
+msgstr "سهم لأعلى، للتنقل"
+
+msgid "Up to Date"
+msgstr "البرنامج محدث"
+
+msgid "Update Available"
+msgstr "يتوفر تحديث جديد"
+
+msgid "Update Channel:"
+msgstr "قناة التحديث:"
+
+msgid "Update Error"
+msgstr "خطأ في التحديث"
+
+msgid "Update Now"
+msgstr "تحديث الآن"
+
+msgid "Update available."
+msgstr "يتوفر تحديث جديد."
+
+msgid "Version"
+msgstr "الإصدار"
+
+msgid "Version:"
+msgstr "الإصدار:"
+
+msgid "WPM:"
+msgstr "كلمة/دقيقة:"
+
+msgid "Windows, System Key"
+msgstr "مفتاح ويندوز، مفتاح نظام"
+
+msgid "Word:"
+msgstr "الكلمة:"
+
+msgid "You are using the latest version of Typing Trainer."
+msgstr "أنت تستخدم أحدث إصدار من برنامج مدرب الطباعة."
+
+msgid "Your Progress"
+msgstr "سجل تقدمك والنتائج"
+
+msgid "percent"
+msgstr "بالمائة"
+

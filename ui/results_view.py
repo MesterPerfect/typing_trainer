@@ -43,7 +43,7 @@ class ResultsView(QWidget):
         self.table = QTableWidget()
         self.table.setColumnCount(5)
         self.table.setHorizontalHeaderLabels(
-            ["Date", "Lesson", "WPM", "Accuracy", "Errors"]
+            [_("Date"), _("Lesson"), _("WPM"), _("Accuracy"), _("Errors")]
         )
 
         header = self.table.horizontalHeader()

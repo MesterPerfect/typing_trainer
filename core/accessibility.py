@@ -18,6 +18,8 @@ class SelfVoicingFilter(QObject):
                 if text_to_speak and text_to_speak != self.last_spoken:
                     self.tts.speak(text_to_speak, interrupt=True)
                     self.last_spoken = text_to_speak
+        elif event.type() == QEvent.Type.FocusOut:
+            self.last_spoken = ""
 
         return super().eventFilter(obj, event)
 
@@ -28,7 +30,8 @@ class SelfVoicingFilter(QObject):
 
         raw_text = ""
         if isinstance(widget, QPushButton):
-            raw_text = f"Button, {widget.text()}"
+            btn_text = widget.text().replace("&", "")
+            return f"{_('Button,')} {btn_text}"
         elif hasattr(widget, "text") and callable(widget.text):
             raw_text = widget.text()
         elif hasattr(widget, "title") and callable(widget.title):

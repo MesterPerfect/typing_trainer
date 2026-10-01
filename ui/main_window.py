@@ -117,18 +117,19 @@ class MainWindow(QMainWindow):
         # F2: Toggle Guided Mode
         QShortcut(QKeySequence(Qt.Key.Key_F2), self, self._toggle_guided_mode)
         
-        # F5 - F8: Explorer Modes
+        # F5 - F9: Explorer Modes
         QShortcut(QKeySequence(Qt.Key.Key_F5), self, lambda: self.start_explorer(ExplorerMode.FREE))
         QShortcut(QKeySequence(Qt.Key.Key_F6), self, lambda: self.start_explorer(ExplorerMode.ARABIC))
         QShortcut(QKeySequence(Qt.Key.Key_F7), self, lambda: self.start_explorer(ExplorerMode.ENGLISH))
         QShortcut(QKeySequence(Qt.Key.Key_F8), self, lambda: self.start_explorer(ExplorerMode.NUMBERS))
+        QShortcut(QKeySequence(Qt.Key.Key_F9), self, lambda: self.start_explorer(ExplorerMode.KEYS))
 
     def _toggle_guided_mode(self):
         current_mode = self.settings.get("guided_mode", True)
         new_mode = not current_mode
         self.settings.set("guided_mode", new_mode)
-        status = "Enabled" if new_mode else "Disabled"
-        self.tts.speak(f"Guided mode {status}")
+        status = _("Enabled") if new_mode else _("Disabled")
+        self.tts.speak(f"{_('Guided mode')} {status}")
 
     # ===============================
     # Navigation Methods (Routing)
@@ -140,24 +141,24 @@ class MainWindow(QMainWindow):
     def show_lessons(self):
         self.lesson_view.refresh_lessons()
         self.stacked_widget.setCurrentWidget(self.lesson_view)
-        self.tts.speak("Main Menu")
+        self.tts.speak(_("Main Menu"))
 
     def show_editor(self):
         self.editor_view.load_data()
         self.stacked_widget.setCurrentWidget(self.editor_view)
-        self.tts.speak("Lesson Editor Screen")
+        self.tts.speak(_("Lesson Editor Screen"))
 
     def show_settings(self):
         self.settings_view.load_current_settings()
         self.stacked_widget.setCurrentWidget(self.settings_view)
         self.settings_view.tree_widget.setFocus()
-        self.tts.speak("Settings Screen")
+        self.tts.speak(_("Settings Screen"))
 
     def show_results(self):
         self.results_view.load_results()
         self.stacked_widget.setCurrentWidget(self.results_view)
         self.results_view.table.setFocus()
-        self.tts.speak("Results Screen")
+        self.tts.speak(_("Results Screen"))
 
     def start_explorer(self, mode: ExplorerMode):
         self.stacked_widget.setCurrentWidget(self.explorer_view)
@@ -177,10 +178,10 @@ class MainWindow(QMainWindow):
         
         if not silent:
             self.updater_thread.no_update.connect(
-                lambda: QMessageBox.information(self, "Up to Date", "You are using the latest version of Typing Trainer.")
+                lambda: QMessageBox.information(self, _("Up to Date"), _("You are using the latest version of Typing Trainer."))
             )
             self.updater_thread.error_occurred.connect(
-                lambda err: QMessageBox.warning(self, "Update Error", err)
+                lambda err: QMessageBox.warning(self, _("Update Error"), _(err))
             )
             
         self.updater_thread.start()
