@@ -12,7 +12,7 @@ class VirtualKeyboard(QWidget):
         self.target_key = ""      # The key that needs to be pressed
         
         # Define minimum height so it doesn't get crushed in the layout
-        self.setMinimumHeight(200)
+        self.setMinimumHeight(230)
         
         # Finger Color Coding (Dark Mode Friendly)
         self.finger_colors = {
@@ -39,6 +39,14 @@ class VirtualKeyboard(QWidget):
         Format: (English, Arabic, Finger_Code, Width_Multiplier)
         """
         self.rows = [
+            # Number Row
+            [
+                ('`', 'ذ', 'LP', 1), ('1', '1', 'LP', 1), ('2', '2', 'LR', 1),
+                ('3', '3', 'LM', 1), ('4', '4', 'LI', 1), ('5', '5', 'LI', 1),
+                ('6', '6', 'RI', 1), ('7', '7', 'RI', 1), ('8', '8', 'RM', 1),
+                ('9', '9', 'RR', 1), ('0', '0', 'RP', 1), ('-', '-', 'RP', 1),
+                ('=', '=', 'RP', 1)
+            ],
             # Top Row (QWERTY)
             [
                 ('q', 'ض', 'LP', 1), ('w', 'ص', 'LR', 1), ('e', 'ث', 'LM', 1), 
@@ -62,17 +70,17 @@ class VirtualKeyboard(QWidget):
             ],
             # Spacebar Row
             [
-                (' ', ' ', 'TH', 6) # Spacebar is 6 times wider than a normal key
+                (' ', ' ', 'TH', 6)
             ]
         ]
         
         # Row starting offsets (in key widths) to simulate realistic staggered keyboard
-        self.row_offsets = [0.5, 0.8, 1.2, 3.5]
+        self.row_offsets = [0.0, 0.5, 0.8, 1.2, 3.5]
 
     def set_language(self, lang_code: str):
         """Update the displayed language on the keyboard ('en' or 'ar')."""
         self.current_lang = lang_code
-        self.update() # Trigger a repaint
+        self.update()
 
     def highlight_key(self, target_char: str):
         """Highlight the key that the user needs to press."""
@@ -80,7 +88,7 @@ class VirtualKeyboard(QWidget):
             self.target_key = " "
         else:
             self.target_key = target_char.lower()
-        self.update() # Trigger a repaint
+        self.update()
 
     def paintEvent(self, event):
         """The core drawing engine. Paints the keyboard dynamically."""
@@ -91,8 +99,7 @@ class VirtualKeyboard(QWidget):
         width = self.width()
         height = self.height()
         
-        # We assume a max width of 13 normal keys + offsets to calculate base unit width
-        gap = 6
+        gap = 5
         cols = 13.5
         rows_count = len(self.rows)
         
@@ -100,8 +107,8 @@ class VirtualKeyboard(QWidget):
         key_h = (height - (rows_count * gap)) / rows_count
 
         # Setup Fonts
-        primary_font = QFont("Arial", int(key_h * 0.4), QFont.Weight.Bold)
-        secondary_font = QFont("Arial", int(key_h * 0.2))
+        primary_font = QFont("Arial", max(8, int(key_h * 0.38)), QFont.Weight.Bold)
+        secondary_font = QFont("Arial", max(6, int(key_h * 0.2)))
 
         # Start drawing rows
         current_y = gap
@@ -122,9 +129,9 @@ class VirtualKeyboard(QWidget):
                     }
                     search_target = diacritic_map.get(self.target_key, self.target_key)
                     
-                    if self.current_lang == "ar" and search_target == ar_char:
+                    if self.current_lang == "ar" and (search_target == ar_char or search_target == en_char):
                         is_target = True
-                    elif self.current_lang == "en" and search_target == en_char:
+                    elif self.current_lang == "en" and (search_target == en_char or search_target == ar_char):
                         is_target = True
                     elif search_target == en_char == ar_char == " ":
                         is_target = True
@@ -137,8 +144,7 @@ class VirtualKeyboard(QWidget):
                 if is_target:
                     bg_color = self.active_color
                     txt_color = self.active_text_color
-                    # Glowing border for target key
-                    pen = QPen(QColor("#ffffff"), 3)
+                    pen = QPen(QColor("#ffffff"), 2)
                 else:
                     bg_color = self.finger_colors.get(finger, QColor("#333333"))
                     txt_color = self.idle_text_color
@@ -147,27 +153,26 @@ class VirtualKeyboard(QWidget):
                 # Draw the key shape
                 painter.setBrush(QBrush(bg_color))
                 painter.setPen(pen)
-                painter.drawRoundedRect(key_rect, 8, 8)
+                painter.drawRoundedRect(key_rect, 6, 6)
 
                 # Draw the Text
                 painter.setPen(QPen(txt_color))
                 
                 if self.current_lang == "ar":
                     primary_char = ar_char
-                    secondary_char = en_char
+                    secondary_char = en_char if en_char != ar_char else ""
                 else:
                     primary_char = en_char.upper()
-                    secondary_char = ar_char
+                    secondary_char = ar_char if en_char != ar_char else ""
 
                 # Draw Primary Character (Centered)
                 painter.setFont(primary_font)
                 painter.drawText(key_rect, Qt.AlignmentFlag.AlignCenter, primary_char)
 
                 # Draw Secondary Character (Small, Top-Right)
-                if primary_char != " ": # Don't draw secondary for spacebar
+                if primary_char != " " and secondary_char:
                     painter.setFont(secondary_font)
-                    # Create a smaller rect for the top right corner
-                    sec_rect = key_rect.adjusted(0, 4, -8, 0)
+                    sec_rect = key_rect.adjusted(0, 2, -4, 0)
                     painter.drawText(sec_rect, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop, secondary_char)
 
                 # Move to next key position
