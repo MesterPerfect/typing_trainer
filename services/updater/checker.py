@@ -2,6 +2,8 @@ import json
 import platform
 import urllib.request
 import logging
+import time
+from core.constants import IS_PORTABLE
 from packaging.version import parse as parse_version
 from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import QApplication
@@ -28,7 +30,6 @@ class UpdateChecker(QThread):
         try:
             logger.info(f"Checking for updates from: {UPDATE_JSON_URL} on channel: {self.update_channel}")
             
-            import time
             url_with_nocache = f"{UPDATE_JSON_URL}?t={int(time.time())}"
             req = urllib.request.Request(url_with_nocache, headers={'User-Agent': 'TypingTrainer-App'})
             
@@ -47,8 +48,16 @@ class UpdateChecker(QThread):
                 notes_dict = channel_data.get("release_notes", {})
                 localized_notes = notes_dict.get(self.current_language, notes_dict.get("en", "No release notes provided."))
                 
-                current_os = platform.system().lower()
-                download_url = channel_data.get("downloads", {}).get(current_os, "")
+                current_os = platform.system().lower() # 'windows', 'darwin', or 'linux'
+                os_downloads = channel_data.get("downloads", {}).get(current_os, "")
+                
+                if isinstance(os_downloads, dict):
+                    if IS_PORTABLE:
+                        download_url = os_downloads.get("portable", "")
+                    else:
+                        download_url = os_downloads.get("installed", "")
+                else:
+                    download_url = str(os_downloads)
                 
                 if download_url:
                     self.update_available.emit(latest_version, localized_notes, download_url)
