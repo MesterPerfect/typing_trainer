@@ -10,24 +10,56 @@ from .default_data import DEFAULT_LESSONS
 logger = logging.getLogger(__name__)
 
 class LessonService:
-    """ Service to handle loading, saving, and managing typing lessons. """
+    """ Service to handle loading, saving, and managing typing lessons with smart synchronization. """
     
     def __init__(self, file_path=None):
         self.file_path = Path(file_path) if file_path else LESSONS_FILE
         self._ensure_default_lessons()
 
     def _ensure_default_lessons(self):
-        """ Create a default lessons JSON file if it does not exist. """
+        """ 
+        Create a default lessons JSON file if it does not exist,
+        or perform a non-destructive smart merge to sync new official lessons.
+        """
+        self.file_path.parent.mkdir(parents=True, exist_ok=True)
+
         if not self.file_path.exists():
-            logger.info(f"Lessons file not found at {self.file_path}. Creating default.")
-            self.file_path.parent.mkdir(parents=True, exist_ok=True)
-            
+            logger.info(f"Lessons file not found at {self.file_path}. Creating with default content.")
             try:
                 with open(self.file_path, "w", encoding="utf-8") as f:
                     json.dump(DEFAULT_LESSONS, f, indent=4, ensure_ascii=False)
                 logger.info("Default lessons file created successfully.")
             except Exception as e:
                 logger.error(f"Failed to create default lessons file: {e}")
+            return
+
+        # Smart Sync: check for any new official lessons added in app updates
+        try:
+            with open(self.file_path, "r", encoding="utf-8") as f:
+                existing_data = json.load(f)
+
+            if not isinstance(existing_data, list):
+                existing_data = []
+
+            existing_ids = {str(item.get("id")) for item in existing_data if isinstance(item, dict)}
+            
+            # Detect missing default lessons
+            updated = False
+            for default_lesson in DEFAULT_LESSONS:
+                def_id = str(default_lesson.get("id"))
+                if def_id not in existing_ids:
+                    existing_data.append(default_lesson)
+                    existing_ids.add(def_id)
+                    updated = True
+                    logger.info(f"Smart Sync: added new official lesson '{default_lesson.get('title')}' (id={def_id})")
+
+            if updated:
+                with open(self.file_path, "w", encoding="utf-8") as f:
+                    json.dump(existing_data, f, indent=4, ensure_ascii=False)
+                logger.info("Smart Sync: successfully synchronized official default lessons.")
+
+        except Exception as e:
+            logger.error(f"Smart Sync encountered an error while merging lessons: {e}")
 
     def load_all_lessons(self) -> List[Lesson]:
         """ Load all lessons from the lessons JSON file. """
