@@ -1,5 +1,5 @@
 def get_pronunciation(char: str, lang: str) -> str:
-    """ Maps symbols, punctuation, and diacritics to pronounceable words. """
+    """ Maps symbols, punctuation, letters, and diacritics to pronounceable words. """
     
     # English Verbalization Map
     en_mapping = {
@@ -15,7 +15,14 @@ def get_pronunciation(char: str, lang: str) -> str:
         '@': 'At sign', '#': 'Hash', '$': 'Dollar sign', '%': 'Percent',
         '^': 'Caret', '&': 'Ampersand', '*': 'Asterisk', 
         '+': 'Plus', '=': 'Equals', '~': 'Tilde', '`': 'Backtick',
+        '×': 'Multiplication Sign', '÷': 'Division Sign',
+        '«': 'Left Guillemet', '»': 'Right Guillemet',
         '،': 'Arabic Comma', '؛': 'Arabic Semicolon', '؟': 'Arabic Question Mark',
+        'ـ': 'Kashida',
+        'أ': 'Alef with Hamza', 'إ': 'Alef with Hamza Below', 'آ': 'Alef with Madda',
+        'ء': 'Hamza', 'ئ': 'Hamza on Nabrah', 'ؤ': 'Hamza on Waw',
+        'ى': 'Alef Maksura', 'ة': 'Taa Marbuta',
+        'لأ': 'Lam Alef with Hamza', 'لإ': 'Lam Alef with Hamza Below', 'لآ': 'Lam Alef with Madda',
         'َ': 'Fatha', 'ً': 'Tanween Fath', 'ُ': 'Damma', 'ٌ': 'Tanween Damm',
         'ِ': 'Kasra', 'ٍ': 'Tanween Kasr', 'ْ': 'Sukun', 'ّ': 'Shadda'
     }
@@ -33,12 +40,18 @@ def get_pronunciation(char: str, lang: str) -> str:
         '/': 'شرطة مائلة', '\\': 'شرطة مائلة عكسية', '|': 'خط عمودي',
         '@': 'علامة آت', '#': 'شباك', '$': 'علامة الدولار', '%': 'علامة بالمائة',
         '^': 'علامة أُس', '&': 'علامة و', '*': 'نجمة', 
-        '+': 'زائد', '=': 'يساوي', '~': 'مدة', '`': 'حرف ذال إنجليزي',
-        '،': 'فاصلة', '؛': 'فاصلة منقوطة', '؟': 'علامة استفهام',
+        '+': 'زائد', '=': 'يساوي', '~': 'مدة', '`': 'ذال إنجليزي',
+        '×': 'علامة ضرب', '÷': 'علامة قسمة',
+        '«': 'قوس تنصيص أيمن', '»': 'قوس تنصيص أيسر',
+        '،': 'فاصلة عربية', '؛': 'فاصلة منقوطة عربية', '؟': 'علامة استفهام عربية',
+        'ـ': 'تطويل',
+        'أ': 'ألف همزة أعلى', 'إ': 'ألف همزة أسفل', 'آ': 'ألف ممدودة',
+        'ء': 'همزة على السطر', 'ئ': 'همزة على نبرة', 'ؤ': 'همزة على واو',
+        'ى': 'ألف لينة', 'ة': 'تاء مربوطة',
+        'لأ': 'لام ألف همزة أعلى', 'لإ': 'لام ألف همزة أسفل', 'لآ': 'لام ألف ممدودة',
         'َ': 'فتحة', 'ً': 'تنوين بالفتح', 'ُ': 'ضمة', 'ٌ': 'تنوين بالضم',
         'ِ': 'كسرة', 'ٍ': 'تنوين بالكسر', 'ْ': 'سكون', 'ّ': 'شدة'
     }
     
-    if lang == 'ar':
-        return ar_mapping.get(char, char)
-    return en_mapping.get(char, char)
+    mapping = ar_mapping if lang == 'ar' else en_mapping
+    return mapping.get(char, char)
