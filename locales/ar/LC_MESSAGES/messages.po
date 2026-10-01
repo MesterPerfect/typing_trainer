@@ -658,3 +658,27 @@ msgstr "حفظ الدرس الحالي"
 msgid "Export Typing Results to CSV File"
 msgstr "تصدير نتائج الطباعة إلى ملف CSV"
 
+
+msgid "Stable (Recommended)"
+msgstr "مستقر (مستحسن)"
+
+msgid "Beta (Experimental)"
+msgstr "تجريبي (Beta)"
+
+msgid "Session paused. Press Ctrl+P to resume."
+msgstr "تم إيقاف التدريب مؤقتاً. اضغط كنترول مع P للاستئناف."
+
+msgid "Session resumed."
+msgstr "تم استئناف التدريب."
+
+msgid "Test completed. Speed: {wpm} WPM ({cpm} CPM). Accuracy: {accuracy}%. Errors: {errors}."
+msgstr "اكتمل الاختبار. السرعة: {wpm} كلمة في الدقيقة و{cpm} حرف في الدقيقة. الدقة: {accuracy}% . الأخطاء: {errors}."
+
+msgid "Button,"
+msgstr "زر،"
+
+msgid "User Guide & Documentation"
+msgstr "دليل المستخدم والمساعدة"
+
+msgid "Open User Guide Documentation"
+msgstr "فتح دليل المستخدم والمساعدة"

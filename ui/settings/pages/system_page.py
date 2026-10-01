@@ -22,8 +22,8 @@ class SystemPage(QWidget):
         
         self.update_channel_combo = QComboBox()
         self.update_channel_combo.setFont(self._get_font(14))
-        self.update_channel_combo.addItem("Stable (Recommended)", "stable")
-        self.update_channel_combo.addItem("Beta (Experimental)", "beta")
+        self.update_channel_combo.addItem(_("Stable (Recommended)"), "stable")
+        self.update_channel_combo.addItem(_("Beta (Experimental)"), "beta")
         
         channel_layout.addWidget(channel_label)
         channel_layout.addWidget(self.update_channel_combo)

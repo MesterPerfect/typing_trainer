@@ -58,22 +58,17 @@ class TypingSpeechHandler:
         self.speak_prompt(correct=correct, is_first_prompt=False)
 
     def speak_backspace(self):
-        lang = self.settings.get("ui_language", "en")
-        backspace_word = "حذف" if lang == "ar" else _("Backspace")
-        self.tts.speak(backspace_word, interrupt=True)
+        self.tts.speak(_("Backspace"), interrupt=True)
         self.speak_prompt(correct=True, is_first_prompt=False)
 
     def speak_pause(self, is_paused: bool):
         """Announce pause or resume status."""
-        lang = self.settings.get("ui_language", "en")
         if is_paused:
             self.prompt_timer.stop()
             self.auto_repeat_timer.stop()
-            msg = "تم إيقاف التدريب مؤقتاً. اضغط كنترول مع P للاستئناف." if lang == "ar" else _("Session paused. Press Ctrl+P to resume.")
-            self.tts.speak(msg, interrupt=True)
+            self.tts.speak(_("Session paused. Press Ctrl+P to resume."), interrupt=True)
         else:
-            msg = "تم استئناف التدريب." if lang == "ar" else _("Session resumed.")
-            self.tts.speak(msg, interrupt=True)
+            self.tts.speak(_("Session resumed."), interrupt=True)
             self._restart_auto_repeat_if_needed()
             QTimer.singleShot(700, self.speak_repeat)
 
@@ -122,12 +117,14 @@ class TypingSpeechHandler:
         self.auto_repeat_timer.stop()
         self.audio.play("complete")
 
-        lang = self.settings.get("ui_language", "en")
         if self.is_test:
-            if lang == "ar":
-                result_msg = f"اكتمل الاختبار. السرعة: {stats['wpm']} كلمة في الدقيقة و{stats.get('cpm', 0)} حرف في الدقيقة. الدقة: {stats['accuracy']} بالمئة. الأخطاء: {stats['errors']}."
-            else:
-                result_msg = f"{_('Test completed.')} {_('Speed:')} {stats['wpm']} WPM ({stats.get('cpm', 0)} CPM). {_('Accuracy:')} {stats['accuracy']}%. {_('Errors:')} {stats['errors']}."
+            template = _("Test completed. Speed: {wpm} WPM ({cpm} CPM). Accuracy: {accuracy}%. Errors: {errors}.")
+            result_msg = template.format(
+                wpm=stats.get('wpm', 0),
+                cpm=stats.get('cpm', 0),
+                accuracy=stats.get('accuracy', 0.0),
+                errors=stats.get('errors', 0)
+            )
             self.tts.speak(result_msg, interrupt=True)
         else:
             self.tts.speak(_("Lesson completed"), interrupt=True)
