@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 class SettingsService:
     def __init__(self, file_path=None):
-        # Use pathlib natively instead of casting to string
         self.file_path = Path(file_path) if file_path else SETTINGS_FILE
         self.settings = self._load_settings()
 
@@ -17,11 +16,12 @@ class SettingsService:
         Load settings from the JSON file.
         Returns a comprehensive default settings dictionary if the file is missing or corrupted.
         """
-        # Master list of all application defaults
         default_settings = {
             "ui_language": "en",
             "theme": "dark_theme",
             "auto_update": True,
+            "update_channel": "stable",
+            "telemetry_enabled": True,
             "guided_mode": True,
             "auto_repeat_prompt": False,
             "auto_repeat_interval": 4,
@@ -53,10 +53,7 @@ class SettingsService:
             return default_settings
 
     def _save_to_file(self, data: dict):
-        """
-        Save the provided dictionary to the JSON file.
-        """
-        # Create parent directories if they don't exist using pathlib
+        """ Save the provided dictionary to the JSON file. """
         self.file_path.parent.mkdir(parents=True, exist_ok=True)
         try:
             with open(self.file_path, "w", encoding="utf-8") as f:
@@ -65,16 +62,9 @@ class SettingsService:
             logger.error(f"Failed to save settings: {e}")
 
     def get(self, key: str, default: Any = None) -> Any:
-        """
-        Retrieve a specific setting.
-        """
         return self.settings.get(key, default)
 
     def set(self, key: str, value: Any):
-        """
-        Update a specific setting and save to file only if the value has changed.
-        """
-        # Prevent redundant Disk I/O operations if the value is identical
         if self.settings.get(key) == value:
             return
 
@@ -83,10 +73,6 @@ class SettingsService:
         logger.info(f"Setting '{key}' updated to: {value}")
         
     def update_many(self, new_settings: dict):
-        """
-        Batch update multiple settings and trigger a single file write.
-        (Useful for bulk saves from the Settings UI)
-        """
         changed = False
         for key, value in new_settings.items():
             if self.settings.get(key) != value:
