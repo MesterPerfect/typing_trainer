@@ -4,6 +4,7 @@ import logging
 
 from core.explorer_engine import ExplorerEngine
 from core.modes import ExplorerMode
+from services.settings_service import SettingsService
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +16,7 @@ class ExplorerView(QWidget):
         super().__init__()
         self.tts = tts
         self.audio = audio
+        self.settings = SettingsService()
         self.engine = None
 
         self.escape_count = 0
@@ -27,9 +29,7 @@ class ExplorerView(QWidget):
     def _setup_ui(self):
         layout = QVBoxLayout()
         self.label = QLabel(
-            "Explorer Mode\n"
-            "Press any key to identify it.\n"
-            "To exit, press the Escape key three consecutive times."
+            _("Explorer Mode\nPress any key to identify it.\nTo exit, press the Escape key three consecutive times.")
         )
         font = self.label.font()
         font.setPointSize(24)
@@ -41,19 +41,21 @@ class ExplorerView(QWidget):
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
     def start_explorer(self, mode: ExplorerMode = ExplorerMode.FREE):
-        self.engine = ExplorerEngine(mode)
+        lang = self.settings.get("ui_language", "en")
+        self.engine = ExplorerEngine(mode, lang=lang)
         self.reset_escape_count()
         self.setFocus()
 
         mode_names = {
-            ExplorerMode.FREE: "Free Explorer",
-            ExplorerMode.ARABIC: "Arabic Letters Explorer",
-            ExplorerMode.ENGLISH: "English Letters Explorer",
-            ExplorerMode.NUMBERS: "Numbers Explorer",
-            ExplorerMode.KEYS: "Keyboard Layout Explorer",
+            ExplorerMode.FREE: _("Free Explorer"),
+            ExplorerMode.ARABIC: _("Arabic Letters Explorer"),
+            ExplorerMode.ENGLISH: _("English Letters Explorer"),
+            ExplorerMode.NUMBERS: _("Numbers Explorer"),
+            ExplorerMode.KEYS: _("Keyboard Layout Explorer"),
         }
 
-        msg = f"{mode_names.get(mode, '')} activated. Press the escape key three times to exit."
+        mode_title = mode_names.get(mode, _("Explorer"))
+        msg = f"{mode_title}. {_('Press the escape key three times to exit.')}"
 
         self.audio.play("correct")
         self.tts.speak(msg)
@@ -73,21 +75,15 @@ class ExplorerView(QWidget):
             self.audio.play("correct")
 
             if self.escape_count == 1:
-                self.tts.speak("Press twice to exit")
+                self.tts.speak(_("Press twice to exit"))
             elif self.escape_count == 2:
-                self.tts.speak("Press once to exit")
+                self.tts.speak(_("Press once to exit"))
             elif self.escape_count >= 3:
                 self.escape_timer.stop()
                 self.reset_escape_count()
                 self.audio.play("complete")
-                self.tts.speak("Exiting Explorer Mode")
+                self.tts.speak(_("Exiting Explorer Mode"))
                 self.return_requested.emit()
-            
-            # Allow the engine to announce Escape key if in Keys mode
-            if self.engine and self.engine.mode == ExplorerMode.KEYS:
-                result = self.engine.process_input(key, text)
-                if result and result.get("valid"):
-                    self.tts.speak(result["message"])
             return
 
         self.escape_timer.stop()
