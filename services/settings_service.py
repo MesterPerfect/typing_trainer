@@ -23,6 +23,8 @@ class SettingsService:
             "theme": "dark_theme",
             "auto_update": True,
             "guided_mode": True,
+            "auto_repeat_prompt": False,
+            "auto_repeat_interval": 4,
             "tts_enabled": True,
             "sound_effects": True,
             "sound_volume": 70,

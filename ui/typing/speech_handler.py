@@ -25,11 +25,16 @@ class TypingSpeechHandler:
         self.prompt_timer.timeout.connect(self._speak_queued_prompt)
         self.queued_prompt = ""
 
+        # Auto-repeat prompt timer
+        self.auto_repeat_timer = QTimer()
+        self.auto_repeat_timer.timeout.connect(self._auto_repeat_prompt)
+
     def setup_session(self, engine, is_test: bool):
         self.engine = engine
         self.is_test = is_test
         self.current_word_spoken = ""
         self.prompt_timer.stop()
+        self.auto_repeat_timer.stop()
 
     def speak_start(self):
         if self.is_test:
@@ -58,16 +63,71 @@ class TypingSpeechHandler:
         self.tts.speak(backspace_word, interrupt=True)
         self.speak_prompt(correct=True, is_first_prompt=False)
 
+    def speak_pause(self, is_paused: bool):
+        """Announce pause or resume status."""
+        lang = self.settings.get("ui_language", "en")
+        if is_paused:
+            self.prompt_timer.stop()
+            self.auto_repeat_timer.stop()
+            msg = "تم إيقاف التدريب مؤقتاً. اضغط كنترول مع P للاستئناف." if lang == "ar" else _("Session paused. Press Ctrl+P to resume.")
+            self.tts.speak(msg, interrupt=True)
+        else:
+            msg = "تم استئناف التدريب." if lang == "ar" else _("Session resumed.")
+            self.tts.speak(msg, interrupt=True)
+            self._restart_auto_repeat_if_needed()
+            QTimer.singleShot(700, self.speak_repeat)
+
+    def speak_repeat(self):
+        """Manually re-announce the current character/word on demand (e.g. Ctrl+R)."""
+        if not self.engine or self.engine.is_finished():
+            return
+        message, _ = build_prompt_message(
+            self.engine,
+            self.settings,
+            self.is_test,
+            correct=True,
+            is_first_prompt=True,
+            current_word_spoken=""
+        )
+        if message:
+            self.tts.speak(message, interrupt=True)
+            self._restart_auto_repeat_if_needed()
+
+    def _auto_repeat_prompt(self):
+        """Periodically repeated prompt when user is idle."""
+        if not self.engine or self.engine.is_finished() or getattr(self.engine.stats, "is_paused", False):
+            self.auto_repeat_timer.stop()
+            return
+        message, _ = build_prompt_message(
+            self.engine,
+            self.settings,
+            self.is_test,
+            correct=True,
+            is_first_prompt=True,
+            current_word_spoken=""
+        )
+        if message:
+            self.tts.speak(message, interrupt=False)
+
+    def _restart_auto_repeat_if_needed(self):
+        """Start or restart the auto-repeat timer if enabled in settings."""
+        if self.settings.get("auto_repeat_prompt", False) and not self.is_test:
+            interval_sec = max(2, int(self.settings.get("auto_repeat_interval", 4)))
+            self.auto_repeat_timer.start(interval_sec * 1000)
+        else:
+            self.auto_repeat_timer.stop()
+
     def speak_completion(self, stats: dict):
         self.prompt_timer.stop()
+        self.auto_repeat_timer.stop()
         self.audio.play("complete")
 
         lang = self.settings.get("ui_language", "en")
         if self.is_test:
             if lang == "ar":
-                result_msg = f"اكتمل الاختبار. السرعة: {stats['wpm']} كلمة في الدقيقة. الدقة: {stats['accuracy']} بالمئة. الأخطاء: {stats['errors']}."
+                result_msg = f"اكتمل الاختبار. السرعة: {stats['wpm']} كلمة في الدقيقة و{stats.get('cpm', 0)} حرف في الدقيقة. الدقة: {stats['accuracy']} بالمئة. الأخطاء: {stats['errors']}."
             else:
-                result_msg = f"{_('Test completed.')} {_('Speed:')} {stats['wpm']} WPM. {_('Accuracy:')} {stats['accuracy']}%. {_('Errors:')} {stats['errors']}."
+                result_msg = f"{_('Test completed.')} {_('Speed:')} {stats['wpm']} WPM ({stats.get('cpm', 0)} CPM). {_('Accuracy:')} {stats['accuracy']}%. {_('Errors:')} {stats['errors']}."
             self.tts.speak(result_msg, interrupt=True)
         else:
             self.tts.speak(_("Lesson completed"), interrupt=True)
@@ -75,6 +135,7 @@ class TypingSpeechHandler:
     def _speak_queued_prompt(self):
         if self.queued_prompt:
             self.tts.speak(self.queued_prompt, interrupt=False)
+            self._restart_auto_repeat_if_needed()
 
     def speak_prompt(self, correct=True, is_first_prompt=False):
         # Delegate prompt building to our pure function in prompt_builder.py
@@ -92,6 +153,7 @@ class TypingSpeechHandler:
         if message:
             if is_first_prompt:
                 self.tts.speak(message, interrupt=True)
+                self._restart_auto_repeat_if_needed()
             else:
                 self.prompt_timer.stop()
                 self.queued_prompt = message
