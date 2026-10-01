@@ -115,8 +115,20 @@ class MainWindow(QMainWindow):
     # Global Shortcuts Registration
     # ===============================
     def _setup_shortcuts(self):
+        # F1: User Guide / Help
+        QShortcut(QKeySequence(Qt.Key.Key_F1), self, self.show_user_guide)
+
         # F2: Toggle Guided Mode
         QShortcut(QKeySequence(Qt.Key.Key_F2), self, self._toggle_guided_mode)
+
+        # F3: Settings
+        QShortcut(QKeySequence(Qt.Key.Key_F3), self, self.show_settings)
+
+        # F4: Results
+        QShortcut(QKeySequence(Qt.Key.Key_F4), self, self.show_results)
+
+        # Ctrl+L: Lesson Manager / Editor
+        QShortcut(QKeySequence("Ctrl+L"), self, self.show_editor)
         
         # Ctrl+H: Shortcuts Guide
         QShortcut(QKeySequence("Ctrl+H"), self, self.show_shortcuts_guide)
@@ -134,6 +146,10 @@ class MainWindow(QMainWindow):
         self.settings.set("guided_mode", new_mode)
         status = _("Enabled") if new_mode else _("Disabled")
         self.tts.speak(f"{_('Guided mode')} {status}")
+
+    def show_user_guide(self):
+        """Open user documentation guide dialog or shortcuts reference."""
+        self.show_shortcuts_guide()
 
     def show_shortcuts_guide(self):
         """Open the interactive keyboard shortcuts guide dialog."""
@@ -179,10 +195,8 @@ class MainWindow(QMainWindow):
     # ===============================
     def check_for_updates(self, silent=True):
         current_lang = self.settings.get("ui_language", "en")
-        # Read the preferred channel from settings
         update_channel = self.settings.get("update_channel", "stable")
         
-        # Pass the channel to the updater thread
         self.updater_thread = UpdateChecker(APP_VERSION, current_lang, update_channel)
         self.updater_thread.update_available.connect(self._show_update_dialog)
         
