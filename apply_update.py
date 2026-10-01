@@ -9,13 +9,40 @@ import argparse
 import json
 
 def extract_archive(archive_path, extract_to):
-    """Extracts zip or tar.gz archives."""
+    """
+    Safely extracts a ZIP or TAR.GZ archive, preventing path traversal attacks (Zip-Slip).
+    """
+    dest_dir = os.path.abspath(extract_to)
+
     if archive_path.endswith('.zip'):
         with zipfile.ZipFile(archive_path, 'r') as zip_ref:
-            zip_ref.extractall(extract_to)
+            for member in zip_ref.namelist():
+                if os.path.isabs(member) or '..' in member:
+                    continue
+                
+                target_path = os.path.abspath(os.path.join(dest_dir, member))
+                if not target_path.startswith(dest_dir + os.sep):
+                    continue
+                    
+                zip_ref.extract(member, dest_dir)
+
     elif archive_path.endswith(('.tar.gz', '.tgz')):
         with tarfile.open(archive_path, 'r:gz') as tar_ref:
-            tar_ref.extractall(extract_to)
+            if hasattr(tarfile, 'data_filter'):
+                tar_ref.extractall(dest_dir, filter='data')
+            else:
+                safe_members = []
+                for member in tar_ref.getmembers():
+                    if member.issym() or member.islnk():
+                        continue
+                    if os.path.isabs(member.name) or '..' in member.name:
+                        continue
+                    
+                    target_path = os.path.abspath(os.path.join(dest_dir, member.name))
+                    if target_path.startswith(dest_dir + os.sep):
+                        safe_members.append(member)
+                
+                tar_ref.extractall(dest_dir, members=safe_members)
     else:
         raise ValueError("Unsupported archive format. Must be .zip or .tar.gz")
 
@@ -24,14 +51,28 @@ def main():
     parser.add_argument("--archive", required=True, help="Path to the downloaded update archive")
     parser.add_argument("--target", required=True, help="Path to the application installation folder")
     parser.add_argument("--exe", required=True, help="Name of the main executable to restart")
-    parser.add_argument("--userdata", required=True, help="Path to the user_data directory for telemetry flags")
+    parser.add_argument("--userdata", required=False, default="", help="Path to the user_data directory for status flags")
     args = parser.parse_args()
+
+    # Input sanitization and security checks
+    if os.path.basename(args.exe) != args.exe:
+        print("SECURITY ALERT: Invalid --exe argument. Path traversal detected.")
+        sys.exit(1)
+        
+    if args.exe.lower() not in ["typingtrainer.exe", "typingtrainer", "main.py"]:
+        print("SECURITY ALERT: Unauthorized executable name.")
+        sys.exit(1)
+        
+    target_dir = os.path.abspath(args.target)
+    if not os.path.isdir(target_dir):
+        print("SECURITY ALERT: Target directory does not exist.")
+        sys.exit(1)
 
     # 1. Give the main application 2 seconds to completely terminate
     time.sleep(2)
 
     # 2. Create a temporary extraction folder next to the target directory
-    temp_ext_dir = os.path.join(args.target, "_update_temp")
+    temp_ext_dir = os.path.join(target_dir, "_update_temp")
     os.makedirs(temp_ext_dir, exist_ok=True)
     
     update_success = False
@@ -48,8 +89,8 @@ def main():
         else:
             source_dir = temp_ext_dir
 
-        # Wait until the main executable is totally released by the OS locks
-        target_exe_path = os.path.join(args.target, args.exe)
+        # Wait until the main executable is totally released by OS locks
+        target_exe_path = os.path.join(target_dir, args.exe)
         retries = 10
         while retries > 0:
             try:
@@ -60,9 +101,7 @@ def main():
                 time.sleep(1)
                 retries -= 1
 
-        # ==========================================
-        # 3. The Rename Trick (Self-Update Workaround)
-        # ==========================================
+        # 3. Rename Trick (Self-Update Workaround)
         current_updater = sys.executable
         if os.path.exists(current_updater):
             backup_updater = current_updater + ".old"
@@ -74,13 +113,12 @@ def main():
                 pass
 
         # 4. Overwrite the old files with the newly extracted ones
-        shutil.copytree(source_dir, args.target, dirs_exist_ok=True)
+        shutil.copytree(source_dir, target_dir, dirs_exist_ok=True)
         update_success = True
 
     except Exception as e:
         error_message = str(e)
-        # Log failure silently for debugging purposes
-        with open(os.path.join(args.target, "updater_crash.log"), "w", encoding="utf-8") as f:
+        with open(os.path.join(target_dir, "updater_crash.log"), "w", encoding="utf-8") as f:
             f.write(f"Update failed: {error_message}")
     finally:
         # 5. Cleanup temporary extraction folder and the downloaded archive
@@ -90,23 +128,26 @@ def main():
         except Exception:
             pass
 
-        # Write telemetry flag for the main application to read on next startup
-        flag_file = os.path.join(args.userdata, "update_status.json")
-        try:
-            with open(flag_file, "w", encoding="utf-8") as f:
-                json.dump({
-                    "success": update_success,
-                    "error": error_message
-                }, f)
-        except:
-            pass
+        # Write status flag for the main application to read on next startup
+        status_dir = args.userdata if args.userdata else target_dir
+        if os.path.exists(status_dir):
+            flag_file = os.path.join(status_dir, "update_status.json")
+            try:
+                with open(flag_file, "w", encoding="utf-8") as f:
+                    json.dump({
+                        "success": update_success,
+                        "error": error_message
+                    }, f)
+            except Exception:
+                pass
 
     # 6. Restart the main application
     if os.path.exists(target_exe_path):
+        cmd = [sys.executable, target_exe_path] if target_exe_path.endswith(".py") else [target_exe_path]
         if sys.platform == "win32":
-            subprocess.Popen([target_exe_path], creationflags=subprocess.DETACHED_PROCESS)
+            subprocess.Popen(cmd, creationflags=subprocess.DETACHED_PROCESS)
         else:
-            subprocess.Popen([target_exe_path], start_new_session=True)
+            subprocess.Popen(cmd, start_new_session=True)
 
 if __name__ == "__main__":
     main()
