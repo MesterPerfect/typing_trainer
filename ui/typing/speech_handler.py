@@ -33,7 +33,7 @@ class TypingSpeechHandler:
 
     def speak_start(self):
         if self.is_test:
-            self.tts.speak("Test started. Good luck.", interrupt=True)
+            self.tts.speak(_("Test started. Good luck."), interrupt=True)
             QTimer.singleShot(1500, lambda: self.speak_prompt(correct=True, is_first_prompt=True))
         else:
             self.speak_prompt(correct=True, is_first_prompt=True)
@@ -53,18 +53,24 @@ class TypingSpeechHandler:
         self.speak_prompt(correct=correct, is_first_prompt=False)
 
     def speak_backspace(self):
-        self.tts.speak("Backspace", interrupt=True)
+        lang = self.settings.get("ui_language", "en")
+        backspace_word = "حذف" if lang == "ar" else _("Backspace")
+        self.tts.speak(backspace_word, interrupt=True)
         self.speak_prompt(correct=True, is_first_prompt=False)
 
     def speak_completion(self, stats: dict):
         self.prompt_timer.stop()
         self.audio.play("complete")
 
+        lang = self.settings.get("ui_language", "en")
         if self.is_test:
-            result_msg = f"Test completed. Speed: {stats['wpm']} WPM. Accuracy: {stats['accuracy']}%. Errors: {stats['errors']}."
+            if lang == "ar":
+                result_msg = f"اكتمل الاختبار. السرعة: {stats['wpm']} كلمة في الدقيقة. الدقة: {stats['accuracy']} بالمئة. الأخطاء: {stats['errors']}."
+            else:
+                result_msg = f"{_('Test completed.')} {_('Speed:')} {stats['wpm']} WPM. {_('Accuracy:')} {stats['accuracy']}%. {_('Errors:')} {stats['errors']}."
             self.tts.speak(result_msg, interrupt=True)
         else:
-            self.tts.speak("Lesson completed", interrupt=True)
+            self.tts.speak(_("Lesson completed"), interrupt=True)
 
     def _speak_queued_prompt(self):
         if self.queued_prompt:

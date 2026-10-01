@@ -63,9 +63,13 @@ class TypingView(QWidget):
     def _setup_timers(self):
         self.stats_timer = QTimer(self)
         self.stats_timer.timeout.connect(self.update_stats_display)
+        self.completion_timer = QTimer(self)
+        self.completion_timer.setSingleShot(True)
+        self.completion_timer.timeout.connect(self.trigger_return)
 
     def start_lesson(self, lesson):
         logger.info(f"TypingView: Starting lesson: {lesson.title}")
+        self.completion_timer.stop()
         self.current_lesson_id = lesson.id
         self.is_test = getattr(lesson, "lesson_type", "lesson") == "test"
 
@@ -84,7 +88,7 @@ class TypingView(QWidget):
         else:
             mode = TypingMode.SENTENCE
 
-        self.engine = TypingEngine(lesson.text, mode=mode)
+        self.engine = TypingEngine(lesson.text, mode=mode, lesson_id=lesson.id)
 
         # Pass session info to speech handler
         self.speech_handler.setup_session(self.engine, self.is_test)
@@ -163,9 +167,10 @@ class TypingView(QWidget):
         # Delegate completion announcement and sound to speech handler
         self.speech_handler.speak_completion(stats)
 
-        QTimer.singleShot(4000, self.trigger_return)
+        self.completion_timer.start(4000)
 
     def trigger_return(self):
+        self.completion_timer.stop()
         self.stats_timer.stop()
         self.engine = None
         self.return_requested.emit()
