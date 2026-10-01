@@ -1,31 +1,39 @@
 import os
 import sys
+import re
+import struct
 from pathlib import Path
 
 def parse_po(file_path):
-    import re
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
     entries = {}
-    pattern = re.compile(r'msgid\s+((?:\"(?:[^\"\\]|\\.)*\"\s*)+)\s*msgstr\s+((?:\"(?:[^\"\\]|\\.)*\"\s*)+)', re.MULTILINE)
+    pattern = re.compile(
+        r'msgid\s+((?:\"(?:[^\"\\]|\\.)*\"\s*)+)\s*msgstr\s+((?:\"(?:[^\"\\]|\\.)*\"\s*)+)',
+        re.MULTILINE
+    )
 
-    def unescape(s):
+    def clean_str(s):
         lines = re.findall(r'\"((?:[^\"\\]|\\.)*)\"', s)
         joined = ''.join(lines)
-        return joined.encode('utf-8').decode('unicode_escape')
+        # Unescape standard escape sequences safely
+        return (joined
+                .replace(r'\n', '\n')
+                .replace(r'\t', '\t')
+                .replace(r'\"', '"')
+                .replace(r'\\', '\\'))
 
     for match in pattern.finditer(content):
         raw_id, raw_str = match.groups()
-        msg_id = unescape(raw_id)
-        msg_str = unescape(raw_str)
-        if msg_id:
-            entries[msg_id] = msg_str
+        msg_id = clean_str(raw_id)
+        msg_str = clean_str(raw_str)
+        # We must include the empty key "" as it contains metadata (Content-Type: charset=UTF-8)
+        entries[msg_id] = msg_str
 
     return entries
 
 def generate_mo(entries, mo_path):
-    import struct
     keys = sorted(entries.keys())
     offsets = []
     ids = b''
