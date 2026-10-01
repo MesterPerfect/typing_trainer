@@ -28,7 +28,6 @@ def clean_unused_folders(build_dir):
     """Remove unnecessary PySide6 bloat to reduce the final build size."""
     folder_paths = [
         os.path.join(build_dir, "lib", "PySide6", "Qt6", "translations"),
-        os.path.join(build_dir, "lib", "PySide6", "Qt6", "plugins", "multimedia"),
     ]
 
     for folder in folder_paths:

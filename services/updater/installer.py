@@ -25,28 +25,42 @@ def trigger_update_installation(downloaded_file_path: str, target_version: str):
         app.telemetry._save_cache()
 
     try:
-        updater_script = os.path.join(BASE_DIR, "apply_update.py")
-        
-        # In a built application (cx_Freeze), sys.executable is main.exe. 
-        # In development, it is python.exe. We need to pass the correct exe name.
-        if getattr(sys, 'frozen', False):
-            exe_name = os.path.basename(sys.executable)
-        else:
-            exe_name = "main.py"  # Or sys.executable if running via python
+        is_frozen = getattr(sys, 'frozen', False)
+        if is_frozen:
+            target_dir = os.path.dirname(sys.executable)
+            main_exe = os.path.basename(sys.executable)
+            updater_exe = "apply_update.exe" if sys.platform == "win32" else "apply_update"
+            updater_path = os.path.join(target_dir, updater_exe)
+            
+            if not os.path.exists(updater_path):
+                logger.error(f"Updater binary not found at {updater_path}")
+                return
 
-        # Build the argument list expected by apply_update.py
-        args = [
-            sys.executable, 
-            updater_script,
-            "--archive", downloaded_file_path,
-            "--target", str(BASE_DIR),
-            "--exe", exe_name,
-            "--userdata", str(USER_DATA_DIR)
-        ]
-        
-        subprocess.Popen(args)
-        logger.info("External updater launched successfully with full arguments. Exiting main application.")
-        
+            args = [
+                updater_path,
+                "--archive", downloaded_file_path,
+                "--target", target_dir,
+                "--exe", main_exe,
+                "--userdata", str(USER_DATA_DIR)
+            ]
+            if sys.platform == "win32":
+                subprocess.Popen(args, creationflags=subprocess.DETACHED_PROCESS)
+            else:
+                subprocess.Popen(args, start_new_session=True)
+            logger.info("External standalone updater launched successfully. Exiting main application.")
+        else:
+            updater_script = os.path.join(BASE_DIR, "apply_update.py")
+            args = [
+                sys.executable,
+                updater_script,
+                "--archive", downloaded_file_path,
+                "--target", str(BASE_DIR),
+                "--exe", "main.py",
+                "--userdata", str(USER_DATA_DIR)
+            ]
+            subprocess.Popen(args)
+            logger.info("Dev mode: updater script launched via python interpreter. Exiting main application.")
+            
     except Exception as e:
         logger.error(f"Failed to launch updater script: {e}")
         return
