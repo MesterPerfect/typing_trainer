@@ -36,7 +36,7 @@ def get_include_files():
 def clean_unused_folders(build_dir):
     """
     Cleans up unused heavy Qt libraries, QML engines, WebEngine, and plugins
-    to dramatically reduce the final application size (from ~400MB down to ~60MB).
+    to dramatically reduce the final application size (from ~400MB down to ~40-50MB).
     """
     pyside_dir = os.path.join(build_dir, "lib", "PySide6")
     if not os.path.exists(pyside_dir):
@@ -61,6 +61,7 @@ def clean_unused_folders(build_dir):
         os.path.join(pyside_dir, "plugins", "texttospeech"),
         os.path.join(pyside_dir, "plugins", "virtualkeyboard"),
         os.path.join(pyside_dir, "plugins", "webview"),
+        os.path.join(pyside_dir, "plugins", "multimedia"),
         os.path.join(pyside_dir, "plugins", "networkinformation"),
     ]
 
@@ -73,19 +74,13 @@ def clean_unused_folders(build_dir):
                 print(f"Error removing {d}: {e}")
 
     # 2. Whitelist of necessary Qt DLLs in lib/PySide6
+    # With BASS handling audio, we no longer need QtMultimedia or FFmpeg binaries!
     needed_dll_prefixes = (
         "Qt6Core",
         "Qt6Gui",
         "Qt6Widgets",
-        "Qt6Multimedia",
-        "Qt6Network",
         "pyside6.",
         "shiboken6.",
-        "avcodec",
-        "avformat",
-        "avutil",
-        "swresample",
-        "swscale",
         "opengl32sw",
     )
 
@@ -93,8 +88,6 @@ def clean_unused_folders(build_dir):
         "QtCore.pyd",
         "QtGui.pyd",
         "QtWidgets.pyd",
-        "QtMultimedia.pyd",
-        "QtNetwork.pyd",
     }
 
     for item in os.listdir(pyside_dir):
@@ -132,8 +125,6 @@ def main():
             "PySide6.QtCore",
             "PySide6.QtWidgets",
             "PySide6.QtGui",
-            "PySide6.QtMultimedia",
-            "PySide6.QtNetwork",
             "ssl",
             "urllib",
             "platformdirs",
@@ -141,6 +132,7 @@ def main():
         ],
         "excludes": [
             "tkinter", "test", "setuptools", "pip", "numpy", "unittest",
+            "PySide6.QtMultimedia", "PySide6.QtMultimediaWidgets", "PySide6.QtNetwork",
             "PySide6.QtWebEngineCore", "PySide6.QtWebEngineWidgets", "PySide6.QtWebEngineQuick",
             "PySide6.QtDesigner", "PySide6.QtQml", "PySide6.QtQuick", "PySide6.QtQuickWidgets",
             "PySide6.QtOpenGL", "PySide6.QtSql", "PySide6.QtSvg", "PySide6.QtXml",
