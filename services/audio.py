@@ -1,5 +1,4 @@
 import sys
-import os
 import platform
 import logging
 import ctypes

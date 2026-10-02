@@ -2,29 +2,6 @@ import sys
 import os
 from pathlib import Path
 
-try:
-    from platformdirs import user_data_dir, user_log_dir
-except ImportError:
-    # Graceful fallback if platformdirs is not yet installed (e.g. CI / setup stages)
-    def user_data_dir(appname: str, appauthor: str = None) -> str:
-        if sys.platform == "win32":
-            base = os.environ.get("APPDATA", os.path.expanduser("~"))
-        elif sys.platform == "darwin":
-            base = os.path.expanduser("~/Library/Application Support")
-        else:
-            base = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
-        return os.path.join(base, appname)
-
-    def user_log_dir(appname: str, appauthor: str = None) -> str:
-        if sys.platform == "win32":
-            base = os.environ.get("LOCALAPPDATA", os.path.expanduser("~"))
-            return os.path.join(base, appname, "Logs")
-        elif sys.platform == "darwin":
-            return os.path.expanduser(f"~/Library/Logs/{appname}")
-        else:
-            base = os.environ.get("XDG_STATE_HOME", os.path.expanduser("~/.local/state"))
-            return os.path.join(base, appname, "logs")
-
 # =========================================================
 # Application Info
 # =========================================================
