@@ -4,6 +4,7 @@
 #define MyAppPublisher "MesterPerfect"
 #define MyAppURL "https://github.com/MesterPerfect/typing_trainer"
 #define MyAppExeName "TypingTrainer.exe"
+#define MyAppDataDir "tecwindow\typing_trainer"
 #define BuildDir "dist\TypingTrainer" 
 
 [Setup]
@@ -138,7 +139,7 @@ end;
 
 procedure DeleteUserDataFolder();
 begin
-  DelTree(ExpandConstant('{userappdata}\{#MyAppName}'), True, True, True);
+  DelTree(ExpandConstant('{userappdata}\{#MyAppDataDir}'), True, True, True);
 end;
 
 procedure InitializeWizard;
@@ -214,7 +215,7 @@ procedure DeinitializeUninstall();
 begin
   if MsgBox(
       ExpandConstant('{cm:DeleteSettingsPrompt}') + #13#10 +
-      ExpandConstant('{userappdata}\{#MyAppName}'),
+      ExpandConstant('{userappdata}\{#MyAppDataDir}'),
       mbConfirmation, MB_YESNO) = IDYES then
   begin
     DeleteUserDataFolder();

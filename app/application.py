@@ -4,7 +4,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
 from ui.main_window import MainWindow
-from core.constants import USER_DATA_DIR, APP_VERSION
+from core.constants import USER_DATA_DIR, APP_VERSION, APP_NAME, APP_AUTHOR, APP_DISPLAY_NAME
 from utils.i18n import setup_translations
 from services.settings_service import SettingsService
 from services.telemetry import TelemetryService
@@ -52,9 +52,9 @@ def run_app(args=None):
     app = QApplication(sys.argv)
     app.telemetry = telemetry_instance
     
-    app.setApplicationName("Typing Trainer")
+    app.setApplicationName(APP_DISPLAY_NAME)
     app.setApplicationVersion(APP_VERSION)
-    app.setOrganizationName("MesterPerfect")
+    app.setOrganizationName(APP_AUTHOR)
 
     if lang_code == "ar":
         app.setLayoutDirection(Qt.LayoutDirection.RightToLeft)

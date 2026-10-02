@@ -29,32 +29,77 @@ except ImportError:
 # Application Info
 # =========================================================
 
-APP_NAME = "TypingTrainer"
-APP_AUTHOR = "MesterPerfect"
+APP_NAME = "typing_trainer"
+APP_DISPLAY_NAME = "Typing Trainer"
+APP_AUTHOR = "tecwindow"
 APP_VERSION = "1.0.0"
 
 # Detect if the application is running as a frozen executable (cx_Freeze / PyInstaller)
 IS_FROZEN = getattr(sys, 'frozen', False)
 
 if IS_FROZEN:
-    # If frozen, the root is the directory containing the executable
     BASE_DIR = Path(os.path.dirname(sys.executable))
-    IS_PORTABLE = (BASE_DIR / ".portable").exists()
-    
-    if IS_PORTABLE:
-        # In portable mode, data and logs reside within the application folder
-        USER_DATA_DIR = BASE_DIR / "user_data"
-        LOG_DIR = BASE_DIR / "logs"
-    else:
-        # Standard user directory to guarantee write permissions on all operating systems
-        USER_DATA_DIR = Path(user_data_dir(APP_NAME, APP_AUTHOR))
-        LOG_DIR = Path(user_log_dir(APP_NAME, APP_AUTHOR))
 else:
-    # Base directory of the project (2 levels up from this file)
     BASE_DIR = Path(__file__).resolve().parent.parent
-    IS_PORTABLE = False
-    USER_DATA_DIR = BASE_DIR / "user_data"
-    LOG_DIR = BASE_DIR / "logs"
+
+IS_PORTABLE = (BASE_DIR / ".portable").exists()
+
+def get_user_data_dir() -> Path:
+    """
+    Returns the user data and settings directory:
+    - Windows: %APPDATA%/tecwindow/typing_trainer
+    - Linux: ~/.config/tecwindow/typing_trainer (or $XDG_CONFIG_HOME/tecwindow/typing_trainer)
+    - macOS: ~/Library/Application Support/tecwindow/typing_trainer
+    """
+    if IS_PORTABLE:
+        return BASE_DIR / "user_data"
+
+    if sys.platform == "win32":
+        appdata = os.environ.get("APPDATA")
+        if appdata:
+            base = Path(appdata)
+        else:
+            base = Path.home() / "AppData" / "Roaming"
+        return base / APP_AUTHOR / APP_NAME
+    elif sys.platform == "darwin":
+        return Path.home() / "Library" / "Application Support" / APP_AUTHOR / APP_NAME
+    else:
+        xdg_config = os.environ.get("XDG_CONFIG_HOME")
+        if xdg_config:
+            base = Path(xdg_config)
+        else:
+            base = Path.home() / ".config"
+        return base / APP_AUTHOR / APP_NAME
+
+def get_user_log_dir() -> Path:
+    """
+    Returns the user logs directory:
+    - Windows: %LOCALAPPDATA%/tecwindow/typing_trainer/Logs
+    - Linux: ~/.local/state/tecwindow/typing_trainer/logs (or $XDG_STATE_HOME/tecwindow/typing_trainer/logs)
+    - macOS: ~/Library/Logs/tecwindow/typing_trainer
+    """
+    if IS_PORTABLE:
+        return BASE_DIR / "logs"
+
+    if sys.platform == "win32":
+        localappdata = os.environ.get("LOCALAPPDATA")
+        if localappdata:
+            base = Path(localappdata)
+        else:
+            base = Path.home() / "AppData" / "Local"
+        return base / APP_AUTHOR / APP_NAME / "Logs"
+    elif sys.platform == "darwin":
+        return Path.home() / "Library" / "Logs" / APP_AUTHOR / APP_NAME
+    else:
+        xdg_state = os.environ.get("XDG_STATE_HOME")
+        if xdg_state:
+            base = Path(xdg_state)
+        else:
+            base = Path.home() / ".local" / "state"
+        return base / APP_AUTHOR / APP_NAME / "logs"
+
+USER_DATA_DIR = get_user_data_dir()
+LOG_DIR = get_user_log_dir()
 
 USER_DATA_DIR.mkdir(parents=True, exist_ok=True)
 LOG_DIR.mkdir(parents=True, exist_ok=True)
