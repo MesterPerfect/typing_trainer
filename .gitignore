@@ -9,6 +9,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
+build_installer/
 develop-eggs/
 dist/
 downloads/
@@ -127,12 +128,13 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments
+# Environments & Local Data
 .env
 .venv
 env/
 venv/
 user_data/
+logs/
 ENV/
 env.bak/
 venv.bak/

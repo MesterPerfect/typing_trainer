@@ -2,15 +2,19 @@ import wave
 import struct
 import math
 import os
+from pathlib import Path
 
-def generate_tone(filename: str, frequency: float, duration: float, volume: float = 0.5):
+BASE_DIR = Path(__file__).resolve().parent.parent
+SOUNDS_DIR = BASE_DIR / "assets" / "sounds"
+
+def generate_tone(filename: Path, frequency: float, duration: float, volume: float = 0.5):
     """ Generates a standard 16-bit PCM WAV file with a sine wave tone. """
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    filename.parent.mkdir(parents=True, exist_ok=True)
     
     sample_rate = 44100
     num_samples = int(sample_rate * duration)
     
-    with wave.open(filename, 'w') as wav_file:
+    with wave.open(str(filename), 'w') as wav_file:
         wav_file.setnchannels(1)
         wav_file.setsampwidth(2)
         wav_file.setframerate(sample_rate)
@@ -27,14 +31,16 @@ def generate_tone(filename: str, frequency: float, duration: float, volume: floa
             wav_file.writeframes(struct.pack('<h', value))
 
 if __name__ == "__main__":
-    print("Generating sound files...")
+    print(f"Generating sound files in {SOUNDS_DIR}...")
+    SOUNDS_DIR.mkdir(parents=True, exist_ok=True)
+    
     # Short high-pitched beep for correct typing
-    generate_tone("assets/sounds/correct.wav", 800.0, 0.08, 0.3)
+    generate_tone(SOUNDS_DIR / "correct.wav", 800.0, 0.08, 0.3)
     
     # Low-pitched buzz for errors
-    generate_tone("assets/sounds/error.wav", 150.0, 0.25, 0.4)
+    generate_tone(SOUNDS_DIR / "error.wav", 150.0, 0.25, 0.4)
     
     # Higher longer chime for completion
-    generate_tone("assets/sounds/complete.wav", 1200.0, 0.4, 0.3)
+    generate_tone(SOUNDS_DIR / "complete.wav", 1200.0, 0.4, 0.3)
     
     print("Done! Valid WAV files created in assets/sounds/")

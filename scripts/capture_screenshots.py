@@ -1,14 +1,14 @@
 import sys
 import os
 import time
+from pathlib import Path
 
 # Ensure root directory is in sys.path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(BASE_DIR))
 
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QFont
-
+from PySide6.QtCore import Qt
 import core.constants as const
 from utils.i18n import setup_translations
 from app.theme import setup_theme
@@ -21,8 +21,8 @@ from core.modes import ExplorerMode
 def capture():
     # 1. Initialize Application
     app = QApplication.instance() or QApplication(sys.argv)
-    app.setApplicationName("Typing Trainer")
-    app.setOrganizationName("MesterPerfect")
+    app.setApplicationName(const.APP_DISPLAY_NAME)
+    app.setOrganizationName(const.APP_AUTHOR)
     
     # Set Arabic / RTL by default for screenshots
     setup_translations("ar")
@@ -31,8 +31,8 @@ def capture():
     # Apply Dark Theme
     setup_theme(app, "dark_theme")
 
-    out_dir = os.path.join(const.BASE_DIR, "docs", "screenshots")
-    os.makedirs(out_dir, exist_ok=True)
+    out_dir = BASE_DIR / "docs" / "screenshots"
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     # 2. Initialize Main Window
     class DummyArgs:
@@ -50,8 +50,8 @@ def capture():
         time.sleep(0.15)
         app.processEvents()
         pixmap = window.grab()
-        file_path = os.path.join(out_dir, filename)
-        pixmap.save(file_path, "PNG")
+        file_path = out_dir / filename
+        pixmap.save(str(file_path), "PNG")
         print(f"Captured: {filename}")
 
     # 1. Main Menu / Lesson View
@@ -135,8 +135,8 @@ def capture():
         time.sleep(0.15)
         app.processEvents()
         dialog_pixmap = dialog.grab()
-        dialog_path = os.path.join(out_dir, "07_shortcuts.png")
-        dialog_pixmap.save(dialog_path, "PNG")
+        dialog_path = out_dir / "07_shortcuts.png"
+        dialog_pixmap.save(str(dialog_path), "PNG")
         print("Captured: 07_shortcuts.png")
         dialog.close()
     except Exception as e:
