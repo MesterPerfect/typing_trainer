@@ -10,7 +10,6 @@ def get_version():
     try:
         with open(constants_path, "r", encoding="utf-8") as f:
             content = f.read()
-            # Searches for lines like: APP_VERSION = "1.0.0" or VERSION = '1.0.0'
             match = re.search(r'^(?:APP_)?VERSION\s*=\s*[\'"]([^\'"]*)[\'"]', content, re.MULTILINE)
             if match:
                 return match.group(1)
@@ -35,30 +34,93 @@ def get_include_files():
     return base_files
 
 def clean_unused_folders(build_dir):
-    # Clean up Qt translations to reduce size, keeping multimedia plugins
-    folder_paths = [
-        os.path.join(build_dir, "lib", "PySide6", "Qt6", "translations"),
+    """
+    Cleans up unused heavy Qt libraries, QML engines, WebEngine, and plugins
+    to dramatically reduce the final application size (from ~400MB down to ~60MB).
+    """
+    pyside_dir = os.path.join(build_dir, "lib", "PySide6")
+    if not os.path.exists(pyside_dir):
+        return
+
+    # 1. Remove unused directories
+    unused_dirs = [
+        os.path.join(pyside_dir, "Qt6", "translations"),
+        os.path.join(pyside_dir, "translations"),
+        os.path.join(pyside_dir, "qml"),
+        os.path.join(pyside_dir, "plugins", "sqldrivers"),
+        os.path.join(pyside_dir, "plugins", "assetimporters"),
+        os.path.join(pyside_dir, "plugins", "designer"),
+        os.path.join(pyside_dir, "plugins", "generic"),
+        os.path.join(pyside_dir, "plugins", "geometryloaders"),
+        os.path.join(pyside_dir, "plugins", "qmltooling"),
+        os.path.join(pyside_dir, "plugins", "scenegraph"),
+        os.path.join(pyside_dir, "plugins", "sensors"),
+        os.path.join(pyside_dir, "plugins", "position"),
+        os.path.join(pyside_dir, "plugins", "renderers"),
+        os.path.join(pyside_dir, "plugins", "spatialaudio"),
+        os.path.join(pyside_dir, "plugins", "texttospeech"),
+        os.path.join(pyside_dir, "plugins", "virtualkeyboard"),
+        os.path.join(pyside_dir, "plugins", "webview"),
+        os.path.join(pyside_dir, "plugins", "networkinformation"),
     ]
 
-    for folder in folder_paths:
-        try:
-            if os.path.exists(folder):
-                shutil.rmtree(os.path.abspath(folder))
-                print(f"Cleaned up: {folder}")
-        except Exception as e:
-            print(f"Error removing {folder}: {e}")
+    for d in unused_dirs:
+        if os.path.exists(d):
+            try:
+                shutil.rmtree(os.path.abspath(d))
+                print(f"Cleaned up unused directory: {d}")
+            except Exception as e:
+                print(f"Error removing {d}: {e}")
+
+    # 2. Whitelist of necessary Qt DLLs in lib/PySide6
+    needed_dll_prefixes = (
+        "Qt6Core",
+        "Qt6Gui",
+        "Qt6Widgets",
+        "Qt6Multimedia",
+        "Qt6Network",
+        "pyside6.",
+        "shiboken6.",
+        "avcodec",
+        "avformat",
+        "avutil",
+        "swresample",
+        "swscale",
+        "opengl32sw",
+    )
+
+    allowed_pyds = {
+        "QtCore.pyd",
+        "QtGui.pyd",
+        "QtWidgets.pyd",
+        "QtMultimedia.pyd",
+        "QtNetwork.pyd",
+    }
+
+    for item in os.listdir(pyside_dir):
+        item_path = os.path.join(pyside_dir, item)
+        if os.path.isfile(item_path):
+            name_lower = item.lower()
+            if name_lower.startswith("qt6") or name_lower.endswith(".dll") or name_lower.endswith(".pyd"):
+                if item.endswith(".pyd"):
+                    is_needed = item in allowed_pyds
+                else:
+                    is_needed = any(item.startswith(prefix) for prefix in needed_dll_prefixes)
+                
+                if not is_needed:
+                    try:
+                        os.remove(item_path)
+                        print(f"Removed unused Qt DLL/PYD: {item}")
+                    except Exception as e:
+                        print(f"Error removing {item}: {e}")
 
 def main():
     version = get_version()
     print(f"Building TypingTrainer Version: {version}")
     
     base, ext = get_platform_config()
-
     target_name = f"TypingTrainer{ext}"
-    
-    # Output directly to dist/TypingTrainer to match the Inno Setup script and packaging pipelines
     build_dir = os.path.join("dist", "TypingTrainer")
-
     include_files = get_include_files()
 
     build_exe_options = {
@@ -71,6 +133,7 @@ def main():
             "PySide6.QtWidgets",
             "PySide6.QtGui",
             "PySide6.QtMultimedia",
+            "PySide6.QtNetwork",
             "ssl",
             "urllib",
             "platformdirs",
@@ -78,14 +141,18 @@ def main():
         ],
         "excludes": [
             "tkinter", "test", "setuptools", "pip", "numpy", "unittest",
-            "PySide6.QtNetwork", "PySide6.QtQml", "PySide6.QtQuick", 
-            "PySide6.QtOpenGL", "PySide6.QtSql", "PySide6.QtSvg", 
-            "PySide6.QtXml", "PySide6.QtTest", "PySide6.QtPrintSupport",
-            "PySide6.QtSensors", "PySide6.QtPositioning", "PySide6.QtBluetooth"
+            "PySide6.QtWebEngineCore", "PySide6.QtWebEngineWidgets", "PySide6.QtWebEngineQuick",
+            "PySide6.QtDesigner", "PySide6.QtQml", "PySide6.QtQuick", "PySide6.QtQuickWidgets",
+            "PySide6.QtOpenGL", "PySide6.QtSql", "PySide6.QtSvg", "PySide6.QtXml",
+            "PySide6.QtTest", "PySide6.QtPrintSupport", "PySide6.QtSensors",
+            "PySide6.QtPositioning", "PySide6.QtBluetooth", "PySide6.Qt3DCore",
+            "PySide6.Qt3DRender", "PySide6.Qt3DAnimation", "PySide6.QtPdf",
+            "PySide6.QtPdfWidgets", "PySide6.QtVirtualKeyboard", "PySide6.QtRemoteObjects",
+            "PySide6.QtScxml", "PySide6.QtStateMachine", "PySide6.QtCharts",
+            "PySide6.QtSpatialAudio", "PySide6.QtLabsAnimation", "PySide6.QtLottie"
         ],
     }
 
-    # Define icon path
     icon_path = os.path.join("assets", "icon.ico")
     icon_file = icon_path if sys.platform == "win32" and os.path.exists(icon_path) else None
 
@@ -93,17 +160,17 @@ def main():
         name="TypingTrainer",
         version=version,
         description="TypingTrainer - Accessible Typing Tutor",
-        author="MesterPerfect",
+        author="tecwindow",
         options={"build_exe": build_exe_options},
         executables=[
-            # 1. The Main Application
+            # 1. Main Application
             Executable(
                 "main.py",
                 base=base,
                 target_name=target_name,
                 icon=icon_file,
             ),
-            # 2. The Silent Background Updater
+            # 2. Silent Background Updater
             Executable(
                 "apply_update.py",
                 base=base,
