@@ -35,6 +35,14 @@ def test_helpers_and_verbalizer():
         assert len(instr_en) > 0, f"English instruction missing for {ch}"
         assert len(pron_ar) > 0, f"Arabic pronunciation missing for {ch}"
         assert len(pron_en) > 0, f"English pronunciation missing for {ch}"
+
+    from ui.typing.prompt_builder import build_prompt_message
+    engine = TypingEngine('ك', TypingMode.CHARACTER)
+    msg_ar, _ = build_prompt_message(engine, {'guided_mode': True, 'ui_language': 'ar'}, False, True, True, '')
+    msg_en, _ = build_prompt_message(engine, {'guided_mode': True, 'ui_language': 'en'}, False, True, True, '')
+    assert "خنصر" in msg_ar, f"Expected Arabic finger name, got: {msg_ar}"
+    assert "Pinky" in msg_en, f"Expected English finger name, got: {msg_en}"
+
     print("✓ Helpers & verbalizer passed!")
 
 def test_statistics_engine():

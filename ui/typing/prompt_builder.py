@@ -18,7 +18,7 @@ def build_prompt_message(engine, settings, is_test: bool, correct: bool, is_firs
     lang = settings.get("ui_language", "en")
     
     char_name = get_pronunciation(current_char, lang)
-    finger = get_finger_instruction(current_char)
+    finger = get_finger_instruction(current_char, lang)
     message = ""
 
     # Localization mapping

@@ -180,7 +180,7 @@ def get_finger_instruction(char: str, lang: str = "en") -> str:
         ' ': 'الإبهام (مسافة)'
     }
 
-    mapping = ar_mapping if lang == "ar" else en_mapping
+    mapping = ar_mapping if str(lang).lower().startswith("ar") else en_mapping
     # Try exact character first, then lowercase fallback
     if char in mapping:
         return mapping[char]

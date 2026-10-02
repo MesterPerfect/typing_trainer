@@ -53,5 +53,5 @@ def get_pronunciation(char: str, lang: str) -> str:
         'ِ': 'كسرة', 'ٍ': 'تنوين بالكسر', 'ْ': 'سكون', 'ّ': 'شدة'
     }
     
-    mapping = ar_mapping if lang == 'ar' else en_mapping
+    mapping = ar_mapping if str(lang).lower().startswith('ar') else en_mapping
     return mapping.get(char, char)
