@@ -1,17 +1,21 @@
-PySide6==6.11.0
-cx_Freeze==8.6.3
-filelock==3.25.2
-packaging==26.0
-platformdirs==4.9.4
-pyttsx3==2.99
-posthog
+# Core GUI and Runtime Dependencies
+PySide6>=6.7.0
+cx_Freeze>=8.0.0
+filelock>=3.13.0
+packaging>=23.0
+platformdirs>=4.0.0
+pyttsx3>=2.90
+posthog>=3.5.0
+
+# Testing & Development
+pytest>=8.0.0
 
 # Windows-only dependencies
-comtypes==1.4.16; sys_platform == 'win32'
-pypiwin32==223; sys_platform == 'win32'
-pywin32==311; sys_platform == 'win32'
-python-msilib==0.5.0; sys_platform == 'win32'
-UniversalSpeech==2.0.0; sys_platform == 'win32'
+comtypes>=1.4.0; sys_platform == 'win32'
+pypiwin32>=223; sys_platform == 'win32'
+pywin32>=306; sys_platform == 'win32'
+python-msilib>=0.5.0; sys_platform == 'win32'
+UniversalSpeech>=2.0.0; sys_platform == 'win32'
 
 # macOS-only dependencies
 appscript>=1.2.2; sys_platform == 'darwin'
