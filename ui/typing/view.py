@@ -190,8 +190,21 @@ class TypingView(QWidget):
 
         self.completion_timer.start(4000)
 
-    def trigger_return(self):
+    def stop_session(self):
+        """Stops all active session timers, virtual keyboard highlights, and speech handling."""
         self.completion_timer.stop()
         self.stats_timer.stop()
+        if self.engine and hasattr(self.engine, "stats") and self.engine.stats.is_running:
+            self.engine.stats.stop()
+        self.speech_handler.stop()
         self.engine = None
+        self.virtual_keyboard.highlight_key("")
+
+    def trigger_return(self):
+        self.stop_session()
         self.return_requested.emit()
+
+    def hideEvent(self, event):
+        super().hideEvent(event)
+        self.stop_session()
+

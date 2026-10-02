@@ -81,6 +81,7 @@ class ExplorerView(QWidget):
             elif self.escape_count >= 3:
                 self.escape_timer.stop()
                 self.reset_escape_count()
+                self.engine = None
                 self.audio.play("complete")
                 self.tts.speak(_("Exiting Explorer Mode"))
                 self.return_requested.emit()
@@ -103,3 +104,10 @@ class ExplorerView(QWidget):
                 self.audio.play("error")
 
             self.tts.speak(result["message"])
+
+    def hideEvent(self, event):
+        super().hideEvent(event)
+        self.escape_timer.stop()
+        self.reset_escape_count()
+        self.engine = None
+

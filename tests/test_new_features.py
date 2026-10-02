@@ -202,6 +202,51 @@ def test_settings_service():
         assert service.get("update_channel") == "beta"
     print("✓ Settings service passed!")
 
+def test_speech_handler_cleanup():
+    print("Testing speech handler cleanup and timer cancellation...")
+    from PySide6.QtWidgets import QApplication
+    app = QApplication.instance() or QApplication(sys.argv)
+
+    class DummyTTS:
+        def __init__(self):
+            self.spoken = []
+        def speak(self, text, interrupt=True):
+            self.spoken.append(text)
+
+    class DummyAudio:
+        def play(self, name):
+            pass
+
+    class DummySettings:
+        def __init__(self):
+            self.data = {"guided_mode": True, "ui_language": "ar", "auto_repeat_prompt": True, "auto_repeat_interval": 2}
+        def get(self, key, default=None):
+            return self.data.get(key, default)
+
+    from ui.typing.speech_handler import TypingSpeechHandler
+    tts = DummyTTS()
+    audio = DummyAudio()
+    settings = DummySettings()
+    handler = TypingSpeechHandler(tts, settings, audio)
+    engine = TypingEngine("كتاب", mode=TypingMode.CHARACTER)
+
+    handler.setup_session(engine, is_test=False)
+    handler.speak_start()
+    assert handler.auto_repeat_timer.isActive() is True
+
+    # Now stop session (simulating escape / exit)
+    handler.stop()
+    assert handler.auto_repeat_timer.isActive() is False
+    assert handler.prompt_timer.isActive() is False
+    assert handler.engine is None
+
+    # Simulate timer trigger after stopping
+    initial_speech_count = len(tts.spoken)
+    handler._auto_repeat_prompt()
+    assert len(tts.spoken) == initial_speech_count
+    assert handler.auto_repeat_timer.isActive() is False
+    print("✓ Speech handler cleanup passed!")
+
 if __name__ == "__main__":
     test_helpers_and_verbalizer()
     test_statistics_engine()
@@ -209,4 +254,6 @@ if __name__ == "__main__":
     test_result_service()
     test_lesson_service_smart_sync()
     test_settings_service()
+    test_speech_handler_cleanup()
     print("\n🎉 ALL UNIT TESTS PASSED WITH 100% SUCCESS!")
+
